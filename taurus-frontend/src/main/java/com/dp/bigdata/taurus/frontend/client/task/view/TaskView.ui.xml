@@ -1,0 +1,12 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:zs="urn:import:org.synthful.smartgwt.client.widgets">
+	<zs:UIVLayout ui:field="taskLayout">
+	    <zs:UIVLayout ui:field="setLayout">
+	    </zs:UIVLayout>
+		<zs:UIHLayout ui:field="taskButtonLayout">
+			<zs:UIIButton ui:field="addTaskButton" title="添加作业"/>
+			<zs:UIIButton ui:field="clearTaskButton" title="清空"/>
+		</zs:UIHLayout>
+	</zs:UIVLayout>
+</ui:UiBinder>

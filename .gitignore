@@ -1,6 +1,28 @@
+.project
+.settings
+src/*
+
+/*/target/*
+/*/.*/*
+/*/.*
+
+taurus-core/src/main/java/com/dp/bigdata/taurus/generated/
+taurus-core/src/main/resources/com
+taurus-core/derby.log
+
 *.class
 
 # Package Files #
-*.jar
 *.war
 *.ear
+
+/*/target/*
+/*/classes/*
+/*/build/*
+.*
+/*/.*
+/*/gwt-unitCache/*
+/*/src/main/webapp/*
+/*/src/main/gwt-unitCache/*
+
+taurus-restlet/src/main/resources/*
