@@ -13,26 +13,26 @@ execution(1) of the task "helloworld" and its status code is equals 2.
 If the task has both crontab and dependency triggles, we will first check its crontab triggle then dependency triggle.
 
 
-# Install
-  $ git clone https://github.com/ainilife/taurus.git
+# Install:
+    git clone https://github.com/ainilife/taurus.git
 
-  $ mvn install
+    mvn install
 
-  $ cd taurus-restlet
+    cd taurus-restlet
 
-  $ cp target/taurus-restlet.tar.gz ( to somewhere )
+    cp target/taurus-restlet.tar.gz ( to somewhere )
 
-  $ tar -xzvf tarusu-restlet.tar.gz
+    tar -xzvf tarusu-restlet.tar.gz
 
-  configure
-  * change conf/restlet.properties according to your system
+# Configure:
+* change conf/restlet.properties according to your system, 
+  
+  Normaly, "localpath" and "dp.hdfsclinet.keytab.file" have to change
+* ask for a keytab.file, and put it into conf directory
 
-      Normaly, ##localpath## and ##dp.hdfsclinet.keytab.file## have to change
-  * ask for a keytab.file, and put it into conf
-
-  $ ./script/taurus-start.sh standalone | all
-
-    'standalone' mode only starts restlet server, while the 'all' mode starts both engine server and restlet server.
+# Run:
+    ./script/taurus-start.sh standalone | all
+'standalone' mode only starts restlet server, while the 'all' mode starts both engine server and restlet server.
 
 # REST API #
     URL                                           Method
