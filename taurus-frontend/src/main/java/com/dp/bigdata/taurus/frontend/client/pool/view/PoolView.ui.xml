@@ -1,0 +1,10 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:zs="urn:import:org.synthful.smartgwt.client.widgets">
+	<zs:UIHLayout ui:field="poolLayout">
+	    <zs:UIVLayout ui:field="leftLayout" width = "300">
+	    </zs:UIVLayout>
+	    <zs:UIVLayout ui:field="rightLayout">
+	    </zs:UIVLayout>
+	</zs:UIHLayout>
+</ui:UiBinder>
