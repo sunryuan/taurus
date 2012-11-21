@@ -5,7 +5,8 @@ Taurus is a scheduling system which will schedule tasks according crontab and de
 Get Started
 -----------
 
-Installation:
+**Installation:**
+
     git clone https://github.com/dp-bigdata/Taurus.git
 
     mvn install
@@ -16,12 +17,13 @@ Installation:
 
     tar -xzvf tarusu-restlet.tar.gz
 
-Configure:
+**Configure:**
 * change conf/restlet.properties according to your system,	
   Normaly, "localpath" and "dp.hdfsclinet.keytab.file" have to change	
 * ask for a keytab.file, and put it into conf directory	
 
-Run:
+**Run:**
+
     ./script/taurus-start.sh standalone | all
 'standalone' mode only starts restlet server, while the 'all' mode starts both engine server and restlet server.
 
