@@ -1,0 +1,62 @@
+isc.DataSource.create({
+    ID:"DataSourceStore",
+    fields:[
+        {
+            name:"ID",
+            primaryKey:true
+        },
+        {
+            name:"version"
+        },
+        {
+            length:50000,
+            name:"dsXML",
+            type:"text"
+        },
+        {
+            hidden:true,
+            name:"config"
+        },
+        {
+            hidden:true,
+            name:"dbName"
+        },
+        {
+            hidden:true,
+            name:"tableName"
+        },
+        {
+            hidden:true,
+            name:"schema"
+        },
+        {
+            hidden:true,
+            name:"sql"
+        },
+        {
+            hidden:true,
+            name:"ds",
+            type:"DataSource"
+        }
+    ],
+    operationBindings:[
+        {
+            language:"groovy",
+            operationId:"dsFromSQL",
+            operationType:"custom",
+            script:"\n            if (!com.isomorphic.auth.DevModeAuthFilter.devModeAuthorized(request)) throw new Exception(\"Not Authorized\");\n            import com.isomorphic.sql.*;\n           \n            def dsId = values.dbName+\"_devSqlBrowser_\"+System.currentTimeMillis();\n            def conn = SQLConnectionManager.getConnection(values.dbName);\n            def ds = SQLDataSource.fromTable(conn, null, values.schema, dsId, \"sql\", values.dbName,\n                        [operationType:\"fetch\", customSQL: values.sql], true, null);\n            SQLConnectionManager.free(conn);\n\n/*\n            def ds = DataSource.fromConfig([\n                ID: dsId,\n                dbName: values.dbName,\n                serverType: \"sql\",\n                autoDeriveSchema: \"true\",\n                operationBindings: [\n                    [type: \"fetch\", autoDeriveSchemaOperation: \"true\", tableClause: values.sql]\n                ]\n            ]);\n*/\n            return [ds:ds];\n	    "
+        },
+        {
+            language:"groovy",
+            operationId:"dsFromTable",
+            operationType:"custom",
+            script:"\n            if (!com.isomorphic.auth.DevModeAuthFilter.devModeAuthorized(request)) throw new Exception(\"Not Authorized\");\n            import com.isomorphic.sql.*;\n\n            def dsId = values.dbName+\"_\"+values.tableName+\"_devTableBrowser_\"+System.currentTimeMillis();\n            def ds = SQLDataSource.fromTable(null, values.tableName, values.schema, dsId, \"sql\", values.dbName);\n            return [ds:ds, dsXML:ds.toXML()];\n	    "
+        },
+        {
+            language:"groovy",
+            operationId:"dsFromConfig",
+            operationType:"custom",
+            script:"\n            if (!com.isomorphic.auth.DevModeAuthFilter.devModeAuthorized(request)) throw new Exception(\"Not Authorized\");\n            import com.isomorphic.store.*;\n            import com.isomorphic.datasource.*;\n\n            def ds = DataSource.fromConfig(values.config, dsRequest);\n            if (ds != null) {\n                DataStructCache.addCachedObjectWithNoConfigFile(ds.getName(), ds);\n            }\n            return [ds:ds, dsXML: ds.toXML()];\n	    "
+        }
+    ]
+})
