@@ -22,5 +22,12 @@ taurus-core/derby.log
 .*
 /*/.*
 /*/gwt-unitCache/*
-/*/src/main/gwt-unitCache/*
+
+taurus-frontend/src/main/gwt-unitCache/*
+taurus-frontend/src/main/webapp/taurus/*
+taurus-frontend/src/main/webapp/WEB-INF/deploy/*
+taurus-frontend/src/main/webapp/WEB-INF/lib/*
+
+
+
 
