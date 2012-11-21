@@ -4,7 +4,6 @@ RESTful api has two major responsibilities:
 *	support client to view current task executing status
 
 # REST API  
-Currently, taurus supports following REST api:
     URL                                           Method
     /api/task                                     GET,POST
     /api/task/{task_id}                           GET,POST
