@@ -22,7 +22,5 @@ taurus-core/derby.log
 .*
 /*/.*
 /*/gwt-unitCache/*
-/*/src/main/webapp/*
 /*/src/main/gwt-unitCache/*
 
-taurus-restlet/src/main/resources/*
