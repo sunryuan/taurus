@@ -1,0 +1,39 @@
+isc.DataSource.create({
+    ID:"DBSchema",
+    fields:[
+        {
+            name:"name"
+        },
+        {
+            name:"itemType"
+        },
+        {
+            name:"type"
+        },
+        {
+            name:"length",
+            type:"integer"
+        },
+        {
+            name:"primaryKey",
+            type:"boolean"
+        },
+        {
+            hidden:true,
+            name:"path",
+            primaryKey:true
+        },
+        {
+            foreignKey:"DBSchema.path",
+            hidden:true,
+            name:"parentID"
+        }
+    ],
+    operationBindings:[
+        {
+            language:"groovy",
+            operationType:"fetch",
+            script:"\n            if (!com.isomorphic.auth.DevModeAuthFilter.devModeAuthorized(request)) throw new Exception(\"Not Authorized\");\n            import com.isomorphic.sql.*;\n           \n\n	    "
+        }
+    ]
+})
