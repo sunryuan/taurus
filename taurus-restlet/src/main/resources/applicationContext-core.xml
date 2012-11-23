@@ -12,7 +12,6 @@
 		<property name="jdbcUrl" value="jdbc:mysql://10.1.77.84:3306/TaurusCopy" />
 		<property name="user" value="root" />
 		<property name="password" value="123456" />
-<<<<<<< HEAD
 		<property name="minPoolSize" value="5" />
 		<property name="maxPoolSize" value="10" />
 		<property name="initialPoolSize" value="5" />
@@ -24,15 +23,6 @@
 		<property name="maxStatementsPerConnection" value="100"/>
 		<property name="numHelperThreads" value="6"/>
 		<property name="maxAdministrativeTaskTime" value="5"/>
-=======
-		<property name="autoCommitOnClose" value="true" />
-		<property name="idleConnectionTestPeriod" value="60" /> 
-		<property name="initialPoolSize" value="5" />
-		<property name="minPoolSize" value="5" />
-		<property name="maxPoolSize" value="10" />
-		<property name="maxIdleTime" value="240" />
-		<property name="acquireIncrement" value="3" />
->>>>>>> 1bc2a0d1e171e4e2d8c01a46125c098bbcf0eb40
 		<property name="preferredTestQuery" value="SELECT 1"/>
 	</bean>
 	<!-- <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" 
