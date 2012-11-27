@@ -121,7 +121,7 @@ public class TaskRequestExtractor implements RequestExtrator<Task>{
     }
 
     private void validate(Task task) throws Exception {
-        if(task.getDependencyexpr() != null && task.getDependencyexpr() != ""){
+        if(task.getDependencyexpr() != null && !task.getDependencyexpr().equals("")){
             if(!DependencyParser.isValidateExpression(task.getDependencyexpr())){
                 throw new InvalidArgumentException("Invalid dependency expression : " + task.getDependencyexpr());
             }
