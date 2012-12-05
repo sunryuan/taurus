@@ -15,7 +15,7 @@ public class LoginServlet extends HttpServlet {
     private static final long serialVersionUID = 8471117450126373174L;
     private static final String COOKIE_NAME = "taurus-user";
 
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String landing_name=request.getParameter("username");
         String landing_password=request.getParameter("password");
         

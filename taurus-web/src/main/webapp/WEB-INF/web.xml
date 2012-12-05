@@ -3,5 +3,13 @@
  "http://java.sun.com/dtd/web-app_2_3.dtd" >
 
 <web-app>
-  <display-name>Taurus</display-name>
+	<servlet>
+		<servlet-name>TaskProxyServlet</servlet-name>
+		<servlet-class>com.dp.bigdata.taurus.web.servlet.TaskProxyServlet</servlet-class>
+	</servlet>
+
+	<servlet-mapping id="ServletMapping_1354710380486">
+		<servlet-name>TaskProxyServlet</servlet-name>
+		<url-pattern>/tasks</url-pattern>
+	</servlet-mapping>
 </web-app>

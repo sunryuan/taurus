@@ -18,7 +18,7 @@ import com.dp.bigdata.taurus.restlet.shared.TaskDTO;
 public class RestletClientSample{
 
     public static void main(String args[]){
-       ClientResource cr = new ClientResource("http://192.168.26.87:8182/api/task");
+       ClientResource cr = new ClientResource("http://10.1.77.85:8182/api/task");
         ITasksResource resource = cr.wrap(ITasksResource.class);
          cr.accept(MediaType.APPLICATION_XML);
         ArrayList<TaskDTO> tasks = resource.retrieve();
@@ -28,7 +28,7 @@ public class RestletClientSample{
             System.out.println(formatter.format(dto.getAddtime()));
         }
         
-        String url = "http://192.168.26.87:8182/api/attempt?task_id=" + "task_201209241101_0001&pageSize=10"; 
+        String url = "http://10.1.77.85:8182/api/attempt?task_id=" + "task_201209241101_0001&pageSize=10"; 
         ClientResource cr1 = new ClientResource(url);
         cr1.setRequestEntityBuffering(true);
         IAttemptsResource resource1 = cr1.wrap(IAttemptsResource.class);

@@ -1,3 +1,3 @@
 <%
-	String host = "http://192.168.26.87:8182/api/";
+	String host = "http://10.1.77.85:8182/api/";
 %>
