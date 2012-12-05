@@ -82,7 +82,7 @@ public class TasksResource extends ServerResource implements ITasksResource {
 		final Task task;
 		Request req = getRequest();
 		try {
-			task = requestExtractor.extractTask(req, re, false);
+			task = requestExtractor.extractTask(req, false);
 		} catch (Exception e) {
 			LOG.error(e.getMessage() , e);
 			setResponse(Status.CLIENT_ERROR_BAD_REQUEST);

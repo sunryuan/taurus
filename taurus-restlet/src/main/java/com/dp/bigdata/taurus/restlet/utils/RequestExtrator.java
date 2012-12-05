@@ -19,5 +19,5 @@ public interface RequestExtrator<T> {
      * @return
      * @throws Exception
      */
-    public T extractTask(Request request, Representation re, boolean isUpdateAction) throws Exception;
+    public T extractTask(Request request, boolean isUpdateAction) throws Exception;
 }

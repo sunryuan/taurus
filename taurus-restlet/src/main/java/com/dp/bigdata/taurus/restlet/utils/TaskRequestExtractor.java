@@ -53,7 +53,7 @@ public class TaskRequestExtractor implements RequestExtrator<Task>{
     @Autowired
     private NameResource nameResource;
     
-    public Task extractTask(Request request, Representation re, boolean isUpdateAction) throws Exception {
+    public Task extractTask(Request request, boolean isUpdateAction) throws Exception {
         Task task = new Task();
         Date current = new Date();
         if (!isUpdateAction) {
@@ -67,6 +67,7 @@ public class TaskRequestExtractor implements RequestExtrator<Task>{
         String name = CookieUtils.getUser(request);
         task.setCreator(name);
         Map<String, String> formMap;
+        Representation re = request.getEntity();
         if(MediaType.MULTIPART_FORM_DATA.equals(re.getMediaType(), false)){
         	formMap = new HashMap<String, String>();
         	List<FileItem> items = getFileItem(request);
