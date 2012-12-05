@@ -35,9 +35,9 @@ public class DeploymentUtility {
 	
 	static{
 		threadPool = AgentServerHelper.createThreadPool(2, 4);
-		String path = AgentEnvValue.getAgentPath();
+		String path = AgentEnvValue.getValue(AgentEnvValue.AGENT_ROOT_PATH);
 		DEPLOYMENT_CMD = path + DEPLOYMENT_FILE;
-		deployPath = AgentEnvValue.getJobPath();
+		deployPath = AgentEnvValue.getValue(AgentEnvValue.JOB_PATH);
 	}
 
 	private static Lock getLock(String taskId){

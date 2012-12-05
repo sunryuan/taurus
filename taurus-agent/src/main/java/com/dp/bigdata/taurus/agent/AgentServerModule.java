@@ -20,9 +20,7 @@ public class AgentServerModule extends DeploymentInfoChannelModule{
 	
 	private static final Log LOG = LogFactory.getLog(AgentServerModule.class);
 	
-	private static final String CONF = "agentConf.properties";
 	
-	private static final String KEY_CHECK_INTERVALS = "checkIntervals";
 
 	@Override
 	protected void configureOthers() {
@@ -46,12 +44,8 @@ public class AgentServerModule extends DeploymentInfoChannelModule{
 
 		@Override
 		public AgentServer get() {
-			Properties props = new Properties();
 			try {
-				InputStream in = ClassLoaderUtils.getDefaultClassLoader().getResourceAsStream(CONF);
-				props.load(in);
-				in.close();
-				int opTimeout = Integer.parseInt(props.getProperty(KEY_CHECK_INTERVALS));
+				int opTimeout = Integer.parseInt(AgentEnvValue.getValue(AgentEnvValue.KEY_CHECK_INTERVALS));
 				return new TaurusAgentServer(deployer,schedule, exec, opTimeout);
 			} catch (Exception e) {
 				LOG.error(e.getMessage(),e);

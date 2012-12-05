@@ -28,7 +28,8 @@ public class ScheduleUtility {
 	
 	private static String agentPath;
 	private static String jobPath;
-	private static final String HADOOP_AUTHORITY = "/script/hadoop-authority.sh";
+	private static String hadoopAuthority = "/script/hadoop-authority.sh";
+	private static String wormholeCmd;
 	private static ExecutorService killThreadPool;
 	private static ExecutorService executeThreadPool;
 	
@@ -40,8 +41,10 @@ public class ScheduleUtility {
 	static{
 		killThreadPool = AgentServerHelper.createThreadPool(2, 4);
 		executeThreadPool = AgentServerHelper.createThreadPool(4, 10);
-		jobPath = AgentEnvValue.getJobPath();
-		agentPath = AgentEnvValue.getAgentPath();
+		jobPath = AgentEnvValue.getValue(AgentEnvValue.JOB_PATH);
+		agentPath = AgentEnvValue.getValue(AgentEnvValue.AGENT_ROOT_PATH);
+		wormholeCmd = AgentEnvValue.getValue(AgentEnvValue.WORMHOLE_COMMAND);
+		hadoopAuthority = AgentEnvValue.getValue(AgentEnvValue.HADOOP_AUTHORITY);
 	}
 
 	private static Lock getLock(String jobInstanceId){
@@ -180,22 +183,25 @@ public class ScheduleUtility {
 			}
 			String logFilePath = jobPath + '/' + taskID + "/logs/" + attemptID;
 	
-			if(taskType.equals(HADOOP_JOB)||taskType.equals(HIVE_JOB)) {
-				try {
-					FileOutputStream logFileStream = new FileOutputStream(logFilePath);
-					int returnCode = executor.execute(null,null, logFileStream, agentPath + HADOOP_AUTHORITY);
-					if(returnCode != 0) {
-						s_logger.error("Hadoop authority script executing failed");
-						status.setStatus(ScheduleStatus.EXECUTE_FAILED);
-						status.setFailureInfo("Job failed to get hadoop authority");
-						return;
-					}
-				} catch (IOException e) {
-					s_logger.error(e,e);
-					status.setStatus(ScheduleStatus.EXECUTE_FAILED);
-					status.setFailureInfo("Job failed to get hadoop authority");
-				}
+			if(taskType.equals(HADOOP_JOB)||taskType.equals(HIVE_JOB)||taskType.equals(WORMHOLE_JOB)) {
+//				try {
+//					FileOutputStream logFileStream = new FileOutputStream(logFilePath);
+//					int returnCode = executor.execute(null,null, logFileStream, agentPath + hadoopAuthority);
+//					if(returnCode != 0) {
+//						s_logger.error("Hadoop authority script executing failed");
+//						status.setStatus(ScheduleStatus.EXECUTE_FAILED);
+//						status.setFailureInfo("Job failed to get hadoop authority");
+//						return;
+//					}
+//				} catch (IOException e) {
+//					s_logger.error(e,e);
+//					status.setStatus(ScheduleStatus.EXECUTE_FAILED);
+//					status.setFailureInfo("Job failed to get hadoop authority");
+//				}
 				
+			}
+			if(taskType.equals(WORMHOLE_JOB)) {
+				command = wormholeCmd + " " + command;
 			}
 			String path = jobPath + '/' + taskID +"/";
 			
