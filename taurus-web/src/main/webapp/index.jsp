@@ -1,6 +1,7 @@
 <html lang="en">
 <head>
     <%@ include file="jsp/common-header.jsp"%>
+    <%@ include file="jsp/common-api.jsp"%>
 	<link href="css/index.css" rel="stylesheet" type="text/css" >
 </head>
 <body  data-spy="scroll">

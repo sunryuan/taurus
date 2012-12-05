@@ -46,20 +46,37 @@
                         <button class="btn btn-small">Action</button>
                         <button class="btn dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
                         <ul class="dropdown-menu">
-                          <li><a href="#delete">删除</a></li>
-                          <li><a href="#suspend">暂停</a></li>
-                          <li><a href="#instant">立即执行</a></li>
-                          <li><a href="#info">详细</a></li>
+                          <li><a href="#delete?<%=dto.getTaskid()%>" onClick="">删除</a></li>
+                          <li><a href="#suspend?<%=dto.getTaskid()%>" onClick="">暂停</a></li>
+                          <li><a href="#instant?<%=dto.getTaskid()%>" onClick="">立即执行</a></li>
+                          <li><a href="#info?<%=dto.getTaskid()%>" onClick="">详细</a></li>
                         </ul>
                       </div>
                     </td>
-                    <td><button id="attempts" class="btn"  onClick="javascript:window.location.href='attempt.jsp'">运行历史</button></td>
+                    <td><button id="attempts" class="btn"  onClick="javascript:window.location.href='attempt.jsp?taskID=<%=dto.getTaskid()%>'">运行历史</button></td>
                  </tr>
                <% } %>
 			</tbody>
 		</table>
 	</div>
 
+    <div id="taskModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h2 id="myModalLabel" class="form-signin-heading">登陆</h2>
+      </div>
+      <form method="get" action="/login">
+          <div class="modal-body">
+            <input type="text" name="username" class="input-block-level" placeholder="Email address"/> 
+            <input type="password" name="password" class="input-block-level" placeholder="Password"/>
+    
+          </div>
+          <div class="modal-footer">
+            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+            <button class="btn btn-primary" type="submit">确定</button>
+          </div>
+      </form>
+     </div>
 	<%@ include file="jsp/common-footer.jsp"%>
 	<script type="text/javascript" charset="utf-8" language="javascript" src="js/jquery.dataTables.js"></script>
 	<script type="text/javascript" charset="utf-8" language="javascript" src="js/DT_bootstrap.js"></script>

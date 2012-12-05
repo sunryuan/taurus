@@ -1,7 +1,6 @@
 package com.dp.bigdata.taurus.restlet.utils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -10,8 +9,6 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.restlet.Request;
 import org.restlet.ext.fileupload.RestletFileUpload;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +30,7 @@ import com.dp.bigdata.taurus.restlet.shared.GWTTaskDetailControlName;
  */
 public class TaskRequestExtractor implements RequestExtrator<Task>{
     
-    private static final Log LOG = LogFactory.getLog(TaskRequestExtractor.class);
+    //private static final Log LOG = LogFactory.getLog(TaskRequestExtractor.class);
 
     @Autowired
     private IDFactory idFactory;
@@ -103,8 +100,9 @@ public class TaskRequestExtractor implements RequestExtrator<Task>{
                     File file = new File(filePath);
                     fi.write(file);
                 } else {
-                    LOG.error("Upload file failed.");
-                    throw new FileNotFoundException("Task file not found!");
+                    // remove file validate, updated by 2012/12/4
+                    //LOG.error("Upload file failed.");
+                    //throw new FileNotFoundException("Task file not found!");
                 }
             }
         }

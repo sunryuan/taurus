@@ -86,16 +86,18 @@ public class TasksResource extends ServerResource implements ITasksResource {
             setResponse(Status.CLIENT_ERROR_BAD_REQUEST);
             return;
         }
-
-        final String srcPath = filePathManager.getLocalPath(task.getFilename());
-        final String destPath = filePathManager.getRemotePath(task.getTaskid(), task.getFilename());
-        try {
-            hdfsUtils.writeFile(srcPath, destPath);
-            agentDeployUtils.notifyAllAgent(task, DeployOptions.DEPLOY);
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            setResponse(Status.SERVER_ERROR_INTERNAL);
-            return;
+        
+        if(task.getFilename() != null){
+            final String srcPath = filePathManager.getLocalPath(task.getFilename());
+            final String destPath = filePathManager.getRemotePath(task.getTaskid(), task.getFilename());
+            try {
+                hdfsUtils.writeFile(srcPath, destPath);
+                agentDeployUtils.notifyAllAgent(task, DeployOptions.DEPLOY);
+            } catch (Exception e) {
+                LOG.error(e.getMessage(), e);
+                setResponse(Status.SERVER_ERROR_INTERNAL);
+                return;
+            }
         }
         try {
             scheduler.registerTask(task);

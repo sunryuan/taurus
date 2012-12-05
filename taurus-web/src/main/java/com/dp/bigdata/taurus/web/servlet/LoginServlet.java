@@ -7,7 +7,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 public class LoginServlet extends HttpServlet {
 
     /**
@@ -33,7 +32,7 @@ public class LoginServlet extends HttpServlet {
         Cookie cookie = new Cookie(COOKIE_NAME, landing_name);
         cookie.setMaxAge(120);
         response.addCookie(cookie);
-        
+       
         
         
     }
