@@ -3,7 +3,6 @@ package com.dp.bigdata.taurus.restlet.shared;
 import java.io.Serializable;
 import java.util.Date;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
  * 
@@ -11,7 +10,6 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  * @author damon.zhu
  *
  */
-@XStreamAlias("task")
 public class TaskDTO implements Serializable {
 	
 	/**

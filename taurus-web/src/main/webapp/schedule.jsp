@@ -4,6 +4,12 @@
 </head>
 <body data-spy="scroll">
 	<%@ include file="jsp/common-nav.jsp"%>
+    <%@page import="org.restlet.resource.ClientResource"%>
+	<%@page import="com.dp.bigdata.taurus.restlet.resource.ITasksResource"%>
+    <%@page import="com.dp.bigdata.taurus.restlet.shared.TaskDTO"%>
+    <%@page import="java.util.ArrayList"%>
+    <%@page import="org.restlet.data.MediaType"%>
+    <%@page import="java.text.SimpleDateFormat"%>
 
 	<div class="container" style="margin-top: 10px">
 		<table cellpadding="0" cellspacing="0" border="0"
@@ -21,62 +27,35 @@
 				</tr>
 			</thead>
 			<tbody>
-
-				<tr>
-					<td>task_201209211345_0001</td>
-					<td>wordcount</td>
-					<td>damon.zhu</td>
-					<td>arch</td>
-					<td>2012/11/30</td>
-					<td>? * * * * ?</td>
-					<td>
-						<div class="btn-group">
-							<button class="btn btn-small">Action</button>
-							<button class="btn dropdown-toggle" data-toggle="dropdown">
-								<span class="caret"></span>
-							</button>
-							<ul class="dropdown-menu">
-								<li><a href="#delete">删除</a>
-								</li>
-								<li><a href="#suspend">暂停</a>
-								</li>
-								<li><a href="#instant">立即执行</a>
-								</li>
-								<li><a href="#info">详细</a>
-								</li>
-							</ul>
-						</div></td>
-					<td><button id="attempts" class="btn"
-							onClick="javascript:window.location.href='attempt.jsp'">运行历史</button>
-					</td>
-				</tr>
-				<tr>
-					<td>task_201209211345_0002</td>
-					<td>hadoop</td>
-					<td>renyuan.sun</td>
-					<td>arch</td>
-					<td>2012/11/30</td>
-					<td>? * * * * ?</td>
-					<td>
-						<div class="btn-group">
-							<button class="btn btn-small">Action</button>
-							<button class="btn dropdown-toggle" data-toggle="dropdown">
-								<span class="caret"></span>
-							</button>
-							<ul class="dropdown-menu">
-								<li><a href="#delete">删除</a>
-								</li>
-								<li><a href="#suspend">暂停</a>
-								</li>
-								<li><a href="#instant">立即执行</a>
-								</li>
-								<li><a href="#info">详细</a>
-								</li>
-							</ul>
-						</div></td>
-					<td><button id="attempts" class="btn" onClick="window.open("./attempt.jsp")">运行历史</button>
-					</td>
-				</tr>
+				<% ClientResource cr = new ClientResource("http://192.168.26.87:8182/api/task");
+                    ITasksResource resource = cr.wrap(ITasksResource.class);
+                     cr.accept(MediaType.APPLICATION_XML);
+                    ArrayList<TaskDTO> tasks = resource.retrieve();
+					SimpleDateFormat formatter =  new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                    for(TaskDTO dto : tasks){
+                %>
+                <tr>
+                    <td><%=dto.getTaskid()%></td>
+                    <td><%=dto.getName()%></td>
+                    <td><%=dto.getCreator()%></td>
+                    <td>arch(mock)</td>
+                    <td><%=formatter.format(dto.getAddtime())%></td>
+                    <td><%=dto.getCrontab()%></td>
+                    <td>
+                       <div class="btn-group">
+                        <button class="btn btn-small">Action</button>
+                        <button class="btn dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
+                        <ul class="dropdown-menu">
+                          <li><a href="#delete">删除</a></li>
+                          <li><a href="#suspend">暂停</a></li>
+                          <li><a href="#instant">立即执行</a></li>
+                          <li><a href="#info">详细</a></li>
+                        </ul>
+                      </div>
+                    </td>
+                    <td><button id="attempts" class="btn"  onClick="javascript:window.location.href='attempt.jsp'">运行历史</button></td>
+                 </tr>
+               <% } %>
 			</tbody>
 		</table>
 	</div>
