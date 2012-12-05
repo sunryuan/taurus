@@ -1,6 +1,7 @@
 package com.dp.bigdata.taurus.restlet.utils;
 
 import org.restlet.Request;
+import org.restlet.representation.Representation;
 
 /**
  * 
@@ -18,5 +19,5 @@ public interface RequestExtrator<T> {
      * @return
      * @throws Exception
      */
-    public T extractTask(Request request, boolean isUpdateAction) throws Exception;
+    public T extractTask(Request request, Representation re, boolean isUpdateAction) throws Exception;
 }

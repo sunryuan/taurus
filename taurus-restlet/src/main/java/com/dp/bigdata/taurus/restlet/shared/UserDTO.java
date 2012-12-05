@@ -2,15 +2,12 @@ package com.dp.bigdata.taurus.restlet.shared;
 
 import java.io.Serializable;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-
 /**
  * 
  * UserDTO
  * @author damon.zhu
  *
  */
-@XStreamAlias("user")
 public class UserDTO implements Serializable {
 
 	private static final long serialVersionUID = 8473964829047181355L;
