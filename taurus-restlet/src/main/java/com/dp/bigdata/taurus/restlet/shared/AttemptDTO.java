@@ -3,15 +3,12 @@ package com.dp.bigdata.taurus.restlet.shared;
 import java.io.Serializable;
 import java.util.Date;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-
 /**
  * 
  * AttemptDTO
  * @author damon.zhu
  *
  */
-@XStreamAlias("attempt")
 public class AttemptDTO implements Serializable {
 
    /**
