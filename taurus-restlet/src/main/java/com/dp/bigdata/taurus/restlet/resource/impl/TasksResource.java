@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.restlet.Request;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
@@ -35,87 +36,90 @@ import com.dp.bigdata.taurus.restlet.utils.TaskConverter;
  */
 public class TasksResource extends ServerResource implements ITasksResource {
 
-    private static final Log LOG = LogFactory.getLog(TasksResource.class);
+	private static final Log LOG = LogFactory.getLog(TasksResource.class);
 
-    @Autowired
-    private TaskMapper taskMapper;
+	@Autowired
+	private TaskMapper taskMapper;
 
-    @Autowired
-    private Scheduler scheduler;
+	@Autowired
+	private Scheduler scheduler;
 
-    @Autowired
-    private HdfsUtils hdfsUtils;
+	@Autowired
+	private HdfsUtils hdfsUtils;
 
-    @Autowired
-    private AgentDeploymentUtils agentDeployUtils;
-    
-    @Autowired
-    private RequestExtrator<Task> requestExtractor;
-    
-    @Autowired
-    private FilePathManager filePathManager;
+	@Autowired
+	private AgentDeploymentUtils agentDeployUtils;
 
-    @Get
-    @Override
-    public ArrayList<TaskDTO> retrieve() {
-        TaskExample example = new TaskExample();
+	@Autowired
+	private RequestExtrator<Task> requestExtractor;
+
+	@Autowired
+	private FilePathManager filePathManager;
+
+	@Get
+	@Override
+	public ArrayList<TaskDTO> retrieve() {
+		LOG.info("Get all tasks list...");
+		TaskExample example = new TaskExample();
         example.or().andStatusEqualTo(TaskStatus.RUNNING);
         example.or().andStatusEqualTo(TaskStatus.SUSPEND);
-        List<Task> tasks = taskMapper.selectByExample(example);
-        List<TaskDTO> result = new ArrayList<TaskDTO>();
-        for (Task task : tasks) {
-            TaskDTO dto = TaskConverter.toDto(task);
-            result.add(dto);
-        }
-        return (ArrayList<TaskDTO>) result;
-    }
+		example.or();
+		List<Task> tasks = taskMapper.selectByExample(example);
+		List<TaskDTO> result = new ArrayList<TaskDTO>();
+		for (Task task : tasks) {
+			TaskDTO dto = TaskConverter.toDto(task);
+			result.add(dto);
+		}
+		return (ArrayList<TaskDTO>) result;
+	}
 
-    @Post
-    @Override
-    public void create(Representation re) {
-        if (re == null || MediaType.MULTIPART_FORM_DATA.equals(re.getMediaType(), false)) {
-            LOG.error("Content-type is not accepted.");
-            setResponse(Status.CLIENT_ERROR_BAD_REQUEST);
-            return;
-        }
+	@Post
+	@Override
+	public void create(Representation re) {
+		if (re == null) {
+			LOG.error("Content-type is not accepted.");
+			setResponse(Status.CLIENT_ERROR_BAD_REQUEST);
+			return;
+		}
 
-        final Task task;
-        try {
-            task = requestExtractor.extractTask(getRequest(), false);
-        } catch (Exception e) {
-            LOG.error(e.getMessage() , e);
-            setResponse(Status.CLIENT_ERROR_BAD_REQUEST);
-            return;
-        }
-        
-        if(task.getFilename() != null){
-            final String srcPath = filePathManager.getLocalPath(task.getFilename());
-            final String destPath = filePathManager.getRemotePath(task.getTaskid(), task.getFilename());
-            try {
-                hdfsUtils.writeFile(srcPath, destPath);
-                agentDeployUtils.notifyAllAgent(task, DeployOptions.DEPLOY);
-            } catch (Exception e) {
-                LOG.error(e.getMessage(), e);
-                setResponse(Status.SERVER_ERROR_INTERNAL);
-                return;
-            }
-        }
-        try {
-            scheduler.registerTask(task);
-            setResponse(Status.SUCCESS_CREATED);
-        } catch (ScheduleException e) {
-            LOG.error(e.getMessage(), e);
-            setResponse(Status.SERVER_ERROR_INTERNAL);
-        }
-    }
+		final Task task;
+		Request req = getRequest();
+		try {
+			task = requestExtractor.extractTask(req, false);
+		} catch (Exception e) {
+			LOG.error(e.getMessage() , e);
+			setResponse(Status.CLIENT_ERROR_BAD_REQUEST);
+			return;
+		}
 
-    private void setResponse(Status status) {
-        setStatus(status);
-        getResponse().setEntity(html(status), MediaType.TEXT_HTML);
-    }
+		if(MediaType.MULTIPART_FORM_DATA.equals(re.getMediaType(), false)){
+			final String srcPath = filePathManager.getLocalPath(task.getFilename());
+			final String destPath = filePathManager.getRemotePath(task.getTaskid(), task.getFilename());
+			try {
+				hdfsUtils.writeFile(srcPath, destPath);
+				agentDeployUtils.notifyAllAgent(task, DeployOptions.DEPLOY);
+			} catch (Exception e) {
+				LOG.error(e.getMessage(), e);
+				setResponse(Status.SERVER_ERROR_INTERNAL);
+				return;
+			}
+		}
+		try {
+			scheduler.registerTask(task);
+			setResponse(Status.SUCCESS_CREATED);
+		} catch (ScheduleException e) {
+			LOG.error(e.getMessage(), e);
+			setResponse(Status.SERVER_ERROR_INTERNAL);
+		}
+	}
 
-    private String html(Status status) {
-        return "<html><body><script type=\"text/javascript\">" + "if (parent.uploadComplete) parent.uploadComplete('"
-                + status.getCode() + "');" + "</script></body><ml>";
-    }
+	private void setResponse(Status status) {
+		setStatus(status);
+		getResponse().setEntity(html(status), MediaType.TEXT_HTML);
+	}
+
+	private String html(Status status) {
+		return "<html><body><script type=\"text/javascript\">" + "if (parent.uploadComplete) parent.uploadComplete('"
+		+ status.getCode() + "');" + "</script></body><ml>";
+	}
 }

@@ -61,8 +61,7 @@
 					<td><%=dto.getExecHost()%></td>
 					<td>
 						<div class="btn-group">
-							<button class="btn btn-small">Action</button>
-							<button class="btn dropdown-toggle" data-toggle="dropdown">
+							<button class="btn  btn-primary dropdown-toggle" data-toggle="dropdown">
 								<span class="caret"></span>
 							</button>
 							<ul class="dropdown-menu">

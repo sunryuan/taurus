@@ -26,6 +26,7 @@
 					<th>组</th>
 					<th>创建时间</th>
 					<th>Crontab</th>
+                    <th>状态</th>
 					<th class="center">-</th>
 					<th class="center">-</th>
 				</tr>
@@ -39,18 +40,23 @@
                     for(TaskDTO dto : tasks){
                 %>
                 <tr id="<%=dto.getTaskid()%>" class="in" >
-                    <td><%=dto.getTaskid()%></td>s
+                    <td><%=dto.getTaskid()%></td>
                     <td><%=dto.getName()%></td>
                     <td><%=dto.getCreator()%></td>
                     <td>arch(mock)</td>
                     <td><%=formatter.format(dto.getAddtime())%></td>
                     <td><%=dto.getCrontab()%></td>
+                    <td><%=dto.getStatus()%></td>
                     <td>
                        <div class="btn-group">
                         <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">Action<span class="caret"></span></button>
                         <ul class="dropdown-menu">
                           <li><a href="#confirm" onClick="action($(this).parents('tr').find('td')[0].textContent,'delete')">删除</a></li>
-                          <li><a href="#confirm" onClick="action($(this).parents('tr').find('td')[0].textContent,'suspend')">暂停</a></li>
+                          <% if(dto.getStatus().equals("RUNNING")) {%>
+                          <li><a href="#confirm" onClick="action($(this).parents('tr').find('td')[0].textContent,'suspend')">暂停</a></li>               
+                          <%}else if(dto.getStatus().equals("SUSPEND")) { %>
+                          <li><a href="#confirm" onClick="action($(this).parents('tr').find('td')[0].textContent,'resume')">暂停</a></li>   
+                          <%}%>
                           <li><a href="#confirm" onClick="action($(this).parents('tr').find('td')[0].textContent,'execute')">立即执行</a></li>
                           <li><a href="#confirm" onClick="">详细</a></li>
                         </ul>
@@ -104,6 +110,10 @@
 				action_chinese = '立刻执行';
 				$("#id_header").html("立刻执行");
 				$("#id_body").html("确定要立刻执行任务<strong>"+ id + "</strong>");
+			}else if(action == 'resume'){
+				action_chinese = '恢复';
+				$("#id_header").html("恢复");
+				$("#id_body").html("确定要恢复任务<strong>"+ id + "</strong>");
 			}
 			$("#confirm").modal('toggle');
         }
