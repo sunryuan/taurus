@@ -73,8 +73,10 @@ public class AttemptsResource extends ServerResource implements IAttemptsResourc
         String orderByClause = "startTime desc limit " + index*pageSize + "," + pageSize;
         example.setOrderByClause(orderByClause);
         List<TaskAttempt> ats = taskAttemptMapper.selectByExample(example);
+        int counter = 1;
         for (TaskAttempt at : ats) {
             AttemptDTO dto = new AttemptDTO();
+            dto.setId(counter++);
             dto.setAttemptID(at.getAttemptid());
             if (at.getEndtime() != null) {
                 dto.setEndTime(at.getEndtime());

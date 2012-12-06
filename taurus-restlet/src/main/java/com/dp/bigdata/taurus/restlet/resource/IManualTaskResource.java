@@ -1,6 +1,8 @@
 package com.dp.bigdata.taurus.restlet.resource;
 
+import org.restlet.resource.Get;
 import org.restlet.resource.Post;
+import org.restlet.resource.Put;
 
 /**
  * 
@@ -10,6 +12,13 @@ import org.restlet.resource.Post;
  */
 public interface IManualTaskResource {
 
-    @Post
+    @Get
     public void start();
+    
+    @Post
+    public void resume();
+
+    @Put
+    public void suspend();
+    
 }

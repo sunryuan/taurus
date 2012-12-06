@@ -14,6 +14,8 @@ public class AttemptDTO implements Serializable {
     * 
     */
     private static final long serialVersionUID = -989989746827642633L;
+    
+    private int id;
 
     private String attemptID;
 
@@ -36,9 +38,10 @@ public class AttemptDTO implements Serializable {
     public AttemptDTO() {
     }
 
-    public AttemptDTO(String attemptID, String instanceID, String taskID, Date startTime, Date endTime, Date scheduleTime,
+    public AttemptDTO(int id, String attemptID, String instanceID, String taskID, Date startTime, Date endTime, Date scheduleTime,
                       String status, int returnValue, String execHost) {
         super();
+        this.id = id;
         this.attemptID = attemptID;
         this.instanceID = instanceID;
         this.taskID = taskID;
@@ -48,6 +51,14 @@ public class AttemptDTO implements Serializable {
         this.status = status;
         this.returnValue = returnValue;
         this.execHost = execHost;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getAttemptID() {
@@ -124,9 +135,9 @@ public class AttemptDTO implements Serializable {
 
     @Override
     public String toString() {
-        return "AttemptDTO [attemptID=" + attemptID + ", instanceID=" + instanceID + ", taskID=" + taskID + ", startTime="
-                + startTime + ", endTime=" + endTime + ", scheduleTime=" + scheduleTime + ", status=" + status + ", returnValue="
-                + returnValue + ", execHost=" + execHost + "]";
+        return "AttemptDTO [id=" + id + ", attemptID=" + attemptID + ", instanceID=" + instanceID + ", taskID=" + taskID
+                + ", startTime=" + startTime + ", endTime=" + endTime + ", scheduleTime=" + scheduleTime + ", status=" + status
+                + ", returnValue=" + returnValue + ", execHost=" + execHost + "]";
     }
 
 }

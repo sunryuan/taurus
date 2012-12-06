@@ -1,7 +1,5 @@
 package com.dp.bigdata.taurus.restlet.resource.impl;
 
-import java.util.ArrayList;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.restlet.data.MediaType;
@@ -48,10 +46,9 @@ public class TaskResource extends ServerResource implements ITaskResource {
     private FilePathManager filePathManager;
     
     @Override
-    public ArrayList<TaskDTO> retrieve() {
+    public TaskDTO retrieve() {
         String taskID = (String) getRequestAttributes().get("task_id");
-        ArrayList<TaskDTO> dto = new ArrayList<TaskDTO>();
-        LOG.info(taskID);
+        TaskDTO dto = new TaskDTO();
         try {
             TaskID.forName(taskID);
         } catch (IllegalArgumentException e) {
@@ -60,13 +57,12 @@ public class TaskResource extends ServerResource implements ITaskResource {
             return dto;
         }
 
-        if(scheduler == null && hdfsUtils == null && agentDeployUtils == null) LOG.error("all is null");
         Task task = scheduler.getAllRegistedTask().get(taskID);
         if (task == null) {
             setStatus(Status.CLIENT_ERROR_NOT_FOUND);
             LOG.info("Cannot find the task by taskID = " + taskID);
         } else {
-            dto.add(TaskConverter.toDto(task));
+            dto = TaskConverter.toDto(task);
         }
         return dto;
     }
@@ -74,7 +70,7 @@ public class TaskResource extends ServerResource implements ITaskResource {
     @Override
     public void update(Representation re) {
         if (re == null || MediaType.MULTIPART_FORM_DATA.equals(re.getMediaType(), false)) {
-            setResponse(Status.CLIENT_ERROR_BAD_REQUEST);
+            setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
             return;
         }
 
@@ -131,15 +127,4 @@ public class TaskResource extends ServerResource implements ITaskResource {
             setStatus(Status.SERVER_ERROR_INTERNAL);
         }
     }
-
-    private void setResponse(Status status) {
-        setStatus(status);
-        getResponse().setEntity(html(status), MediaType.TEXT_HTML);
-    }
-
-    private String html(Status status) {
-        return "<html><body><script type=\"text/javascript\">" + "if (parent.uploadComplete) parent.uploadComplete('"
-                + status.getCode() + "');" + "</script></body><ml>";
-    }
-
 }

@@ -20,7 +20,7 @@
 			class="table table-striped table-bordered" id="example">
 			<thead>
 				<tr>
-					<th>ID</th>
+					<th class="hide">ID</th>
 					<th>名称</th>
 					<th>调度人</th>
 					<th>组</th>
@@ -38,23 +38,35 @@
                     ArrayList<TaskDTO> tasks = resource.retrieve();
 					SimpleDateFormat formatter =  new SimpleDateFormat("yyyy-MM-dd HH:mm");
                     for(TaskDTO dto : tasks){
+						String state = dto.getStatus();
+						boolean isRunning = true;
+						if(state.equals("SUSPEND")){  isRunning = false;  }
+						if(isRunning) {
                 %>
-                <tr id="<%=dto.getTaskid()%>" class="in" >
-                    <td><%=dto.getTaskid()%></td>
+                <tr id="<%=dto.getTaskid()%>">
+                <% } else { %>
+                <tr id="<%=dto.getTaskid()%>" class="error" >
+                <%}%>
+                    <td class="hide"><%=dto.getTaskid()%></td>
                     <td><%=dto.getName()%></td>
                     <td><%=dto.getCreator()%></td>
                     <td>arch(mock)</td>
                     <td><%=formatter.format(dto.getAddtime())%></td>
                     <td><%=dto.getCrontab()%></td>
-                    <td><%=dto.getStatus()%></td>
+                    <td><%if(isRunning){%>
+                    	<span class="label label-info"><%=state%></span>
+                        <%}else{%>
+                        <span class="label label-important"><%=state%></span>
+                        <%}%>              
+                    </td>
                     <td>
                        <div class="btn-group">
-                        <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">Action<span class="caret"></span></button>
+                        <button class="btn btn-primary btn-small dropdown-toggle" data-toggle="dropdown">Action<span class="caret"></span></button>
                         <ul class="dropdown-menu">
                           <li><a href="#confirm" onClick="action($(this).parents('tr').find('td')[0].textContent,'delete')">删除</a></li>
-                          <% if(dto.getStatus().equals("RUNNING")) {%>
+                          <% if(isRunning) {%>
                           <li><a href="#confirm" onClick="action($(this).parents('tr').find('td')[0].textContent,'suspend')">暂停</a></li>               
-                          <%}else if(dto.getStatus().equals("SUSPEND")) { %>
+                          <%}else { %>
                           <li><a href="#confirm" onClick="action($(this).parents('tr').find('td')[0].textContent,'resume')">恢复</a></li>   
                           <%}%>
                           <li><a href="#confirm" onClick="action($(this).parents('tr').find('td')[0].textContent,'execute')">立即执行</a></li>
@@ -62,7 +74,7 @@
                         </ul>
                       </div>
                     </td>
-                    <td><button id="attempts" class="btn btn-primary"  onClick="javascript:window.location.href='attempt.jsp?taskID=<%=dto.getTaskid()%>'">运行历史</button></td>
+                    <td><button id="attempts" class="btn btn-primary btn-small"  onClick="javascript:window.location.href='attempt.jsp?taskID=<%=dto.getTaskid()%>'">运行历史</button></td>
                  </tr>
                <% } %>
 			</tbody>

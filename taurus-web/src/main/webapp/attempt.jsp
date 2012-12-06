@@ -20,8 +20,8 @@
 					<th>启动时间</th>
 					<th>结束时间</th>
 					<th>调度时间</th>
+                    <th>状态</th>
 					<th>返回值</th>
-					<th>状态</th>
 					<th>IP</th>
 					<th>-</th>
 				</tr>
@@ -38,9 +38,10 @@
 					
 					SimpleDateFormat formatter =  new SimpleDateFormat("yyyy-MM-dd HH:mm");
 					for(AttemptDTO dto : attempts){
+						String state = dto.getStatus();
 				%>
 				<tr>
-					<td><%=dto.getAttemptID()%></td>
+					<td><%=dto.getId()%></td>
                     <%if(dto.getStartTime()!=null){%>
 						<td><%=formatter.format(dto.getStartTime())%></td>
                     <%}else{%>
@@ -56,13 +57,21 @@
                     <%}else{%>
                     	<td>NULL</td>
                     <%}%> 
+                    <td><%=dto.getExecHost()%></td>
 					<td><%=dto.getReturnValue()%></td>
-					<td><%=dto.getStatus()%></td>
-					<td><%=dto.getExecHost()%></td>
+					<td><%if(state.equals("RUNNING")){%>
+                    	<span class="label label-info"><%=state%></span>
+                        <%}else if(state.equals("SUCCEEDED")){%>
+                        <span class="label label-success"><%=state%></span>
+                        <%}else{%>
+                        <span class="label label-important"><%=state%></span>
+                        <%}%>              
+                    </td>
+
 					<td>
 						<div class="btn-group">
-							<button class="btn  btn-primary dropdown-toggle" data-toggle="dropdown">
-								<span class="caret"></span>
+							<button class="btn  btn-primary btn-small dropdown-toggle" data-toggle="dropdown">
+								Action<span class="caret"></span>
 							</button>
 							<ul class="dropdown-menu">
 								<li><a href="#suspend">Kill</a>
