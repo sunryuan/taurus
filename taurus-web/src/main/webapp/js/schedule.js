@@ -39,7 +39,16 @@ function action_ok() {
 						+ action_chinese + '成功</strong></div>');
 				$(".alert").alert();
 				$('#confirm').modal("hide");
-				$('#' + taskID).remove();
+				if(action == 'delete'){
+					$('#' + taskID).remove();
+				}else if(action == 'suspend'){
+					$('#' + taskID + ' td .label').addClass("label-important").removeClass('label-info');
+					$('#' + taskID + ' td .label').html('SUSPEND');
+				}else if(action == 'resume'){
+					$('#' + taskID + ' td .label').addClass("label-info").removeClass('label-important');
+					$('#' + taskID + ' td .label').html('SUSPEND');
+				}
+				
 			},
 			400 : function() {
 				$("#alertContainer").html('<div id="alertContainer" class="alert alert-error"><button type="button" class="close" data-dismiss="alert">&times;</button> <strong>'
