@@ -55,7 +55,7 @@
                           <% if(dto.getStatus().equals("RUNNING")) {%>
                           <li><a href="#confirm" onClick="action($(this).parents('tr').find('td')[0].textContent,'suspend')">暂停</a></li>               
                           <%}else if(dto.getStatus().equals("SUSPEND")) { %>
-                          <li><a href="#confirm" onClick="action($(this).parents('tr').find('td')[0].textContent,'resume')">暂停</a></li>   
+                          <li><a href="#confirm" onClick="action($(this).parents('tr').find('td')[0].textContent,'resume')">恢复</a></li>   
                           <%}%>
                           <li><a href="#confirm" onClick="action($(this).parents('tr').find('td')[0].textContent,'execute')">立即执行</a></li>
                           <li><a href="#confirm" onClick="">详细</a></li>
