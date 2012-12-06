@@ -19,7 +19,7 @@
 					</li>
 					<li class=""><a href="task.jsp">新建任务</a>
 					</li>
-					<li class=""><a href="batch_task.jsp">批量设置</a>
+					<li class=""><a href="batch-task.jsp">批量设置</a>
 					</li>
 					<li class=""><a href="schedule.jsp">调度中心</a>
 					</li>
