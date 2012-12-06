@@ -48,5 +48,5 @@ function action_ok() {
 				$('#confirm').modal("hide");
 			}
 		}
-	})
+	});
 }

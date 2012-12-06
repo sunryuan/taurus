@@ -41,24 +41,24 @@ public class TaskProxyServlet extends HttpServlet {
         String action = request.getParameter("action");
         String taskID = request.getParameter("id");
         
-        ClientResource cr = new ClientResource(Constant.BASE + "task/" + taskID);
-        ITaskResource taskResource = cr.wrap(ITaskResource.class);
+        ClientResource taskCr = new ClientResource(Constant.BASE + "task/" + taskID);
+        ITaskResource taskResource = taskCr.wrap(ITaskResource.class);
 
-        ClientResource cr1 = new ClientResource(Constant.BASE + "manualtask/" + taskID);
-        IManualTaskResource manualResource = cr.wrap(IManualTaskResource.class);
+        ClientResource manualCr = new ClientResource(Constant.BASE + "manualtask/" + taskID);
+        IManualTaskResource manualResource = manualCr.wrap(IManualTaskResource.class);
 
         if(action.equals(DELETE)){
             taskResource.remove();
-            response.setStatus(cr.getStatus().getCode());
+            response.setStatus(taskCr.getStatus().getCode());
         }else if(action.equals(SUSPEND)){
             manualResource.suspend();
-            response.setStatus(cr1.getStatus().getCode());
+            response.setStatus(manualCr.getStatus().getCode());
         }else if(action.equals(EXECUTE)){
             manualResource.start();
-            response.setStatus(cr1.getStatus().getCode());
+            response.setStatus(manualCr.getStatus().getCode());
         } else if (action.equals(RESUME)) {
             manualResource.resume();
-            response.setStatus(cr1.getStatus().getCode());
+            response.setStatus(manualCr.getStatus().getCode());
         }
     }
 

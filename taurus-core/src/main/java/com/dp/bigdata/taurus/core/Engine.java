@@ -169,9 +169,10 @@ final public class Engine implements Scheduler {
         String attemptID = idFactory.newAttemptID(instanceID);
         attempt.setInstanceid(instanceID);
         attempt.setTaskid(taskID);
-        attempt.setStatus(AttemptStatus.INITIALIZED);
+        attempt.setStatus(AttemptStatus.UNKNOWN);
         attempt.setAttemptid(attemptID);
         attempt.setScheduletime(new Date());
+        taskAttemptMapper.insertSelective(attempt);
         Task task = registedTasks.get(taskID);
         AttemptContext context = new AttemptContext(attempt, task);
         executeAttempt(context);

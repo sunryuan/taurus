@@ -40,7 +40,7 @@
 					for(AttemptDTO dto : attempts){
 						String state = dto.getStatus();
 				%>
-				<tr>
+				<tr id="<%=dto.getId()%>">
 					<td><%=dto.getId()%></td>
                     <%if(dto.getStartTime()!=null){%>
 						<td><%=formatter.format(dto.getStartTime())%></td>
@@ -74,9 +74,9 @@
 								Action<span class="caret"></span>
 							</button>
 							<ul class="dropdown-menu">
-								<li><a href="#suspend">Kill</a>
+								<li><a href="#confirm" onClick="action($(this).parents('tr').find('td')[0].textContent)">Kill</a>
 								</li>
-								<li><a href="#suspend">日志</a>
+								<li><a href="#log">日志</a>
 								</li>
 							</ul>
 						</div></td>
@@ -86,8 +86,23 @@
 		</table>
 	</div>
 
+	<div id="confirm" class="modal hide fade">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3 id="id_header"></h3>
+      </div>
+      <div class="modal-body">
+        <p id="id_body"></p>
+      </div>
+      <div class="modal-footer">
+        <a href="#" class="btn" data-dismiss="modal" aria-hidden="true">取消</a>
+        <a href="#" class="btn btn-danger" onClick="action_ok()">确定</a>
+      </div>
+    </div>
+    
 	<%@ include file="jsp/common-footer.jsp"%>
 	<script type="text/javascript" charset="utf-8" language="javascript" src="js/jquery.dataTables.js"></script>
 	<script type="text/javascript" charset="utf-8" language="javascript" src="js/DT_bootstrap.js"></script>
+     <script type="text/javascript" charset="utf-8" language="javascript" src="js/attempt.js"></script>
 </body>
 </html>

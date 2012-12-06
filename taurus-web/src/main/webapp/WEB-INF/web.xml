@@ -14,6 +14,11 @@
 	</servlet>
 
 	<servlet>
+		<servlet-name>AttemptProxyServlet</servlet-name>
+		<servlet-class>com.dp.bigdata.taurus.web.servlet.AttemptProxyServlet</servlet-class>
+	</servlet>
+	
+	<servlet>
 		<servlet-name>BatchTaskServlet</servlet-name>
 		<servlet-class>com.dp.bigdata.taurus.web.servlet.BatchTaskServlet</servlet-class>
 	</servlet>
@@ -26,5 +31,10 @@
 	<servlet-mapping>
 		<servlet-name>TaskProxyServlet</servlet-name>
 		<url-pattern>/tasks</url-pattern>
+	</servlet-mapping>
+	
+		<servlet-mapping>
+		<servlet-name>AttemptProxyServlet</servlet-name>
+		<url-pattern>/attempts</url-pattern>
 	</servlet-mapping>
 </web-app>
