@@ -1,6 +1,5 @@
-<meta charset="utf-8">
+<%@ page contentType="text/html;charset=utf-8" %>
 <title>点评作业调度平台Taurus</title>
 <!-- Bootstrap -->
 <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
 <link rel="stylesheet" type="text/css" href="css/DT_bootstrap.css">
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">

@@ -1,4 +1,4 @@
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <%@ include file="jsp/common-header.jsp"%>
 	<link href="css/index.css" rel="stylesheet" type="text/css" >
@@ -33,7 +33,7 @@
     </div><!-- /.carousel -->
    
 	<%@ include file="jsp/common-footer.jsp"%>
-<script>	
+	<script>	
       !function ($) {
         $(function(){
           // carousel demo

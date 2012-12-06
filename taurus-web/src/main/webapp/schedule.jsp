@@ -1,3 +1,4 @@
+<%@ page contentType="text/html;charset=utf-8" %>
 <html lang="en">
 <head>
 	<%@ include file="jsp/sub-header.jsp"%>
@@ -27,7 +28,7 @@
 				</tr>
 			</thead>
 			<tbody>
-				<% ClientResource cr = new ClientResource("http://192.168.26.87:8182/api/task");
+				<% ClientResource cr = new ClientResource("http://10.1.77.85:8182/api/task");
                     ITasksResource resource = cr.wrap(ITasksResource.class);
                      cr.accept(MediaType.APPLICATION_XML);
                     ArrayList<TaskDTO> tasks = resource.retrieve();
