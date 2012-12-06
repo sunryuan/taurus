@@ -7,14 +7,34 @@
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>
+	
 	<servlet>
-		<description />
-		<display-name>Batch Task Servlet</display-name>
+		<servlet-name>TaskProxyServlet</servlet-name>
+		<servlet-class>com.dp.bigdata.taurus.web.servlet.TaskProxyServlet</servlet-class>
+	</servlet>
+
+	<servlet>
+		<servlet-name>AttemptProxyServlet</servlet-name>
+		<servlet-class>com.dp.bigdata.taurus.web.servlet.AttemptProxyServlet</servlet-class>
+	</servlet>
+	
+	<servlet>
 		<servlet-name>BatchTaskServlet</servlet-name>
 		<servlet-class>com.dp.bigdata.taurus.web.servlet.BatchTaskServlet</servlet-class>
 	</servlet>
+	
 	<servlet-mapping>
 		<servlet-name>BatchTaskServlet</servlet-name>
 		<url-pattern>/batch_upload</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>TaskProxyServlet</servlet-name>
+		<url-pattern>/tasks</url-pattern>
+	</servlet-mapping>
+	
+		<servlet-mapping>
+		<servlet-name>AttemptProxyServlet</servlet-name>
+		<url-pattern>/attempts</url-pattern>
 	</servlet-mapping>
 </web-app>

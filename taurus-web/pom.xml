@@ -10,7 +10,7 @@
 	</parent>
 	<artifactId>taurus-web</artifactId>
 	<packaging>war</packaging>
-	<name>taurus-web Maven Webapp</name>
+	<name>taurus-web</name>
 	<url>http://maven.apache.org</url>
 
 	<properties>

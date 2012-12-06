@@ -75,8 +75,7 @@ public class TaskRequestExtractor implements RequestExtrator<Task>{
         		FileItem fi = it.next();
                 if (fi.isFormField()) {
                 	formMap.put(fi.getFieldName(), fi.getString());
-                }
-                else{
+                } else{
                 	 if (StringUtils.isNotEmpty(fi.getName()) && StringUtils.isNotBlank(fi.getName())) {
                          String filePath = filePathManager.getLocalPath(fi.getName());
                          task.setFilename(fi.getName());

@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.dp.bigdata.taurus.core.ScheduleException;
 import com.dp.bigdata.taurus.core.Scheduler;
+import com.dp.bigdata.taurus.core.TaskStatus;
 import com.dp.bigdata.taurus.generated.mapper.TaskMapper;
 import com.dp.bigdata.taurus.generated.module.Task;
 import com.dp.bigdata.taurus.generated.module.TaskExample;
@@ -60,6 +61,8 @@ public class TasksResource extends ServerResource implements ITasksResource {
 	public ArrayList<TaskDTO> retrieve() {
 		LOG.info("Get all tasks list...");
 		TaskExample example = new TaskExample();
+        example.or().andStatusEqualTo(TaskStatus.RUNNING);
+        example.or().andStatusEqualTo(TaskStatus.SUSPEND);
 		example.or();
 		List<Task> tasks = taskMapper.selectByExample(example);
 		List<TaskDTO> result = new ArrayList<TaskDTO>();

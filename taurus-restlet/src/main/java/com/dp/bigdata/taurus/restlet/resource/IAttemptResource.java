@@ -1,6 +1,7 @@
 package com.dp.bigdata.taurus.restlet.resource;
 
 import org.restlet.resource.Delete;
+import org.restlet.resource.Get;
 
 /**
  * 
@@ -11,7 +12,10 @@ import org.restlet.resource.Delete;
  */
 public interface IAttemptResource {
 
+    @Get
+    public String log();
+
     @Delete
-    public void remove();
+    public void kill();
 
 }
