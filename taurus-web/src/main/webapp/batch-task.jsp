@@ -1,7 +1,6 @@
 <html lang="en">
 <head>
 <%@ include file="jsp/sub-header.jsp"%>
-<link rel="stylesheet" href="css/bootstrap-responsive.min.css">
 <link rel="stylesheet" href="css/batch-task.css">
 </head>
 <body data-spy="scroll">

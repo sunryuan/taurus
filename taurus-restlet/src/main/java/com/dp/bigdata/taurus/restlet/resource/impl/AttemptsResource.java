@@ -10,6 +10,7 @@ import org.restlet.resource.Get;
 import org.restlet.resource.ServerResource;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.dp.bigdata.taurus.core.AttemptStatus;
 import com.dp.bigdata.taurus.generated.mapper.TaskAttemptMapper;
 import com.dp.bigdata.taurus.generated.module.TaskAttempt;
 import com.dp.bigdata.taurus.generated.module.TaskAttemptExample;
@@ -17,13 +18,17 @@ import com.dp.bigdata.taurus.restlet.resource.IAttemptsResource;
 import com.dp.bigdata.taurus.restlet.shared.AttemptDTO;
 
 /**
- * Resource url : http://xxx.xxx/api/attempt?task_id={task_id}
+ * Resource url : http://xxx.xxx/api/attempt?task_id={task_id}&index={index}&pageSize={pageSize}
  * 
  * @author damon.zhu
  */
 public class AttemptsResource extends ServerResource implements IAttemptsResource {
 
     private static final String TASK = "task_id";
+    private static final String INDEX = "index";
+    private static final String PAGESIZE = "pageSize";
+
+    private static final int DEFAULT_PAGE_SIZE = 500;
 
     @Autowired
     private TaskAttemptMapper taskAttemptMapper;
@@ -34,27 +39,44 @@ public class AttemptsResource extends ServerResource implements IAttemptsResourc
         ArrayList<AttemptDTO> attempts = new ArrayList<AttemptDTO>();
 
         Form form = getRequest().getResourceRef().getQueryAsForm();
-        if (form.size() != 1) {
-            setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-            return attempts;
-        }
 
         String parameterName = "";
         String taskID = "";
+        int index = 0;
+        int pageSize = DEFAULT_PAGE_SIZE;
         for (Parameter parameter : form) {
             parameterName = parameter.getName();
-            taskID = parameter.getValue();
-        }
-        if (!parameterName.equals(TASK)) {
-            setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-            return attempts;
+            if(parameterName.equals(TASK)){
+                taskID = parameter.getValue();
+            }else if(parameterName.equals(INDEX)){
+                try{
+                    index = Integer.parseInt(parameter.getValue());
+                }catch(Exception e){
+                    setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+                    return attempts;
+                }
+            }else if(parameterName.equals(PAGESIZE)){
+                try{
+                    pageSize = Integer.parseInt(parameter.getValue());
+                }catch(Exception e){
+                    setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+                    return attempts;
+                }
+            }else{
+                setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+                return attempts;
+            }
         }
 
         TaskAttemptExample example = new TaskAttemptExample();
         example.or().andTaskidEqualTo(taskID);
+        String orderByClause = "scheduleTime desc limit " + index * pageSize + "," + pageSize;
+        example.setOrderByClause(orderByClause);
         List<TaskAttempt> ats = taskAttemptMapper.selectByExample(example);
+        int counter = 1;
         for (TaskAttempt at : ats) {
             AttemptDTO dto = new AttemptDTO();
+            dto.setId(counter++);
             dto.setAttemptID(at.getAttemptid());
             if (at.getEndtime() != null) {
                 dto.setEndTime(at.getEndtime());
@@ -70,7 +92,7 @@ public class AttemptsResource extends ServerResource implements IAttemptsResourc
             if (at.getStarttime() != null) {
                 dto.setStartTime(at.getStarttime());
             }
-            dto.setStatus(at.getStatus());
+            dto.setStatus(AttemptStatus.getInstanceRunState(at.getStatus()));
             dto.setTaskID(at.getTaskid());
             attempts.add(dto);
         }

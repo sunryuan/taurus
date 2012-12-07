@@ -33,7 +33,7 @@ public class TaskDTO implements Serializable {
 
     private String crontab;
 
-    private Integer status;
+    private String status;
 
     private Integer allowmultiinstances;
 
@@ -47,20 +47,20 @@ public class TaskDTO implements Serializable {
 
     private Integer retrytimes;
 
-    private Integer retryexpiretimeout;
-
     private String command;
 
     private Integer poolid;
 
     private String type;
+    
+    private String description;
 
     public TaskDTO(){}
-    
+
     public TaskDTO(String taskid, String name, String creator, String dependencyexpr, Date addtime, Date lastscheduletime,
-                   Date updatetime, String crontab, Integer status, Integer allowmultiinstances, String proxyuser,
-                   Integer waittimeout, Integer executiontimeout, Boolean isautoretry, Integer retrytimes,
-                   Integer retryexpiretimeout, String command, Integer poolid, String type) {
+                   Date updatetime, String crontab, String status, Integer allowmultiinstances, String proxyuser,
+                   Integer waittimeout, Integer executiontimeout, Boolean isautoretry, Integer retrytimes, String command,
+                   Integer poolid, String type, String description) {
         super();
         this.taskid = taskid;
         this.name = name;
@@ -77,11 +77,13 @@ public class TaskDTO implements Serializable {
         this.executiontimeout = executiontimeout;
         this.isautoretry = isautoretry;
         this.retrytimes = retrytimes;
-        this.retryexpiretimeout = retryexpiretimeout;
         this.command = command;
         this.poolid = poolid;
         this.type = type;
+        this.description = description;
     }
+
+
 
     public String getTaskid() {
         return taskid;
@@ -115,7 +117,7 @@ public class TaskDTO implements Serializable {
         return crontab;
     }
 
-    public Integer getStatus() {
+    public String getStatus() {
         return status;
     }
 
@@ -143,10 +145,6 @@ public class TaskDTO implements Serializable {
         return retrytimes;
     }
 
-    public Integer getRetryexpiretimeout() {
-        return retryexpiretimeout;
-    }
-
     public String getCommand() {
         return command;
     }
@@ -157,6 +155,10 @@ public class TaskDTO implements Serializable {
 
     public String getType() {
         return type;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public void setTaskid(String taskid) {
@@ -191,7 +193,7 @@ public class TaskDTO implements Serializable {
         this.crontab = crontab;
     }
 
-    public void setStatus(Integer status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 
@@ -219,10 +221,6 @@ public class TaskDTO implements Serializable {
         this.retrytimes = retrytimes;
     }
 
-    public void setRetryexpiretimeout(Integer retryexpiretimeout) {
-        this.retryexpiretimeout = retryexpiretimeout;
-    }
-
     public void setCommand(String command) {
         this.command = command;
     }
@@ -235,19 +233,18 @@ public class TaskDTO implements Serializable {
         this.type = type;
     }
 
-	@Override
-	public String toString() {
-		return "TaskDTO [taskid=" + taskid + ", name=" + name + ", creator="
-				+ creator + ", dependencyexpr=" + dependencyexpr + ", addtime="
-				+ addtime + ", lastscheduletime=" + lastscheduletime
-				+ ", updatetime=" + updatetime + ", crontab=" + crontab
-				+ ", status=" + status + ", allowmultiinstances="
-				+ allowmultiinstances + ", proxyuser=" + proxyuser
-				+ ", waittimeout=" + waittimeout + ", executiontimeout="
-				+ executiontimeout + ", isautoretry=" + isautoretry
-				+ ", retrytimes=" + retrytimes + ", retryexpiretimeout="
-				+ retryexpiretimeout + ", command=" + command + ", poolid="
-				+ poolid + ", type=" + type + "]";
-	}
-	
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    @Override
+    public String toString() {
+        return "TaskDTO [taskid=" + taskid + ", name=" + name + ", creator=" + creator + ", dependencyexpr=" + dependencyexpr
+                + ", addtime=" + addtime + ", lastscheduletime=" + lastscheduletime + ", updatetime=" + updatetime + ", crontab="
+                + crontab + ", status=" + status + ", allowmultiinstances=" + allowmultiinstances + ", proxyuser=" + proxyuser
+                + ", waittimeout=" + waittimeout + ", executiontimeout=" + executiontimeout + ", isautoretry=" + isautoretry
+                + ", retrytimes=" + retrytimes + ", command=" + command + ", poolid=" + poolid + ", type=" + type
+                + ", description=" + description + "]";
+    }
+    
 }

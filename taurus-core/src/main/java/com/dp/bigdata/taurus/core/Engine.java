@@ -34,9 +34,9 @@ final public class Engine implements Scheduler {
 
     private static final Log LOG = LogFactory.getLog(Engine.class);
 
-    private Map<String, Task> registedTasks; // Map<taskID, task>
-    private Map<String, String> tasksMapCache; // Map<name, taskID>
-    private Map<String, HashMap<String, AttemptContext>> runningAttempts; // Map<taskID,HashMap<attemptID,AttemptContext>>
+    private final Map<String, Task> registedTasks; // Map<taskID, task>
+    private final Map<String, String> tasksMapCache; // Map<name, taskID>
+    private final Map<String, HashMap<String, AttemptContext>> runningAttempts; // Map<taskID,HashMap<attemptID,AttemptContext>>
     private Runnable progressMonitor;
     @Autowired
     @Qualifier("triggle.crontab")
@@ -125,6 +125,7 @@ final public class Engine implements Scheduler {
 
     }
 
+    @Override
     public synchronized void registerTask(Task task) throws ScheduleException {
         if (!registedTasks.containsKey(task.getTaskid())) {
             registedTasks.put(task.getTaskid(), task);
@@ -134,6 +135,7 @@ final public class Engine implements Scheduler {
         }
     }
 
+    @Override
     public synchronized void unRegisterTask(String taskID) throws ScheduleException {
         Map<String, AttemptContext> contexts = runningAttempts.get(taskID);
         if (contexts != null && contexts.size() > 0) {
@@ -148,6 +150,7 @@ final public class Engine implements Scheduler {
         }
     }
 
+    @Override
     public synchronized void updateTask(Task task) throws ScheduleException {
         if (registedTasks.containsKey(task.getTaskid())) {
             registedTasks.remove(task.getTaskid());
@@ -158,6 +161,7 @@ final public class Engine implements Scheduler {
         }
     }
 
+    @Override
     public synchronized void executeTask(String taskID, long timeout) throws ScheduleException {
         //TODO timeout
         String instanceID = idFactory.newInstanceID(taskID);
@@ -165,18 +169,31 @@ final public class Engine implements Scheduler {
         String attemptID = idFactory.newAttemptID(instanceID);
         attempt.setInstanceid(instanceID);
         attempt.setTaskid(taskID);
-        attempt.setStatus(AttemptStatus.INITIALIZED);
+        attempt.setStatus(AttemptStatus.UNKNOWN);
         attempt.setAttemptid(attemptID);
         attempt.setScheduletime(new Date());
+        taskAttemptMapper.insertSelective(attempt);
         Task task = registedTasks.get(taskID);
         AttemptContext context = new AttemptContext(attempt, task);
         executeAttempt(context);
     }
 
+    @Override
     public synchronized void suspendTask(String taskID) throws ScheduleException {
         if (registedTasks.containsKey(taskID)) {
             Task task = registedTasks.get(taskID);
             task.setStatus(TaskStatus.SUSPEND);
+            taskMapper.updateByPrimaryKey(task);
+        } else {
+            throw new ScheduleException("The task : " + taskID + " has not been found.");
+        }
+    }
+
+    @Override
+    public void resumeTask(String taskID) throws ScheduleException {
+        if (registedTasks.containsKey(taskID)) {
+            Task task = registedTasks.get(taskID);
+            task.setStatus(TaskStatus.RUNNING);
             taskMapper.updateByPrimaryKey(task);
         } else {
             throw new ScheduleException("The task : " + taskID + " has not been found.");
@@ -206,6 +223,7 @@ final public class Engine implements Scheduler {
         registAttemptContext(context);
     }
 
+    @Override
     public boolean isRuningAttempt(String attemptID) {
         HashMap<String, AttemptContext> contexts = runningAttempts.get(AttemptID.getTaskID(attemptID));
         AttemptContext context = contexts.get(attemptID);
@@ -217,6 +235,7 @@ final public class Engine implements Scheduler {
 
     }
 
+    @Override
     public synchronized void killAttempt(String attemptID) throws ScheduleException {
         HashMap<String, AttemptContext> contexts = runningAttempts.get(AttemptID.getTaskID(attemptID));
         AttemptContext context = contexts.get(attemptID);
@@ -235,6 +254,7 @@ final public class Engine implements Scheduler {
         unregistAttemptContext(context);
     }
 
+    @Override
     public void attemptSucceed(String attemptID) {
         AttemptContext context = runningAttempts.get(AttemptID.getTaskID(attemptID)).get(attemptID);
         TaskAttempt attempt = context.getAttempt();
@@ -245,6 +265,7 @@ final public class Engine implements Scheduler {
         unregistAttemptContext(context);
     }
 
+    @Override
     public void attemptExpired(String attemptID) {
         AttemptContext context = runningAttempts.get(AttemptID.getTaskID(attemptID)).get(attemptID);
         TaskAttempt attempt = context.getAttempt();
@@ -253,6 +274,7 @@ final public class Engine implements Scheduler {
         taskAttemptMapper.updateByPrimaryKeySelective(attempt);
     }
 
+    @Override
     public void attemptFailed(String attemptID) {
         AttemptContext context = runningAttempts.get(AttemptID.getTaskID(attemptID)).get(attemptID);
         TaskAttempt attempt = context.getAttempt();
@@ -289,6 +311,7 @@ final public class Engine implements Scheduler {
         }
     }
 
+    @Override
     public List<AttemptContext> getAllRunningAttempt() {
         List<AttemptContext> contexts = new ArrayList<AttemptContext>();
         for (HashMap<String, AttemptContext> maps : runningAttempts.values()) {
@@ -299,6 +322,7 @@ final public class Engine implements Scheduler {
         return Collections.unmodifiableList(contexts);
     }
 
+    @Override
     public List<AttemptContext> getRunningAttemptsByTaskID(String taskID) {
         List<AttemptContext> contexts = new ArrayList<AttemptContext>();
         HashMap<String, AttemptContext> maps = runningAttempts.get(taskID);
@@ -311,6 +335,7 @@ final public class Engine implements Scheduler {
         return Collections.unmodifiableList(contexts);
     }
 
+    @Override
     public AttemptStatus getAttemptStatus(String attemptID) {
         HashMap<String, AttemptContext> maps = runningAttempts.get(AttemptID.getTaskID(attemptID));
         AttemptContext context = maps.get(attemptID);
@@ -356,10 +381,12 @@ final public class Engine implements Scheduler {
         }
     }
 
+    @Override
     public Map<String, Task> getAllRegistedTask() {
         return Collections.unmodifiableMap(registedTasks);
     }
 
+    @Override
     public synchronized Task getTaskByName(String name) throws ScheduleException {
         if (tasksMapCache.containsKey(name)) {
             String taskID = tasksMapCache.get(name);
@@ -386,10 +413,12 @@ final public class Engine implements Scheduler {
         this.progressMonitor = progressMonitor;
     }
 
+    @Override
     public int getMaxConcurrency() {
         return maxConcurrency;
     }
 
+    @Override
     public void setMaxConcurrency(int maxConcurrency) {
         this.maxConcurrency = maxConcurrency;
     }

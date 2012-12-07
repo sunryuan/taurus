@@ -3,6 +3,7 @@ package com.dp.bigdata.taurus.restlet.resource.impl;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.restlet.data.Status;
+import org.restlet.resource.Get;
 import org.restlet.resource.ServerResource;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -23,7 +24,7 @@ public class AttemptResource extends ServerResource implements IAttemptResource 
     private Scheduler scheduler;
 
     @Override
-    public void remove() {
+    public void kill() {
         String attemptID = (String) getRequest().getAttributes().get("attempt_id");
 
         boolean isRunning = scheduler.isRuningAttempt(attemptID);
@@ -40,6 +41,13 @@ public class AttemptResource extends ServerResource implements IAttemptResource 
             setStatus(Status.SERVER_ERROR_INTERNAL);
         }
 
+    }
+
+    @Override
+    @Get
+    public String log() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }
