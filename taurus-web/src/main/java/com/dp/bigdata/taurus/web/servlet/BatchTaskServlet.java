@@ -34,7 +34,8 @@ public class BatchTaskServlet extends HttpServlet{
 	private static final long serialVersionUID = 2348545179764589572L;
 	private static final Log s_logger = LogFactory.getLog(BatchTaskServlet.class);
 	private static final String FILE_DIR = "/tmp/";
-	private static final String[] PARAM_NAME_LIST = {"taskName","taskType","poolId",
+	//TODO need to be exactly the same as it's in restlet side
+	private static final String[] PARAM_NAME_LIST = {"taskName","taskType","creator","description","poolId",
 		"taskState","taskCommand","multiInstance","crontab","dependency","proxyUser",
 		"maxExecutionTime","maxWaitTime","isAutoRetry","retryTimes"};
 
