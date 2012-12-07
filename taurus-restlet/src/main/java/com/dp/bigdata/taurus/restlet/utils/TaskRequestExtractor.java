@@ -53,6 +53,7 @@ public class TaskRequestExtractor implements RequestExtrator<Task>{
     @Autowired
     private NameResource nameResource;
     
+    @Override
     public Task extractTask(Request request, boolean isUpdateAction) throws Exception {
         Task task = new Task();
         Date current = new Date();
@@ -64,8 +65,6 @@ public class TaskRequestExtractor implements RequestExtrator<Task>{
             task.setStatus(TaskStatus.RUNNING);
         }
         task.setUpdatetime(current);
-        String name = CookieUtils.getUser(request);
-        task.setCreator(name);
         Map<String, String> formMap;
         Representation re = request.getEntity();
         if(MediaType.MULTIPART_FORM_DATA.equals(re.getMediaType(), false)){
@@ -117,7 +116,11 @@ public class TaskRequestExtractor implements RequestExtrator<Task>{
                 task.setExecutiontimeout(Integer.parseInt(value));
             } else if (key.equals(GWTTaskDetailControlName.MAXWAITTIME.getName())) {
                 task.setWaittimeout(Integer.parseInt(value));
-            } else if (key.equals(GWTTaskDetailControlName.RETRYTIMES.getName())) {
+            } else if (key.equals(GWTTaskDetailControlName.CREATOR.getName())) {
+                task.setCreator(value);
+            } else if (key.equals(GWTTaskDetailControlName.DESCRIPTION.getName())) {
+                task.setDescription(value);
+            }else if (key.equals(GWTTaskDetailControlName.RETRYTIMES.getName())) {
                 int retryNum = Integer.parseInt(value);
                 task.setRetrytimes(retryNum);
                 if(retryNum > 0){
@@ -140,7 +143,11 @@ public class TaskRequestExtractor implements RequestExtrator<Task>{
     }
 
     private void validate(Task task) throws Exception {
-        if(task.getDependencyexpr() != null && !task.getDependencyexpr().equals("")){
+        if (StringUtils.isBlank(task.getCreator())) {
+            throw new InvalidArgumentException("Cannot get creator name from request");
+        }
+
+        if (StringUtils.isNotBlank(task.getDependencyexpr())) {
             if(!DependencyParser.isValidateExpression(task.getDependencyexpr())){
                 throw new InvalidArgumentException("Invalid dependency expression : " + task.getDependencyexpr());
             }
