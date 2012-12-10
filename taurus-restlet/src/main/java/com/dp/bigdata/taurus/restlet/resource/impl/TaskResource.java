@@ -2,6 +2,7 @@ package com.dp.bigdata.taurus.restlet.resource.impl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.restlet.Request;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
@@ -20,6 +21,7 @@ import com.dp.bigdata.taurus.restlet.utils.FilePathManager;
 import com.dp.bigdata.taurus.restlet.utils.HdfsUtils;
 import com.dp.bigdata.taurus.restlet.utils.RequestExtrator;
 import com.dp.bigdata.taurus.restlet.utils.TaskConverter;
+import com.mysql.jdbc.StringUtils;
 
 /**
  * Resource url : http://xxx.xxx/api/task/{task_id}
@@ -44,7 +46,7 @@ public class TaskResource extends ServerResource implements ITaskResource {
 
     @Autowired
     private FilePathManager filePathManager;
-    
+
     @Override
     public TaskDTO retrieve() {
         String taskID = (String) getRequestAttributes().get("task_id");
@@ -69,30 +71,34 @@ public class TaskResource extends ServerResource implements ITaskResource {
 
     @Override
     public void update(Representation re) {
-        if (re == null || MediaType.MULTIPART_FORM_DATA.equals(re.getMediaType(), false)) {
+        if (re == null) {
             setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
             return;
         }
 
         final Task task;
+        Request req = getRequest();
         try {
-            task = requestExtractor.extractTask(getRequest(), true);
+            task = requestExtractor.extractTask(req, true);
         } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
             setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
             return;
         }
 
-        final String srcPath = filePathManager.getLocalPath(task.getFilename());
-        final String destPath = filePathManager.getRemotePath(task.getTaskid(), task.getFilename());
-        try {
-            hdfsUtils.removeFile(destPath); //TODO
-            hdfsUtils.writeFile(srcPath, destPath);
-            agentDeployUtils.notifyAllAgent(task, DeployOptions.UNDEPLOY);
-            agentDeployUtils.notifyAllAgent(task, DeployOptions.DEPLOY);
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            setStatus(Status.SERVER_ERROR_INTERNAL);
-            return;
+        if (MediaType.MULTIPART_FORM_DATA.equals(re.getMediaType(), false) && !StringUtils.isNullOrEmpty(task.getFilename())) {
+            final String srcPath = filePathManager.getLocalPath(task.getFilename());
+            final String destPath = filePathManager.getRemotePath(task.getTaskid(), task.getFilename());
+            try {
+                hdfsUtils.removeFile(destPath);
+                hdfsUtils.writeFile(srcPath, destPath);
+                agentDeployUtils.notifyAllAgent(task, DeployOptions.UNDEPLOY);
+                agentDeployUtils.notifyAllAgent(task, DeployOptions.DEPLOY);
+            } catch (Exception e) {
+                LOG.error(e.getMessage(), e);
+                setStatus(Status.SERVER_ERROR_INTERNAL);
+                return;
+            }
         }
         try {
             scheduler.updateTask(task);

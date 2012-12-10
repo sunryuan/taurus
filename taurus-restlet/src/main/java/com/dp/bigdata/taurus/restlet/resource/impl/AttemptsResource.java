@@ -30,39 +30,38 @@ public class AttemptsResource extends ServerResource implements IAttemptsResourc
 
     private static final int DEFAULT_PAGE_SIZE = 500;
 
+    ArrayList<AttemptDTO> attempts = new ArrayList<AttemptDTO>();
+
     @Autowired
     private TaskAttemptMapper taskAttemptMapper;
 
     @Override
     @Get
     public ArrayList<AttemptDTO> retrieve() {
-        ArrayList<AttemptDTO> attempts = new ArrayList<AttemptDTO>();
-
         Form form = getRequest().getResourceRef().getQueryAsForm();
-
         String parameterName = "";
         String taskID = "";
         int index = 0;
         int pageSize = DEFAULT_PAGE_SIZE;
         for (Parameter parameter : form) {
             parameterName = parameter.getName();
-            if(parameterName.equals(TASK)){
+            if (parameterName.equals(TASK)) {
                 taskID = parameter.getValue();
-            }else if(parameterName.equals(INDEX)){
-                try{
+            } else if (parameterName.equals(INDEX)) {
+                try {
                     index = Integer.parseInt(parameter.getValue());
-                }catch(Exception e){
+                } catch (Exception e) {
                     setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
                     return attempts;
                 }
-            }else if(parameterName.equals(PAGESIZE)){
-                try{
+            } else if (parameterName.equals(PAGESIZE)) {
+                try {
                     pageSize = Integer.parseInt(parameter.getValue());
-                }catch(Exception e){
+                } catch (Exception e) {
                     setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
                     return attempts;
                 }
-            }else{
+            } else {
                 setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
                 return attempts;
             }
@@ -73,10 +72,15 @@ public class AttemptsResource extends ServerResource implements IAttemptsResourc
         String orderByClause = "scheduleTime desc limit " + index * pageSize + "," + pageSize;
         example.setOrderByClause(orderByClause);
         List<TaskAttempt> ats = taskAttemptMapper.selectByExample(example);
-        int counter = 1;
-        for (TaskAttempt at : ats) {
+        toDtoList(ats);
+        return attempts;
+    }
+
+    private void toDtoList(List<TaskAttempt> ats) {
+        for (int i = 0; i < ats.size(); i++) {
+            TaskAttempt at = ats.get(i);
             AttemptDTO dto = new AttemptDTO();
-            dto.setId(counter++);
+            dto.setId(i++);
             dto.setAttemptID(at.getAttemptid());
             if (at.getEndtime() != null) {
                 dto.setEndTime(at.getEndtime());
@@ -96,7 +100,6 @@ public class AttemptsResource extends ServerResource implements IAttemptsResourc
             dto.setTaskID(at.getTaskid());
             attempts.add(dto);
         }
-        return attempts;
     }
 
 }

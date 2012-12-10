@@ -33,7 +33,7 @@ public class BatchTaskServlet extends HttpServlet{
 
 	private static final long serialVersionUID = 2348545179764589572L;
 	private static final Log s_logger = LogFactory.getLog(BatchTaskServlet.class);
-	private static final String FILE_DIR = "/tmp/";
+    private static final String FILE_DIR = "F:\\";
 	//TODO need to be exactly the same as it's in restlet side
 	private static final String[] PARAM_NAME_LIST = {"taskName","taskType","creator","description","poolId",
 		"taskState","taskCommand","multiInstance","crontab","dependency","proxyUser",
@@ -49,7 +49,7 @@ public class BatchTaskServlet extends HttpServlet{
 
 		try {
 			@SuppressWarnings("unchecked")
-			List<FileItem> items = (List<FileItem>)upload.parseRequest(req);
+			List<FileItem> items = upload.parseRequest(req);
 			FileItem item = items.get(0);
 			File file = new File(FILE_DIR + item.getName());
 			item.write(file);
@@ -140,8 +140,8 @@ public class BatchTaskServlet extends HttpServlet{
 	}
 
 	private static final class Result{
-		private String name;
-		private boolean success;
+		private final String name;
+		private final boolean success;
 
 		public Result(String name, boolean success) {
 			super();
