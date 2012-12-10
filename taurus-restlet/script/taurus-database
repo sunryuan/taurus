@@ -1,0 +1,64 @@
+CREATE TABLE `TaurusHost` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) DEFAULT NULL,
+  `ip` varchar(100) DEFAULT NULL,
+  `poolID` int(11) DEFAULT '1',
+  `isConnected` tinyint(1) DEFAULT '1',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8
+
+CREATE TABLE `TaurusInstanceIDCounter` (
+  `instanceID` varchar(50) NOT NULL,
+  `counter` int(11) DEFAULT NULL,
+  PRIMARY KEY (`instanceID`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8
+
+CREATE TABLE `TaurusPool` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(100) DEFAULT NULL,
+  `creator` VARCHAR(100) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=INNODB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8
+
+CREATE TABLE `TaurusTask` (
+  `taskID` VARCHAR(100) NOT NULL COMMENT 'ID',
+  `name` VARCHAR(100) DEFAULT NULL COMMENT '任务的名字',
+  `creator` VARCHAR(100) DEFAULT NULL COMMENT '创建人',
+  `dependencyExpr` VARCHAR(200) DEFAULT NULL COMMENT '依赖表达式',
+  `addTime` DATETIME DEFAULT NULL COMMENT '添加时间',
+  `lastScheduleTime` DATETIME DEFAULT NULL COMMENT '上次可执行时间',
+  `updateTime` DATETIME DEFAULT NULL COMMENT '更新时间',
+  `crontab` VARCHAR(100) DEFAULT NULL COMMENT 'crontab表达式',
+  `status` INT(4) DEFAULT NULL COMMENT '1:正常2：挂起3：未就绪',
+  `allowMultiInstances` INT(11) DEFAULT '1' COMMENT '任务的状态',
+  `proxyUser` VARCHAR(50) DEFAULT NULL COMMENT '允许同时的instance数目',
+  `waitTimeout` INT(11) DEFAULT NULL COMMENT '代理用户',
+  `executionTimeout` INT(11) DEFAULT NULL COMMENT '执行超期时间',
+  `isAutoRetry` TINYINT(1) DEFAULT '0' COMMENT '是否允许重试',
+  `retryTimes` INT(11) DEFAULT '1' COMMENT '重试次数',
+  `command` VARCHAR(255) DEFAULT NULL COMMENT '命令行',
+  `poolID` INT(11) DEFAULT NULL COMMENT '在哪个pool中执行',
+  `type` VARCHAR(100) DEFAULT NULL COMMENT '作业的类型',
+  `fileName` VARCHAR(200) DEFAULT NULL COMMENT '作业文件的名字',
+  `description` TEXT COMMENT '对该任务的描述',
+  PRIMARY KEY (`taskID`)
+) ENGINE=INNODB DEFAULT CHARSET=utf8
+
+CREATE TABLE `TaurusTaskAttempt` (
+  `attemptID` VARCHAR(100) NOT NULL,
+  `instanceID` VARCHAR(100) DEFAULT NULL,
+  `taskID` VARCHAR(100) DEFAULT NULL,
+  `startTime` DATETIME DEFAULT NULL,
+  `endTime` DATETIME DEFAULT NULL,
+  `scheduleTime` DATETIME DEFAULT NULL,
+  `status` INT(4) DEFAULT NULL,
+  `returnValue` INT(11) DEFAULT NULL,
+  `execHost` VARCHAR(100) DEFAULT NULL,
+  PRIMARY KEY (`attemptID`)
+) ENGINE=INNODB DEFAULT CHARSET=utf8
+
+CREATE TABLE `TaurusTaskIDCounter` (
+  `taskID` VARCHAR(50) NOT NULL,
+  `counter` INT(20) DEFAULT NULL,
+  PRIMARY KEY (`taskID`)
+) ENGINE=MYISAM DEFAULT CHARSET=utf8
