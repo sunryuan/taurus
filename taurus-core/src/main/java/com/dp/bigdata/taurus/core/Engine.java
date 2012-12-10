@@ -155,6 +155,7 @@ final public class Engine implements Scheduler {
         if (registedTasks.containsKey(task.getTaskid())) {
             registedTasks.remove(task.getTaskid());
             registedTasks.put(task.getTaskid(), task);
+            task.setUpdatetime(new Date());
             taskMapper.updateByPrimaryKeySelective(task);
         } else {
             throw new ScheduleException("The task : " + task.getTaskid() + " has not been found.");
@@ -183,6 +184,7 @@ final public class Engine implements Scheduler {
         if (registedTasks.containsKey(taskID)) {
             Task task = registedTasks.get(taskID);
             task.setStatus(TaskStatus.SUSPEND);
+            task.setUpdatetime(new Date());
             taskMapper.updateByPrimaryKey(task);
         } else {
             throw new ScheduleException("The task : " + taskID + " has not been found.");
@@ -194,6 +196,7 @@ final public class Engine implements Scheduler {
         if (registedTasks.containsKey(taskID)) {
             Task task = registedTasks.get(taskID);
             task.setStatus(TaskStatus.RUNNING);
+            task.setUpdatetime(new Date());
             taskMapper.updateByPrimaryKey(task);
         } else {
             throw new ScheduleException("The task : " + taskID + " has not been found.");

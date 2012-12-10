@@ -39,12 +39,12 @@ function action_ok() {
 						+ action_chinese + '成功</strong></div>');
 				$(".alert").alert();
 				$('#confirm').modal("hide");
-				if(action == 'delete'){
+				if(action_type == 'delete'){
 					$('#' + taskID).remove();
-				}else if(action == 'suspend'){
+				}else if(action_type == 'suspend'){
 					$('#' + taskID + ' td .label').addClass("label-important").removeClass('label-info');
 					$('#' + taskID + ' td .label').html('SUSPEND');
-				}else if(action == 'resume'){
+				}else if(action_type == 'resume'){
 					$('#' + taskID + ' td .label').addClass("label-info").removeClass('label-important');
 					$('#' + taskID + ' td .label').html('SUSPEND');
 				}
