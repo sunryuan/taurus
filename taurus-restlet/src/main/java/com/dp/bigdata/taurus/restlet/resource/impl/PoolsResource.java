@@ -3,6 +3,8 @@ package com.dp.bigdata.taurus.restlet.resource.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.restlet.data.Status;
 import org.restlet.resource.ServerResource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +23,7 @@ import com.mysql.jdbc.StringUtils;
  */
 public class PoolsResource extends ServerResource implements IPoolsResource {
 
-    //private static final Log logger = LogFactory.getLog(PoolsResource.class);
+    private static final Log LOG = LogFactory.getLog(PoolsResource.class);
 
     @Autowired
     private PoolMapper poolMapper;
@@ -46,7 +48,7 @@ public class PoolsResource extends ServerResource implements IPoolsResource {
                 Pool pool = new Pool();
                 pool.setName(t.getName());
                 if(StringUtils.isNullOrEmpty(t.getCreator())){
-                    pool.setCreator("admin");
+                    pool.setCreator("unknown");
                 }else{
                     pool.setCreator(t.getCreator());
                 }
@@ -54,6 +56,7 @@ public class PoolsResource extends ServerResource implements IPoolsResource {
                 setStatus(Status.SUCCESS_CREATED);
             } catch (Exception e) {
                 setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+                LOG.info(e.getMessage(), e);
             }
         } else {
             setStatus(Status.CLIENT_ERROR_BAD_REQUEST);

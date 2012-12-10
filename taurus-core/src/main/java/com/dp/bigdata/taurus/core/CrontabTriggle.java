@@ -29,7 +29,7 @@ public class CrontabTriggle implements Triggle {
     @Autowired
     private IDFactory idFactory;
 
-    private Scheduler scheduler;
+    private final Scheduler scheduler;
 
     @Autowired
     public CrontabTriggle(Scheduler scheduler) {
@@ -45,14 +45,12 @@ public class CrontabTriggle implements Triggle {
                 continue;
             }
 
-            /*
-             * validate the cron-expression
-             */
+            // validate the cron-expression
             CronExpression ce = null;
             try {
                 ce = new CronExpression(task.getCrontab());
             } catch (ParseException e) {
-                LOG.error("parse contab error for task id : " + task.getTaskid() + " when crontab string is : " + task.getCrontab());
+                LOG.error("Parse contab error for task id : " + task.getTaskid() + " when crontab string is : " + task.getCrontab());
                 try {
                     scheduler.suspendTask(task.getTaskid());
                 } catch (ScheduleException e1) {
@@ -61,14 +59,10 @@ public class CrontabTriggle implements Triggle {
                 continue;
             }
 
-            /*
-             * get the previous fire time and previous attempt
-             */
+            //get the previous fire time and previous attempt
             Date previousFireTime = getPreviousFireTime(task, now);
 
-            /*
-             * iterator each fire time from last previousFireTime to current.
-             */
+            //iterator each fire time from last previousFireTime to current.
             Date nextFireTime = ce.getNextValidTimeAfter(previousFireTime);
             while (nextFireTime.before(now)) {
                 String instanceID = idFactory.newInstanceID(task.getTaskid());
@@ -85,6 +79,7 @@ public class CrontabTriggle implements Triggle {
         }
     }
 
+    @Override
     public void triggle() {
         triggle(new Date());
     }
@@ -92,9 +87,7 @@ public class CrontabTriggle implements Triggle {
     private Date getPreviousFireTime(Task task, Date now) {
         List<TaskAttempt> attempts = retrieveTaskAttemptByTaskID(task.getTaskid());
         Date previousFireTime;
-        /*
-         * if it is the first time to execute this task, set time to now; otherwise set to the first attempt's schedule time.
-         */
+        // if it is the first time to execute this task, set time to now; otherwise set to the first attempt's schedule time.
         if (attempts == null || attempts.size() == 0) {
             Calendar lastExecDateCal = Calendar.getInstance();
             lastExecDateCal.setTime(now);
@@ -106,9 +99,7 @@ public class CrontabTriggle implements Triggle {
             previousFireTime = attempts.get(0).getScheduletime();
         }
 
-        /*
-         * if lastScheduleTime is after previous schedule time, set previousFireTime = lastScheduleTime.
-         */
+        //if lastScheduleTime is after previous schedule time, set previousFireTime = lastScheduleTime.
         Date lastScheduleTime = task.getLastscheduletime();
         if (lastScheduleTime != null && lastScheduleTime.after(previousFireTime)) {
             previousFireTime = lastScheduleTime;

@@ -74,10 +74,13 @@
 								Action<span class="caret"></span>
 							</button>
 							<ul class="dropdown-menu">
+                            	<%if(state.equals("RUNNING")){%>
 								<li><a href="#confirm" onClick="action($(this).parents('tr').find('td')[0].textContent)">Kill</a>
 								</li>
+                                <%}else {%>
 								<li><a href="#log">日志</a>
 								</li>
+                                <%}%>
 							</ul>
 						</div></td>
 				</tr>

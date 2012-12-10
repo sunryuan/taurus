@@ -59,7 +59,6 @@ public class TasksResource extends ServerResource implements ITasksResource {
 	@Get
 	@Override
 	public ArrayList<TaskDTO> retrieve() {
-		LOG.info("Get all tasks list...");
 		TaskExample example = new TaskExample();
         example.or().andStatusEqualTo(TaskStatus.RUNNING);
         example.or().andStatusEqualTo(TaskStatus.SUSPEND);
@@ -77,8 +76,7 @@ public class TasksResource extends ServerResource implements ITasksResource {
 	@Override
 	public void create(Representation re) {
 		if (re == null) {
-			LOG.error("Content-type is not accepted.");
-			setResponse(Status.CLIENT_ERROR_BAD_REQUEST);
+            setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
 			return;
 		}
 
@@ -88,7 +86,7 @@ public class TasksResource extends ServerResource implements ITasksResource {
 			task = requestExtractor.extractTask(req, false);
 		} catch (Exception e) {
 			LOG.error(e.getMessage() , e);
-			setResponse(Status.CLIENT_ERROR_BAD_REQUEST);
+            setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
 			return;
 		}
 
@@ -100,26 +98,17 @@ public class TasksResource extends ServerResource implements ITasksResource {
 				agentDeployUtils.notifyAllAgent(task, DeployOptions.DEPLOY);
 			} catch (Exception e) {
 				LOG.error(e.getMessage(), e);
-				setResponse(Status.SERVER_ERROR_INTERNAL);
+                setStatus(Status.SERVER_ERROR_INTERNAL);
 				return;
 			}
 		}
 		try {
 			scheduler.registerTask(task);
-			setResponse(Status.SUCCESS_CREATED);
+            setStatus(Status.SUCCESS_CREATED);
 		} catch (ScheduleException e) {
 			LOG.error(e.getMessage(), e);
-			setResponse(Status.SERVER_ERROR_INTERNAL);
+            setStatus(Status.SERVER_ERROR_INTERNAL);
 		}
 	}
 
-	private void setResponse(Status status) {
-		setStatus(status);
-		getResponse().setEntity(html(status), MediaType.TEXT_HTML);
-	}
-
-	private String html(Status status) {
-		return "<html><body><script type=\"text/javascript\">" + "if (parent.uploadComplete) parent.uploadComplete('"
-		+ status.getCode() + "');" + "</script></body><ml>";
-	}
 }
