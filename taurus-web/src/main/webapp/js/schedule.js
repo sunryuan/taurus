@@ -1,24 +1,18 @@
 var taskID;
-var action_type;
 var action_chinese;
-function action(id, action) {
+function action(id, index) {
+	action_chinese = $("#" + id + " .dropdown-menu li:nth-child(" + index + ") a").html();
 	taskID = id;
-	action_type = action;
-	if (action == 'delete') {
-		action_chinese = '删除';
+	if (action_chinese == '删除') {
 		$("#id_header").html("删除");
 		$("#id_body").html("确定要删除任务<strong>" + id + "</strong>");
-
-	} else if (action == 'suspend') {
-		action_chinese = '暂停';
+	} else if (action_chinese == '暂停') {
 		$("#id_header").html("暂停");
 		$("#id_body").html("确定要暂停任务<strong>" + id + "</strong>");
-	} else if (action == 'execute') {
-		action_chinese = '立刻执行';
-		$("#id_header").html("立刻执行");
-		$("#id_body").html("确定要立刻执行任务<strong>" + id + "</strong>");
-	} else if (action == 'resume') {
-		action_chinese = '恢复';
+	} else if (action_chinese == '执行') {
+		$("#id_header").html("执行");
+		$("#id_body").html("确定要执行任务<strong>" + id + "</strong>");
+	} else if (action_chinese == '恢复') {
 		$("#id_header").html("恢复");
 		$("#id_body").html("确定要恢复任务<strong>" + id + "</strong>");
 	}
@@ -29,7 +23,7 @@ function action_ok() {
 	$.ajax({
 		url : "./tasks",
 		data : {
-			action : action_type,
+			action : toAction(action_chinese),
 			id : taskID
 		},
 		type : 'POST',
@@ -39,14 +33,18 @@ function action_ok() {
 						+ action_chinese + '成功</strong></div>');
 				$(".alert").alert();
 				$('#confirm').modal("hide");
-				if(action_type == 'delete'){
+				if(action_chinese == '删除'){
 					$('#' + taskID).remove();
-				}else if(action_type == 'suspend'){
+				}else if(action_chinese == '暂停'){
+					$('#' + taskID).addClass("error");
 					$('#' + taskID + ' td .label').addClass("label-important").removeClass('label-info');
 					$('#' + taskID + ' td .label').html('SUSPEND');
-				}else if(action_type == 'resume'){
+					$('#' + taskID + ' .dropdown-menu li:nth-child(2) a').html("恢复");
+				}else if(action_chinese == '恢复'){
+					$('#' + taskID).removeClass("error");
 					$('#' + taskID + ' td .label').addClass("label-info").removeClass('label-important');
-					$('#' + taskID + ' td .label').html('SUSPEND');
+					$('#' + taskID + ' td .label').html('RUNNING');
+					$('#' + taskID + ' .dropdown-menu li:nth-child(2) a').html("暂停");
 				}
 				
 			},
@@ -55,7 +53,27 @@ function action_ok() {
 						+ action_chinese + '失败</strong></div>');
 				$(".alert").alert();
 				$('#confirm').modal("hide");
+			},
+			500 : function() {
+				$("#alertContainer").html('<div id="alertContainer" class="alert alert-error"><button type="button" class="close" data-dismiss="alert">&times;</button> 由于服务器原因， <strong>'
+						+ action_chinese + '失败</strong></div>');
+				$(".alert").alert();
+				$('#confirm').modal("hide");
 			}
 		}
 	});
+}
+
+function toAction(chinese){
+	var action;
+	if(chinese == "删除"){
+		action = "delete";
+	}else if(chinese == "暂停"){
+		action = "suspend";
+	}else if(chinese == "恢复"){
+		action = "resume";
+	}else if(chinese == "执行"){
+		action = "execute";
+	}
+	return action;
 }
