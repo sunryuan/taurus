@@ -40,7 +40,7 @@
 					for(AttemptDTO dto : attempts){
 						String state = dto.getStatus();
 				%>
-				<tr id="<%=dto.getId()%>">
+				<tr id="<%=dto.getAttemptID()%>">
 					<td><%=dto.getId()%></td>
                     <%if(dto.getStartTime()!=null){%>
 						<td><%=formatter.format(dto.getStartTime())%></td>

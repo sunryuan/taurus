@@ -25,8 +25,8 @@ import com.dp.bigdata.taurus.zookeeper.common.utils.ClassLoaderUtils;
 public class DefaultHdfsUtils implements HdfsUtils {
     private final String CONFIG_FILE = "restlet.properties";
     private final int BUFFER_SIZE = 1024 * 1024;
-    private Properties props = new Properties();
-    private Configuration conf = new Configuration();
+    private final Properties props = new Properties();
+    private final Configuration conf = new Configuration();
 
     public void init() {
         try {
@@ -49,6 +49,7 @@ public class DefaultHdfsUtils implements HdfsUtils {
         }
     }
 
+    @Override
     public void writeFile(String srcFile, String destFile) throws IOException, FileNotFoundException {
         File file = new File(srcFile);
         if(!file.exists()){
@@ -73,12 +74,20 @@ public class DefaultHdfsUtils implements HdfsUtils {
         fs.close();
     }
 
+    @Override
     public void removeFile(String srcFile) throws IOException, FileNotFoundException {
         FileSystem fs = FileSystem.get(URI.create(srcFile), conf);
         Path path = new Path(srcFile);
         if (fs.exists(path)) {
             fs.delete(path, true);
         }
+        fs.close();
+    }
+
+    @Override
+    public void readFile(String srcFile, String destFile) throws IOException, FileNotFoundException {
+        FileSystem fs = FileSystem.get(URI.create(srcFile), conf);
+        fs.moveToLocalFile(new Path(srcFile), new Path(destFile));
         fs.close();
     }
 

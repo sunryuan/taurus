@@ -1,5 +1,6 @@
 package com.dp.bigdata.taurus.restlet.resource;
 
+import org.restlet.representation.FileRepresentation;
 import org.restlet.resource.Delete;
 import org.restlet.resource.Get;
 
@@ -13,7 +14,7 @@ import org.restlet.resource.Get;
 public interface IAttemptResource {
 
     @Get
-    public String log();
+    public FileRepresentation log();
 
     @Delete
     public void kill();
