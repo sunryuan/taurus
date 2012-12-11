@@ -21,9 +21,9 @@
 					<th>启动时间</th>
 					<th>结束时间</th>
 					<th>调度时间</th>
-                    <th>状态</th>
+                    <th>IP</th>
 					<th>返回值</th>
-					<th>IP</th>
+					<th>状态</th>
 					<th>-</th>
 				</tr>
 			</thead>

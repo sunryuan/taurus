@@ -8,6 +8,10 @@
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>
 	
+	<session-config>
+		<session-timeout>720</session-timeout> <!-- 12 hours  -->
+	</session-config>
+	
 	<servlet>
 		<servlet-name>TaskProxyServlet</servlet-name>
 		<servlet-class>com.dp.bigdata.taurus.web.servlet.TaskProxyServlet</servlet-class>
@@ -16,6 +20,11 @@
 	<servlet>
 		<servlet-name>AttemptProxyServlet</servlet-name>
 		<servlet-class>com.dp.bigdata.taurus.web.servlet.AttemptProxyServlet</servlet-class>
+	</servlet>
+	
+	<servlet>
+		<servlet-name>LoginServlet</servlet-name>
+		<servlet-class>com.dp.bigdata.taurus.web.servlet.LoginServlet</servlet-class>
 	</servlet>
 	
 	<servlet>
@@ -33,8 +42,13 @@
 		<url-pattern>/tasks</url-pattern>
 	</servlet-mapping>
 	
-		<servlet-mapping>
+	<servlet-mapping>
 		<servlet-name>AttemptProxyServlet</servlet-name>
 		<url-pattern>/attempts</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>LoginServlet</servlet-name>
+		<url-pattern>/login</url-pattern>
 	</servlet-mapping>
 </web-app>
