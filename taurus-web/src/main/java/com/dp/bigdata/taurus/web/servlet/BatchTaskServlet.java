@@ -34,8 +34,7 @@ public class BatchTaskServlet extends HttpServlet{
 	private static final long serialVersionUID = 2348545179764589572L;
 	private static final Log s_logger = LogFactory.getLog(BatchTaskServlet.class);
 	private static final String FILE_DIR = "/tmp/";
-	//TODO need to be exactly the same as it's in restlet side
-	private static final String[] PARAM_NAME_LIST = {"taskName","taskType","creator","description","poolId",
+	private static final String[] PARAM_NAME_LIST = {"taskName","taskType","description","poolId",
 		"taskState","taskCommand","multiInstance","crontab","dependency","proxyUser",
 		"maxExecutionTime","maxWaitTime","isAutoRetry","retryTimes"};
 
@@ -56,7 +55,7 @@ public class BatchTaskServlet extends HttpServlet{
 			List<Representation> repList = createRepFromExcel(file);
 			List<String> taskList = getTaskFromExcel(file);
 			List<Result> results = new ArrayList<Result>();
-			ClientResource taskResource = new ClientResource("http://localhost:8182/api/task");
+			ClientResource taskResource = new ClientResource("http://10.1.77.85:8182/api/task");
 			for(int i = 0; i < repList.size(); i++){
 				boolean success = false;
 				try{
@@ -105,6 +104,8 @@ public class BatchTaskServlet extends HttpServlet{
 			for(int j=0; j < columnNum; j++){
 				form.add(PARAM_NAME_LIST[j], s.getCell(j, i).getContents());
 			}
+			//TODO
+			form.add("creator", "hadoop");
 			Representation r = form.getWebRepresentation();
 			r.setMediaType(MediaType.APPLICATION_XML);
 			result.add(r);
