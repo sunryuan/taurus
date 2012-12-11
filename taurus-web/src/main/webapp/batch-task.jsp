@@ -1,7 +1,7 @@
 <html lang="en">
 <head>
-<%@ include file="jsp/sub-header.jsp"%>
-<link rel="stylesheet" href="css/batch-task.css">
+	<%@ include file="jsp/common-header.jsp"%>
+	<link rel="stylesheet" href="css/batch-task.css">
 </head>
 <body data-spy="scroll">
 	<%@ include file="jsp/common-nav.jsp"%>
@@ -25,7 +25,6 @@
 			hidden="true">
 		</table>
 	</div>
-	<%@ include file="jsp/common-footer.jsp"%>
 	<script src="js/jquery.ui.widget.js"></script>
 	<script src="js/jquery.iframe-transport.js"></script>
 	<script src="js/jquery.fileupload.js"></script>

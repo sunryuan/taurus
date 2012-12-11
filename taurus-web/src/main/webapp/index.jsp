@@ -33,7 +33,6 @@
       <a class="right carousel-control" href="#myCarousel" data-slide="next">&rsaquo;</a>
     </div><!-- /.carousel -->
    
-	<%@ include file="jsp/common-footer.jsp"%>
 <script>	
       !function ($) {
         $(function(){
