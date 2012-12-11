@@ -63,13 +63,13 @@
                        <div class="btn-group">
                         <button class="btn btn-primary btn-small dropdown-toggle" data-toggle="dropdown">Action<span class="caret"></span></button>
                         <ul class="dropdown-menu">
-                          <li><a href="#confirm" onClick="action($(this).parents('tr').find('td')[0].textContent,'delete')">删除</a></li>
+                          <li><a href="#confirm" onClick="action($(this).parents('tr').find('td')[0].textContent,1)">删除</a></li>
                           <% if(isRunning) {%>
-                          <li><a href="#confirm" onClick="action($(this).parents('tr').find('td')[0].textContent,'suspend')">暂停</a></li>               
+                          <li><a href="#confirm" onClick="action($(this).parents('tr').find('td')[0].textContent,2)">暂停</a></li>               
                           <%}else { %>
-                          <li><a href="#confirm" onClick="action($(this).parents('tr').find('td')[0].textContent,'resume')">恢复</a></li>   
+                          <li><a href="#confirm" onClick="action($(this).parents('tr').find('td')[0].textContent,2)">恢复</a></li>   
                           <%}%>
-                          <li><a href="#confirm" onClick="action($(this).parents('tr').find('td')[0].textContent,'execute')">立即执行</a></li>
+                          <li><a href="#confirm" onClick="action($(this).parents('tr').find('td')[0].textContent,3)">执行</a></li>
                           <li><a href="#confirm" onClick="">详细</a></li>
                         </ul>
                       </div>

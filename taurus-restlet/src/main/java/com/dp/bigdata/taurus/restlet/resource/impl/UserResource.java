@@ -24,7 +24,7 @@ public class UserResource extends ServerResource {
 	private static final String BASEDN = "OU=Technolog Department,OU=shoffice,DC=dianpingoa,DC=com";
 	private static final String FACTORY = "com.sun.jndi.ldap.LdapCtxFactory";
 	private static LdapContext ctx = null;
-	private Control[] connCtls = null;
+	private final Control[] connCtls = null;
 
 	@Post
 	public void logon(UserDTO user) {

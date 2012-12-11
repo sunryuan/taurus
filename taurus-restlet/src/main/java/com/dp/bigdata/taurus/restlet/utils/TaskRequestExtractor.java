@@ -13,8 +13,6 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.restlet.Request;
 import org.restlet.data.Form;
 import org.restlet.data.MediaType;
@@ -37,22 +35,21 @@ import com.dp.bigdata.taurus.restlet.shared.GWTTaskDetailControlName;
  * 
  * @author damon.zhu
  */
-public class TaskRequestExtractor implements RequestExtrator<Task>{
-    
-    private static final Log LOG = LogFactory.getLog(TaskRequestExtractor.class);
+public class TaskRequestExtractor implements RequestExtrator<Task> {
 
     @Autowired
     private IDFactory idFactory;
-    
+
     @Autowired
     private PoolManager poolManager;
-    
+
     @Autowired
     private FilePathManager filePathManager;
-    
+
     @Autowired
     private NameResource nameResource;
-    
+
+    @Override
     public Task extractTask(Request request, boolean isUpdateAction) throws Exception {
         Task task = new Task();
         Date current = new Date();
@@ -64,38 +61,35 @@ public class TaskRequestExtractor implements RequestExtrator<Task>{
             task.setStatus(TaskStatus.RUNNING);
         }
         task.setUpdatetime(current);
-        String name = CookieUtils.getUser(request);
-        task.setCreator(name);
         Map<String, String> formMap;
         Representation re = request.getEntity();
-        if(MediaType.MULTIPART_FORM_DATA.equals(re.getMediaType(), false)){
-        	formMap = new HashMap<String, String>();
-        	List<FileItem> items = getFileItem(request);
-        	for (final Iterator<FileItem> it = items.iterator(); it.hasNext();) {
-        		FileItem fi = it.next();
+        if (MediaType.MULTIPART_FORM_DATA.equals(re.getMediaType(), false)) {
+            formMap = new HashMap<String, String>();
+            List<FileItem> items = getFileItem(request);
+            for (final Iterator<FileItem> it = items.iterator(); it.hasNext();) {
+                FileItem fi = it.next();
                 if (fi.isFormField()) {
-                	formMap.put(fi.getFieldName(), fi.getString());
-                } else{
-                	 if (StringUtils.isNotEmpty(fi.getName()) && StringUtils.isNotBlank(fi.getName())) {
-                         String filePath = filePathManager.getLocalPath(fi.getName());
-                         task.setFilename(fi.getName());
-                         File file = new File(filePath);
-                         fi.write(file);
-                     } else {
-                         LOG.error("Upload file failed.");
-                         throw new FileNotFoundException("Task file not found!");
-                     }
+                    formMap.put(fi.getFieldName(), fi.getString());
+                } else {
+                    if (StringUtils.isNotEmpty(fi.getName()) && StringUtils.isNotBlank(fi.getName())) {
+                        String filePath = filePathManager.getLocalPath(fi.getName());
+                        task.setFilename(fi.getName());
+                        File file = new File(filePath);
+                        fi.write(file);
+                    } else {
+                        throw new FileNotFoundException("Task file not found!");
+                    }
                 }
-        	}
-        }else{
-        	Form form = new Form(re);
-        	formMap = new HashMap<String, String>(form.getValuesMap());
+            }
+        } else {
+            Form form = new Form(re);
+            formMap = new HashMap<String, String>(form.getValuesMap());
         }
-        
-        for(Entry<String, String> entry: formMap.entrySet()){
-        	String key = entry.getKey();
-            String value = entry.getValue() == null? "":entry.getValue() ;
-            
+
+        for (Entry<String, String> entry : formMap.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue() == null ? "" : entry.getValue();
+
             if (key.equals(GWTTaskDetailControlName.TASKNAME.getName())) {
                 task.setName(value);
             } else if (key.equals(GWTTaskDetailControlName.TASKTYPE.getName())) {
@@ -117,12 +111,16 @@ public class TaskRequestExtractor implements RequestExtrator<Task>{
                 task.setExecutiontimeout(Integer.parseInt(value));
             } else if (key.equals(GWTTaskDetailControlName.MAXWAITTIME.getName())) {
                 task.setWaittimeout(Integer.parseInt(value));
+            } else if (key.equals(GWTTaskDetailControlName.CREATOR.getName())) {
+                task.setCreator(value);
+            } else if (key.equals(GWTTaskDetailControlName.DESCRIPTION.getName())) {
+                task.setDescription(value);
             } else if (key.equals(GWTTaskDetailControlName.RETRYTIMES.getName())) {
                 int retryNum = Integer.parseInt(value);
                 task.setRetrytimes(retryNum);
-                if(retryNum > 0){
-                    task.setIsautoretry(true); 
-                }else{
+                if (retryNum > 0) {
+                    task.setIsautoretry(true);
+                } else {
                     task.setIsautoretry(false);
                 }
             }
@@ -130,7 +128,7 @@ public class TaskRequestExtractor implements RequestExtrator<Task>{
         validate(task);
         return task;
     }
-    
+
     private List<FileItem> getFileItem(Request request) throws FileUploadException {
         DiskFileItemFactory factory = new DiskFileItemFactory();
         factory.setSizeThreshold(1000240);
@@ -140,12 +138,16 @@ public class TaskRequestExtractor implements RequestExtrator<Task>{
     }
 
     private void validate(Task task) throws Exception {
-        if(task.getDependencyexpr() != null && !task.getDependencyexpr().equals("")){
-            if(!DependencyParser.isValidateExpression(task.getDependencyexpr())){
+        if (StringUtils.isBlank(task.getCreator())) {
+            throw new InvalidArgumentException("Cannot get creator name from request");
+        }
+
+        if (StringUtils.isNotBlank(task.getDependencyexpr())) {
+            if (!DependencyParser.isValidateExpression(task.getDependencyexpr())) {
                 throw new InvalidArgumentException("Invalid dependency expression : " + task.getDependencyexpr());
             }
         }
-        
+
         if (nameResource.isExistTaskName(task.getName())) {
             throw new DuplicatedNameException("Duplicated Name : " + task.getName());
         }

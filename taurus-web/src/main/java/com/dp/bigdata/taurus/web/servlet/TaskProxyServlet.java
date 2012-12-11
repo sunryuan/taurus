@@ -38,26 +38,30 @@ public class TaskProxyServlet extends HttpServlet {
     
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String action = request.getParameter("action");
+        String action = request.getParameter("action").toLowerCase();
         String taskID = request.getParameter("id");
         
-        ClientResource taskCr = new ClientResource(Constant.BASE + "task/" + taskID);
+        ClientResource taskCr = new ClientResource(Constant.RESTFUL_URL_BASE + "task/" + taskID);
         ITaskResource taskResource = taskCr.wrap(ITaskResource.class);
 
-        ClientResource manualCr = new ClientResource(Constant.BASE + "manualtask/" + taskID);
+        ClientResource manualCr = new ClientResource(Constant.RESTFUL_URL_BASE + "manualtask/" + taskID);
         IManualTaskResource manualResource = manualCr.wrap(IManualTaskResource.class);
 
         if(action.equals(DELETE)){
             taskResource.remove();
+            System.out.println("Delete result code : " + manualCr.getStatus().getCode());
             response.setStatus(taskCr.getStatus().getCode());
         }else if(action.equals(SUSPEND)){
             manualResource.suspend();
+            System.out.println("Suspend result code : " + manualCr.getStatus().getCode());
             response.setStatus(manualCr.getStatus().getCode());
         }else if(action.equals(EXECUTE)){
             manualResource.start();
+            System.out.println("Execute result code : " + manualCr.getStatus().getCode());
             response.setStatus(manualCr.getStatus().getCode());
         } else if (action.equals(RESUME)) {
             manualResource.resume();
+            System.out.println("Resume result code : " + manualCr.getStatus().getCode());
             response.setStatus(manualCr.getStatus().getCode());
         }
     }

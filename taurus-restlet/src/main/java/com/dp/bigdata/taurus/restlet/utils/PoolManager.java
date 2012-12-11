@@ -40,9 +40,4 @@ public class PoolManager {
     public int getID(String name){
         return nameMap.get(name.toLowerCase());
     }
-    
-/*    public String getName(int id){
-        return idMap.get(id);
-    }*/
-
 }

@@ -22,6 +22,7 @@ import com.dp.bigdata.taurus.restlet.resource.IPoolResource;
 public class PoolResource extends ServerResource implements IPoolResource {
 
     private static final Log LOG = LogFactory.getLog(PoolsResource.class);
+    private static final int UNLOCATED = 1;
 
     @Autowired
     private PoolMapper poolMapper;
@@ -31,9 +32,15 @@ public class PoolResource extends ServerResource implements IPoolResource {
 
     @Override
     @Delete
-    //TODO transactional bean
     public void remove() {
-        int poolID = Integer.parseInt((String) getRequest().getAttributes().get("pool_id"));
+        int poolID = 0;
+        try {
+            poolID = Integer.parseInt((String) getRequest().getAttributes().get("pool_id"));
+        } catch (Exception e) {
+            setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+            return;
+        }
+
         try {
             Pool pool = poolMapper.selectByPrimaryKey(poolID);
             if (pool == null) {
@@ -44,7 +51,7 @@ public class PoolResource extends ServerResource implements IPoolResource {
             HostExample example = new HostExample();
             example.or().andPoolidEqualTo(poolID);
             Host record = new Host();
-            record.setPoolid(1); //Unallocated this host
+            record.setPoolid(UNLOCATED);
             hostMapper.updateByExampleSelective(record, example);
             setStatus(Status.SUCCESS_OK);
         } catch (RuntimeException e) {

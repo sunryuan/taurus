@@ -34,7 +34,7 @@ public class AttemptProxyServlet extends HttpServlet {
 
         String attemptID = request.getParameter("id");
 
-        ClientResource attemptCr = new ClientResource(Constant.BASE + "attempt/" + attemptID);
+        ClientResource attemptCr = new ClientResource(Constant.RESTFUL_URL_BASE + "attempt/" + attemptID);
         IAttemptResource attemptResource = attemptCr.wrap(IAttemptResource.class);
 
         attemptResource.kill();
