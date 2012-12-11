@@ -80,7 +80,7 @@ public class AttemptsResource extends ServerResource implements IAttemptsResourc
         for (int i = 0; i < ats.size(); i++) {
             TaskAttempt at = ats.get(i);
             AttemptDTO dto = new AttemptDTO();
-            dto.setId(i++);
+            dto.setId(i);
             dto.setAttemptID(at.getAttemptid());
             if (at.getEndtime() != null) {
                 dto.setEndTime(at.getEndtime());
