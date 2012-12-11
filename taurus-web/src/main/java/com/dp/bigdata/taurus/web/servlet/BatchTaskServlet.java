@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -27,17 +29,33 @@ import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.resource.ClientResource;
 
+import com.dp.bigdata.taurus.web.common.Constant;
 import com.google.gson.Gson;
 
 public class BatchTaskServlet extends HttpServlet{
 
 	private static final long serialVersionUID = 2348545179764589572L;
 	private static final Log s_logger = LogFactory.getLog(BatchTaskServlet.class);
-    private static final String FILE_DIR = "F:\\";
-	//TODO need to be exactly the same as it's in restlet side
-	private static final String[] PARAM_NAME_LIST = {"taskName","taskType","creator","description","poolId",
-		"taskState","taskCommand","multiInstance","crontab","dependency","proxyUser",
-		"maxExecutionTime","maxWaitTime","isAutoRetry","retryTimes"};
+	
+	private static final String MULTI_INSTANCE = "multiInstance";
+	private static final String IS_AUTO_RETRY = "isAutoRetry";
+	private static final String TASK_TYPE = "taskType";
+	
+	private static final String[] PARAM_NAME_LIST = {"taskName", TASK_TYPE, "description","poolId",
+		"taskState","taskCommand",MULTI_INSTANCE ,"crontab","dependency","proxyUser",
+		"maxExecutionTime","maxWaitTime",IS_AUTO_RETRY ,"retryTimes"};
+	
+	private static Map<String, IFieldHandler> FIELD_NAME_TO_HANDLER_MAP = 
+		new HashMap<String, IFieldHandler>();
+	
+	static{
+		BooleanFieldHandler bfHandler = new BooleanFieldHandler();
+		TaskTypeFieldHandler ttfHandler = new TaskTypeFieldHandler();
+		FIELD_NAME_TO_HANDLER_MAP.put(MULTI_INSTANCE, bfHandler);
+		FIELD_NAME_TO_HANDLER_MAP.put(IS_AUTO_RETRY, bfHandler);
+		FIELD_NAME_TO_HANDLER_MAP.put(TASK_TYPE, ttfHandler);
+	}
+	
 
 
 	@Override
@@ -51,12 +69,12 @@ public class BatchTaskServlet extends HttpServlet{
 			@SuppressWarnings("unchecked")
 			List<FileItem> items = upload.parseRequest(req);
 			FileItem item = items.get(0);
-			File file = new File(FILE_DIR + item.getName());
+			File file = new File(Constant.XSL_UPLOAD_TMP_DIR + item.getName());
 			item.write(file);
 			List<Representation> repList = createRepFromExcel(file);
 			List<String> taskList = getTaskFromExcel(file);
 			List<Result> results = new ArrayList<Result>();
-			ClientResource taskResource = new ClientResource("http://localhost:8182/api/task");
+			ClientResource taskResource = new ClientResource(Constant.RESTFUL_URL_TASK);
 			for(int i = 0; i < repList.size(); i++){
 				boolean success = false;
 				try{
@@ -103,8 +121,15 @@ public class BatchTaskServlet extends HttpServlet{
 		for(int i=1; i < rowNum; i++){
 			Form form = new Form();
 			for(int j=0; j < columnNum; j++){
-				form.add(PARAM_NAME_LIST[j], s.getCell(j, i).getContents());
+				String paramName = PARAM_NAME_LIST[j];
+				String value = s.getCell(j, i).getContents();
+				IFieldHandler fh = FIELD_NAME_TO_HANDLER_MAP.get(paramName);
+				if(fh != null)
+					value = fh.process(value);
+				form.add(paramName, value);
 			}
+			//TODO modified when login module is ready
+			form.add("creator", "hadoop");
 			Representation r = form.getWebRepresentation();
 			r.setMediaType(MediaType.APPLICATION_XML);
 			result.add(r);
@@ -122,23 +147,6 @@ public class BatchTaskServlet extends HttpServlet{
 		s_logger.info(json);
 	}
 
-
-	private void test(HttpServletRequest req, HttpServletResponse resp) throws IOException, InterruptedException{
-		Thread.sleep(3000);
-		PrintWriter writer = resp.getWriter();
-		resp.setContentType("application/json");
-		List<Result>list = new ArrayList<Result>();
-		for(int i = 0; i < 4; i++){
-			Result r = new Result("task-"+i, i%2 == 0? true : false);
-			list.add(r);
-		}
-		Gson gson = new Gson();  
-		String json = gson.toJson(list);    
-		writer.write(json);
-		System.out.print(json);
-		writer.close();
-	}
-
 	private static final class Result{
 		private final String name;
 		private final boolean success;
@@ -149,11 +157,38 @@ public class BatchTaskServlet extends HttpServlet{
 			this.success = success;
 		}
 	}
+	
+	private static interface IFieldHandler{
+		public String process(String orignalValue);
+	}
+	
+	private static final class BooleanFieldHandler implements IFieldHandler{
 
-	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-	throws ServletException, IOException{
+		@Override
+		public String process(String orignalValue) {
+			if(orignalValue != null && orignalValue.equalsIgnoreCase("yes"))
+				return "1";
+			else
+				return "0";
+		}
+	}
+	
+	private static final class TaskTypeFieldHandler implements IFieldHandler{
 
+		@Override
+		public String process(String orignalValue) {
+			if(orignalValue != null){
+				if(orignalValue.equalsIgnoreCase("hadoop"))
+					return "hadoop";
+				else if(orignalValue.equalsIgnoreCase("wormhole"))
+					return "wormhole";
+				else
+					return "others";
+			}else{
+				return "others";
+			}
+		}
+		
 	}
 
 }
