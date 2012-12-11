@@ -8,11 +8,11 @@
 	<div class="container" style="margin-top: 10px">
 		<div class="row-fluid">
 			<div class="span6">
-				<h4>Please upload your excel file:</h4>
+				<h4>请上传Excel文件（.xsl）:</h4>
 				<br> <input id="fileupload" type="file" data-url="batch_upload">
 			</div>
 			<div class="span5">
-				<h4>Please download excel template here:</h4>
+				<h4>请通过下面的链接下载Excel文件模板:</h4>
 				<br> <a class=".act-info" href="files/template.xls">Excel
 					Template</a>
 			</div>
