@@ -42,7 +42,15 @@ public class HostResource extends ServerResource implements IHostResource {
     @Override
     @Put
     public void update(HostDTO dto) {
-        int hostID = Integer.parseInt((String) getRequest().getAttributes().get("host_id"));
+        int hostID = 0;
+
+        try {
+            hostID = Integer.parseInt((String) getRequest().getAttributes().get("host_id"));
+        } catch (Exception e) {
+            setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+            return;
+        }
+
         try {
             Host host = hostMapper.selectByPrimaryKey(hostID);
             if (host == null) {

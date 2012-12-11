@@ -18,10 +18,9 @@ import com.dp.bigdata.taurus.zookeeper.deploy.helper.DeploymentContext;
 import com.dp.bigdata.taurus.zookeeper.deploy.helper.DeploymentException;
 
 /**
- * 
  * DefaultAgentDeploymentUtils
+ * 
  * @author damon.zhu
- *
  */
 public class DefaultAgentDeploymentUtils implements AgentDeploymentUtils {
 
@@ -34,7 +33,7 @@ public class DefaultAgentDeploymentUtils implements AgentDeploymentUtils {
 
     @Autowired
     private Deployer deployer;
-    
+
     @Autowired
     private FilePathManager filePathManager;
 
@@ -49,7 +48,7 @@ public class DefaultAgentDeploymentUtils implements AgentDeploymentUtils {
         if (hosts.size() <= 0) {
             throw new DeploymentException("No agent available to deploy task");
         }
-        
+
         final CountDownLatch end = new CountDownLatch(hosts.size());
         final AtomicInteger isOK = new AtomicInteger(hosts.size());
         for (final Host host : hosts) {
@@ -68,7 +67,7 @@ public class DefaultAgentDeploymentUtils implements AgentDeploymentUtils {
                         isOK.decrementAndGet();
                         LOG.info("Successfully deploy task on agent " + host.getIp());
                     } catch (DeploymentException e) {
-                        LOG.error("Failed to deploy task on agent " + host.getIp() ,e);
+                        LOG.error("Failed to deploy task on agent " + host.getIp(), e);
                     } finally {
                         end.countDown();
                     }
@@ -79,7 +78,6 @@ public class DefaultAgentDeploymentUtils implements AgentDeploymentUtils {
         try {
             end.await(WAITTIME, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
-            LOG.error("Deploy timeout", e);
             throw new DeploymentException("Agent deploy timeout!");
         }
 

@@ -10,7 +10,7 @@ function action_ok() {
 	$.ajax({
 		url : "./attempts",
 		data : {
-			id : taskID
+			id : attemptID
 		},
 		type : 'POST',
 		statusCode : {

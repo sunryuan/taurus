@@ -33,12 +33,12 @@ public class ManualTaskResource extends ServerResource implements IManualTaskRes
 
     @Override
     public void resume() {
-        setStatus(action(SUSPEND));
+        setStatus(action(RESUME));
     }
 
     @Override
     public void suspend() {
-        setStatus(action(RESUME));
+        setStatus(action(SUSPEND));
     }
 
     private Status action(int action) {
