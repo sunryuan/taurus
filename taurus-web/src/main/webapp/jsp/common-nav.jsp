@@ -9,8 +9,14 @@
 			<a class="brand" href="./index.jsp">Taurus</a>
 			<div class="nav-collapse collapse">
 				<p class="navbar-text pull-right">
-					<a href="#myModal" role="button" class="btn-link"
-						data-toggle="modal">登陆</a>
+                	<% 
+						String currentUser = (String) session.getAttribute(com.dp.bigdata.taurus.web.servlet.LoginServlet.USER_NAME);
+						if(currentUser != null){
+					%>
+                    	<a role="button" class="btn-link"><%=currentUser%></a>
+                    <%}else{%>
+						<a href="./signin.jsp" role="button" class="btn-link" data-toggle="modal">登陆</a>
+                    <%}%>
 				</p>
 
 				<ul class="nav">
@@ -27,21 +33,3 @@
 		</div>
 	</div>
 </div>
-<!-- Modal -->
-<div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-header">
-    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-    <h2 id="myModalLabel" class="form-signin-heading">登陆</h2>
-  </div>
-  <form method="get" action="/login">
-      <div class="modal-body">
-        <input type="text" name="username" class="input-block-level" placeholder="Email address"/> 
-        <input type="password" name="password" class="input-block-level" placeholder="Password"/>
-
-      </div>
-      <div class="modal-footer">
-        <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-        <button class="btn btn-primary" type="submit">确定</button>
-      </div>
-  </form>
- </div>

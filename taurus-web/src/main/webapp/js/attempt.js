@@ -8,7 +8,7 @@ function action(id) {
 
 function action_ok() {
 	$.ajax({
-		url : "./attempts",
+		url : "attempts.do",
 		data : {
 			id : attemptID
 		},

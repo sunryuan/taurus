@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Hashtable;
 
 import javax.naming.Context;
-import javax.naming.ldap.Control;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 import javax.servlet.ServletException;
@@ -12,6 +11,13 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+/**
+ * LoginServlet
+ * 
+ * @author damon.zhu
+ */
+
 public class LoginServlet extends HttpServlet {
 
     /**
@@ -21,12 +27,10 @@ public class LoginServlet extends HttpServlet {
     public static final String USER_NAME = "taurus-user";
     public static final String USER_GROUP = "taurus-group";
     public static final String USER_POWER = "taurus-user-power";
-
     private static final String URL = "ldap://192.168.50.11:389/";
     private static final String BASEDN = "OU=Technolog Department,OU=shoffice,DC=dianpingoa,DC=com";
     private static final String FACTORY = "com.sun.jndi.ldap.LdapCtxFactory";
-    private static LdapContext ctx = null;
-    private final Control[] connCtls = null;
+
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -37,7 +41,10 @@ public class LoginServlet extends HttpServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String userName = request.getParameter("username");
         String password = request.getParameter("password");
-        
+
+        System.out.println("login request");
+        System.out.println("userName : " + userName);
+
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put(Context.INITIAL_CONTEXT_FACTORY, FACTORY);
         env.put(Context.PROVIDER_URL, URL + "DC=dianpingoa,DC=com");
@@ -45,8 +52,9 @@ public class LoginServlet extends HttpServlet {
         env.put(Context.SECURITY_PRINCIPAL, "cn=" + userName + "," + BASEDN);
         env.put(Context.SECURITY_CREDENTIALS, password);
 
+        LdapContext ctx = null;
         try {
-            ctx = new InitialLdapContext(env, connCtls);
+            ctx = new InitialLdapContext(env, null);
         } catch (javax.naming.AuthenticationException e) {
             System.out.println("Authentication faild: " + e.toString());
         } catch (Exception e) {
@@ -54,15 +62,16 @@ public class LoginServlet extends HttpServlet {
         }
 
         if (ctx == null) {
-            response.setStatus(404);
+            response.setStatus(401);
+            System.out.println("longin fail!");
         } else {
             HttpSession session = request.getSession();
             session.setAttribute(USER_NAME, userName);
-
             /*
              * session.setAttribute(USER_GROUP, group); session.setAttribute(USER_POWER, power);
              */
-            session.setMaxInactiveInterval(24 * 60 * 60);
+            System.out.println("login success!");
+            response.setStatus(200);
         }
     }
 }
