@@ -24,13 +24,13 @@ import com.mysql.jdbc.StringUtils;
 public class DependencyTriggle implements Triggle {
 
     private static final Log LOG = LogFactory.getLog(DependencyTriggle.class);
-    
+
     @Autowired
     private TaskAttemptMapper taskAttemptMapper;
     @Autowired
     private AttemptStatusCheck statusCheck;
-    private DependencyParser parser;
-    private Scheduler scheduler;
+    private final DependencyParser parser;
+    private final Scheduler scheduler;
 
     @Autowired
     public DependencyTriggle(Scheduler scheduler) {
@@ -38,6 +38,7 @@ public class DependencyTriggle implements Triggle {
         parser = new DependencyParser();
     }
 
+    @Override
     public void triggle() {
         TaskAttemptExample example = new TaskAttemptExample();
         example.or().andStatusEqualTo(AttemptStatus.INITIALIZED);
@@ -50,17 +51,14 @@ public class DependencyTriggle implements Triggle {
             boolean isDepencyFinish = false;
             boolean hasDependency = true;
             if (StringUtils.isNullOrEmpty(expression)) {
-                /*
-                 * for those tasks who have no dependencies.
-                 */
+                //for those tasks who have no dependencies.
                 hasDependency = false;
                 isDepencyFinish = true;
             } else {
                 try {
-                    //LOG.info("Attempt " + attempt.getAttemptID() + " has dependency expression : " + expression);
                     isDepencyFinish = parser.isDepdencySatisfied(expression, statusCheck);
                 } catch (ParseException e) {
-                    LOG.error("Parse error", e);
+                    continue;
                 }
             }
 
@@ -77,12 +75,12 @@ public class DependencyTriggle implements Triggle {
                 taskAttemptMapper.updateByPrimaryKeySelective(attempt);
             } else {
                 /*
-                 *  check whether the attempt has expire the wait-time
+                 * check whether the attempt has expire the wait-time
                  */
                 int timeout = task.getWaittimeout();
                 Date start = attempt.getScheduletime();
                 long now = System.currentTimeMillis();
-                if (now > start.getTime() + 1000L * 60 * timeout) {
+                if (now > start.getTime() + 1000L * 60 * timeout && attempt.getStatus() != AttemptStatus.DEPENDENCY_TIMEOUT) {
                     LOG.info("Attempt " + attempt.getAttemptid() + " has dependency waiting timeout ");
                     //I do think dependency_fail status is unnecessary.
                     attempt.setStatus(AttemptStatus.DEPENDENCY_TIMEOUT);

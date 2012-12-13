@@ -59,6 +59,14 @@ public interface Scheduler {
 	 */
 	public void suspendTask(String taskID) throws ScheduleException;
 
+    /**
+     * Resume the task, the resumed task will be scheduled.
+     * 
+     * @param taskID
+     * @throws ScheduleException
+     */
+    public void resumeTask(String taskID) throws ScheduleException;
+
 	/**
 	 * Notify the scheduler to kill a attempt.
 	 * 

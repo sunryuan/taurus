@@ -33,6 +33,11 @@
 			<name>smartclient.com</name>
 			<url>http://www.smartclient.com/maven2</url>
 		</repository>
+		<repository>
+			<id>sonner</id>
+			<name>sonner-for-uibinding</name>
+			<url>http://mvn.sonner.com.br/~maven2/</url>
+		</repository>
 	</repositories>
 
 	<dependencies>
@@ -85,7 +90,7 @@
 		<dependency>
 			<groupId>org.synthful</groupId>
 			<artifactId>uibinding-smartgwt</artifactId>
-			<version>1.0.4</version>
+			<version>1.0.4.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.restlet.gwt</groupId>

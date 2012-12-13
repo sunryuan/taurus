@@ -2,15 +2,12 @@ package com.dp.bigdata.taurus.restlet.shared;
 
 import java.io.Serializable;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-
 /**
  * 
  * PoolDTO
  * @author damon.zhu
  *
  */
-@XStreamAlias("pool")
 public class PoolDTO implements Serializable {
 	/**
 	 * 

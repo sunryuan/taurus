@@ -2,15 +2,12 @@ package com.dp.bigdata.taurus.restlet.shared;
 
 import java.io.Serializable;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-
 /**
  * 
  * DeployStatusDTO
  * @author damon.zhu
  *
  */
-@XStreamAlias("status")
 public class DeployStatusDTO implements Serializable {
 
 	/**

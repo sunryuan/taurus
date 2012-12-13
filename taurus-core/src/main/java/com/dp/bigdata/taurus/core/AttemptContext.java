@@ -130,10 +130,6 @@ public class AttemptContext {
         return task.getRetrytimes();
     }
 
-    public Integer getRetryexpiretimeout() {
-        return task.getRetryexpiretimeout();
-    }
-
     public String getCommand() {
         return task.getCommand();
     }

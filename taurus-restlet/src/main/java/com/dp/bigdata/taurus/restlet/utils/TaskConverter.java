@@ -2,6 +2,7 @@ package com.dp.bigdata.taurus.restlet.utils;
 
 import java.util.Date;
 
+import com.dp.bigdata.taurus.core.TaskStatus;
 import com.dp.bigdata.taurus.generated.module.Task;
 import com.dp.bigdata.taurus.restlet.shared.TaskDTO;
 
@@ -58,6 +59,11 @@ public class TaskConverter {
         dto.setProxyuser(task.getProxyuser());
         dto.setType(task.getType());
         dto.setWaittimeout(task.getWaittimeout());
+        if(task.getStatus() == TaskStatus.RUNNING){
+            dto.setStatus("RUNNING");
+        }else if(task.getStatus() == TaskStatus.SUSPEND){
+            dto.setStatus("SUSPEND");
+        }
         return dto;
     }
 }

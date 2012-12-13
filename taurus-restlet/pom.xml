@@ -44,11 +44,11 @@
 			<artifactId>org.restlet</artifactId>
 			<version>${restletVersion}</version>
 		</dependency>
-		<dependency>
+<!-- 		<dependency>
 			<groupId>org.restlet.jse</groupId>
 			<artifactId>org.restlet.ext.gwt</artifactId>
 			<version>${restletVersion}</version>
-		</dependency>
+		</dependency> -->
 		<dependency>
 			<groupId>org.restlet.jse</groupId>
 			<artifactId>org.restlet.ext.jetty</artifactId>
@@ -59,11 +59,11 @@
 			<artifactId>org.restlet.ext.fileupload</artifactId>
 			<version>${restletVersion}</version>
 		</dependency>
-		<dependency>
+<!-- 		<dependency>
 			<groupId>org.restlet.jse</groupId>
 			<artifactId>org.restlet.ext.xstream</artifactId>
 			<version>${restletVersion}</version>
-		</dependency>
+		</dependency> -->
 		<dependency>
 			<groupId>org.restlet.jse</groupId>
 			<artifactId>org.restlet.ext.slf4j</artifactId>

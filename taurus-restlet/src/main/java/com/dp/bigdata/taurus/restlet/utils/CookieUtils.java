@@ -18,7 +18,7 @@ public class CookieUtils {
 	 */
 	public static String getUser(Request request){
 		String name = request.getCookies().getValues("user");
-		if(StringUtils.isEmptyOrWhitespaceOnly(name)) return "invalid";
+		if(StringUtils.isEmptyOrWhitespaceOnly(name)) return "unknown";
 		return name;
 	}
 }
