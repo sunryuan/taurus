@@ -3,126 +3,141 @@ package com.dp.bigdata.taurus.restlet.shared;
 import java.io.Serializable;
 import java.util.Date;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-
 /**
- * 
  * AttemptDTO
+ * 
  * @author damon.zhu
- *
  */
-@XStreamAlias("attempt")
 public class AttemptDTO implements Serializable {
 
-   /**
+    /**
     * 
     */
-   private static final long serialVersionUID = -989989746827642633L;
+    private static final long serialVersionUID = -989989746827642633L;
+    
+    private int id;
 
-   private String attemptID;
-   
-   private String instanceID;
-   
-   private String taskID;
-   
-   private Date startTime;
-   
-   private Date endTime;
-   
-   private Date scheduleTime;
-   
-   private int status;
-   
-   private int returnValue;
-   
-   private String execHost;
+    private String attemptID;
 
-   public AttemptDTO(){}
+    private String instanceID;
 
-   public AttemptDTO(String attemptID, String instanceID, String taskID, Date startTime, Date endTime,
-                     Date scheduleTime, int status, int returnValue, String execHost) {
-      super();
-      this.attemptID = attemptID;
-      this.instanceID = instanceID;
-      this.taskID = taskID;
-      this.startTime = startTime;
-      this.endTime = endTime;
-      this.scheduleTime = scheduleTime;
-      this.status = status;
-      this.returnValue = returnValue;
-      this.execHost = execHost;
-   }
+    private String taskID;
 
-   public String getAttemptID() {
-      return attemptID;
-   }
+    private Date startTime;
 
-   public void setAttemptID(String attemptID) {
-      this.attemptID = attemptID;
-   }
+    private Date endTime;
 
-   public String getInstanceID() {
-      return instanceID;
-   }
+    private Date scheduleTime;
 
-   public void setInstanceID(String instanceID) {
-      this.instanceID = instanceID;
-   }
+    private String status;
 
-   public String getTaskID() {
-      return taskID;
-   }
+    private int returnValue;
 
-   public void setTaskID(String taskID) {
-      this.taskID = taskID;
-   }
+    private String execHost;
 
-   public Date getStartTime() {
-      return startTime;
-   }
+    public AttemptDTO() {
+    }
 
-   public void setStartTime(Date startTime) {
-      this.startTime = startTime;
-   }
+    public AttemptDTO(int id, String attemptID, String instanceID, String taskID, Date startTime, Date endTime, Date scheduleTime,
+                      String status, int returnValue, String execHost) {
+        super();
+        this.id = id;
+        this.attemptID = attemptID;
+        this.instanceID = instanceID;
+        this.taskID = taskID;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.scheduleTime = scheduleTime;
+        this.status = status;
+        this.returnValue = returnValue;
+        this.execHost = execHost;
+    }
 
-   public Date getEndTime() {
-      return endTime;
-   }
+    public int getId() {
+        return id;
+    }
 
-   public void setEndTime(Date endTime) {
-      this.endTime = endTime;
-   }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-   public Date getScheduleTime() {
-      return scheduleTime;
-   }
+    public String getAttemptID() {
+        return attemptID;
+    }
 
-   public void setScheduleTime(Date scheduleTime) {
-      this.scheduleTime = scheduleTime;
-   }
+    public String getInstanceID() {
+        return instanceID;
+    }
 
-   public int getStatus() {
-      return status;
-   }
+    public String getTaskID() {
+        return taskID;
+    }
 
-   public void setStatus(int status) {
-      this.status = status;
-   }
+    public Date getStartTime() {
+        return startTime;
+    }
 
-   public int getReturnValue() {
-      return returnValue;
-   }
+    public Date getEndTime() {
+        return endTime;
+    }
 
-   public void setReturnValue(int returnValue) {
-      this.returnValue = returnValue;
-   }
+    public Date getScheduleTime() {
+        return scheduleTime;
+    }
 
-   public String getExecHost() {
-      return execHost;
-   }
+    public String getStatus() {
+        return status;
+    }
 
-   public void setExecHost(String execHost) {
-      this.execHost = execHost;
-   }
-   
+    public int getReturnValue() {
+        return returnValue;
+    }
+
+    public String getExecHost() {
+        return execHost;
+    }
+
+    public void setAttemptID(String attemptID) {
+        this.attemptID = attemptID;
+    }
+
+    public void setInstanceID(String instanceID) {
+        this.instanceID = instanceID;
+    }
+
+    public void setTaskID(String taskID) {
+        this.taskID = taskID;
+    }
+
+    public void setStartTime(Date startTime) {
+        this.startTime = startTime;
+    }
+
+    public void setEndTime(Date endTime) {
+        this.endTime = endTime;
+    }
+
+    public void setScheduleTime(Date scheduleTime) {
+        this.scheduleTime = scheduleTime;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public void setReturnValue(int returnValue) {
+        this.returnValue = returnValue;
+    }
+
+    public void setExecHost(String execHost) {
+        this.execHost = execHost;
+    }
+
+    @Override
+    public String toString() {
+        return "AttemptDTO [id=" + id + ", attemptID=" + attemptID + ", instanceID=" + instanceID + ", taskID=" + taskID
+                + ", startTime=" + startTime + ", endTime=" + endTime + ", scheduleTime=" + scheduleTime + ", status=" + status
+                + ", returnValue=" + returnValue + ", execHost=" + execHost + "]";
+    }
+
 }

@@ -2,14 +2,11 @@ package com.dp.bigdata.taurus.restlet.shared;
 
 import java.io.Serializable;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-
 /**
  * HostDTO
  * 
  * @author damon.zhu
  */
-@XStreamAlias("host")
 public class HostDTO implements Serializable  {
 
     /**

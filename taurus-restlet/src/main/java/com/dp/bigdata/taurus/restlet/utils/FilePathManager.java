@@ -20,7 +20,7 @@ public class FilePathManager {
     private final String TMP = "/data/appdata/taurus/task_files";
     private final String LOCALPATH;
     private final String NAMENODE;
-    private final String HADOOPPATH;
+    private final String WORKDIR;
     
     public FilePathManager(){
         Properties props = new Properties();
@@ -36,12 +36,15 @@ public class FilePathManager {
 
         LOCALPATH = props.getProperty("localpath", TMP);
         NAMENODE = props.getProperty("host");
-        HADOOPPATH = props.getProperty("path");
+        WORKDIR = props.getProperty("path");
     }
     
+    public String getWorkDir() {
+        return NAMENODE + WORKDIR;
+    }
 
 	public String getRemoteFolder(String taskID){
-		String destPath = NAMENODE + HADOOPPATH+ "/"
+        String destPath = NAMENODE + WORKDIR + "/"
 				+ taskID;
 		return destPath;
 	}

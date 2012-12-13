@@ -1,9 +1,8 @@
 package com.dp.bigdata.taurus.restlet.resource.impl;
 
-import java.util.ArrayList;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.restlet.Request;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
@@ -22,6 +21,7 @@ import com.dp.bigdata.taurus.restlet.utils.FilePathManager;
 import com.dp.bigdata.taurus.restlet.utils.HdfsUtils;
 import com.dp.bigdata.taurus.restlet.utils.RequestExtrator;
 import com.dp.bigdata.taurus.restlet.utils.TaskConverter;
+import com.mysql.jdbc.StringUtils;
 
 /**
  * Resource url : http://xxx.xxx/api/task/{task_id}
@@ -46,12 +46,11 @@ public class TaskResource extends ServerResource implements ITaskResource {
 
     @Autowired
     private FilePathManager filePathManager;
-    
+
     @Override
-    public ArrayList<TaskDTO> retrieve() {
+    public TaskDTO retrieve() {
         String taskID = (String) getRequestAttributes().get("task_id");
-        ArrayList<TaskDTO> dto = new ArrayList<TaskDTO>();
-        LOG.info(taskID);
+        TaskDTO dto = new TaskDTO();
         try {
             TaskID.forName(taskID);
         } catch (IllegalArgumentException e) {
@@ -60,43 +59,46 @@ public class TaskResource extends ServerResource implements ITaskResource {
             return dto;
         }
 
-        if(scheduler == null && hdfsUtils == null && agentDeployUtils == null) LOG.error("all is null");
         Task task = scheduler.getAllRegistedTask().get(taskID);
         if (task == null) {
             setStatus(Status.CLIENT_ERROR_NOT_FOUND);
             LOG.info("Cannot find the task by taskID = " + taskID);
         } else {
-            dto.add(TaskConverter.toDto(task));
+            dto = TaskConverter.toDto(task);
         }
         return dto;
     }
 
     @Override
     public void update(Representation re) {
-        if (re == null || MediaType.MULTIPART_FORM_DATA.equals(re.getMediaType(), false)) {
-            setResponse(Status.CLIENT_ERROR_BAD_REQUEST);
-            return;
-        }
-
-        final Task task;
-        try {
-            task = requestExtractor.extractTask(getRequest(), true);
-        } catch (Exception e) {
+        if (re == null) {
             setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
             return;
         }
 
-        final String srcPath = filePathManager.getLocalPath(task.getFilename());
-        final String destPath = filePathManager.getRemotePath(task.getTaskid(), task.getFilename());
+        final Task task;
+        Request req = getRequest();
         try {
-            hdfsUtils.removeFile(destPath); //TODO
-            hdfsUtils.writeFile(srcPath, destPath);
-            agentDeployUtils.notifyAllAgent(task, DeployOptions.UNDEPLOY);
-            agentDeployUtils.notifyAllAgent(task, DeployOptions.DEPLOY);
+            task = requestExtractor.extractTask(req, true);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            setStatus(Status.SERVER_ERROR_INTERNAL);
+            setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
             return;
+        }
+
+        if (MediaType.MULTIPART_FORM_DATA.equals(re.getMediaType(), false) && !StringUtils.isNullOrEmpty(task.getFilename())) {
+            final String srcPath = filePathManager.getLocalPath(task.getFilename());
+            final String destPath = filePathManager.getRemotePath(task.getTaskid(), task.getFilename());
+            try {
+                hdfsUtils.removeFile(destPath);
+                hdfsUtils.writeFile(srcPath, destPath);
+                agentDeployUtils.notifyAllAgent(task, DeployOptions.UNDEPLOY);
+                agentDeployUtils.notifyAllAgent(task, DeployOptions.DEPLOY);
+            } catch (Exception e) {
+                LOG.error(e.getMessage(), e);
+                setStatus(Status.SERVER_ERROR_INTERNAL);
+                return;
+            }
         }
         try {
             scheduler.updateTask(task);
@@ -131,15 +133,4 @@ public class TaskResource extends ServerResource implements ITaskResource {
             setStatus(Status.SERVER_ERROR_INTERNAL);
         }
     }
-
-    private void setResponse(Status status) {
-        setStatus(status);
-        getResponse().setEntity(html(status), MediaType.TEXT_HTML);
-    }
-
-    private String html(Status status) {
-        return "<html><body><script type=\"text/javascript\">" + "if (parent.uploadComplete) parent.uploadComplete('"
-                + status.getCode() + "');" + "</script></body><ml>";
-    }
-
 }

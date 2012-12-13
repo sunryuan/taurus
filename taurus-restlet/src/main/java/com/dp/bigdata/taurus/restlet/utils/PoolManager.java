@@ -32,17 +32,12 @@ public class PoolManager {
         example.or();
         List<Pool> pools = poolMapper.selectByExample(example);
         for(Pool pool : pools){
-            idMap.put(pool.getId(), pool.getName());
-            nameMap.put(pool.getName(), pool.getId());
+            idMap.put(pool.getId(), pool.getName().toLowerCase());
+            nameMap.put(pool.getName().toLowerCase(), pool.getId());
         }
     }
     
     public int getID(String name){
-        return nameMap.get(name);
+        return nameMap.get(name.toLowerCase());
     }
-    
-    public String getName(int id){
-        return idMap.get(id);
-    }
-
 }
