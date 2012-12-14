@@ -39,8 +39,8 @@ public class FilePathManager {
         WORKDIR = props.getProperty("path");
     }
     
-    public String getWorkDir() {
-        return NAMENODE + WORKDIR;
+    public String getRemoteLog(String attemptID) {
+        return NAMENODE + WORKDIR + "/" + "logs" + "/" + attemptID + ".html";
     }
 
 	public String getRemoteFolder(String taskID){
@@ -48,6 +48,7 @@ public class FilePathManager {
 				+ taskID;
 		return destPath;
 	}
+
 	public String getRemotePath(String taskID, String fileName) {
 		return getRemoteFolder(taskID) + "/" + fileName;
 	}
@@ -62,6 +63,14 @@ public class FilePathManager {
 		String file = fold + File.separator + fileName;
 		return file;
 	}
+
+    public String getLocalLogPath(String attemptID) {
+        String fold = LOCALPATH + File.separator + "logs";
+        if (!isExist(fold)) {
+            mkdir(fold);
+        }
+        return fold + File.separator + attemptID + ".html";
+    }
 
 	public boolean isExist(String fold) {
 		File file = new File(fold);

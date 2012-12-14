@@ -58,6 +58,8 @@ public class ManualTaskResource extends ServerResource implements IManualTaskRes
                 scheduler.suspendTask(taskID);
             }else if(action == RESUME){
                 scheduler.resumeTask(taskID);
+            } else {
+                return Status.CLIENT_ERROR_BAD_REQUEST;
             }
             return Status.SUCCESS_OK;
         } catch (ScheduleException se) {
