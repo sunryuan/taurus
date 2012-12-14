@@ -13,8 +13,18 @@
 		<servlet-name>BatchTaskServlet</servlet-name>
 		<servlet-class>com.dp.bigdata.taurus.web.servlet.BatchTaskServlet</servlet-class>
 	</servlet>
+	<servlet>
+		<description />
+		<display-name>Add Task Servlet</display-name>
+		<servlet-name>CreateTaskServlet</servlet-name>
+		<servlet-class>com.dp.bigdata.taurus.web.servlet.CreateTaskServlet</servlet-class>
+	</servlet>
 	<servlet-mapping>
 		<servlet-name>BatchTaskServlet</servlet-name>
 		<url-pattern>/batch_upload</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>CreateTaskServlet</servlet-name>
+		<url-pattern>/create_task</url-pattern>
 	</servlet-mapping>
 </web-app>
