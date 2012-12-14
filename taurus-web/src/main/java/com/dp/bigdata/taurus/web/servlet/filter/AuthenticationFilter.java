@@ -45,7 +45,7 @@ public class AuthenticationFilter implements Filter {
 
         HttpSession session = req.getSession(true);
 
-        String currentUser = (String) session.getAttribute(LoginServlet.USER_NAME);
+        Object currentUser = session.getAttribute(LoginServlet.USER_NAME);
         if (currentUser == null) {
             req.getRequestDispatcher(loginPage).forward(request, response);
         } else {
