@@ -1,7 +1,7 @@
 <%@ page contentType="text/html;charset=utf-8" %>
 <html lang="zh-CN">
 <head>
-	<%@ include file="jsp/sub-header.jsp"%>
+	<%@ include file="jsp/common-header.jsp"%>
 </head>
 <body data-spy="scroll">
 	<%@ include file="jsp/common-nav.jsp"%>

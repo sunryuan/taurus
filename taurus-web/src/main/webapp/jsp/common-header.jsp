@@ -1,5 +1,14 @@
-<%@ page contentType="text/html;charset=utf-8" %>
-<title>点评作业调度平台Taurus</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Taurus作业调度平台</title>
+<!-- JavaScript -->
+<script src="http://code.jquery.com/jquery-latest.js" ></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/login.js"></script>
+
 <!-- Bootstrap -->
-<link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
-<link rel="stylesheet" type="text/css" href="css/DT_bootstrap.css">
+<link href="css/bootstrap.min.css" rel="stylesheet" type="text/css">
+<link href="css/taurus.css" rel="stylesheet" type="text/css">
+
+<!-- Icon -->
+<link rel="Shortcut Icon" href="img/icon.png" type="image/x-icon">

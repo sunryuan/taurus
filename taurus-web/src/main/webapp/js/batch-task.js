@@ -13,7 +13,7 @@ $(function() {
 				data.submit();
 			}
 			else{
-				$('<p class="text-error"/>').text("目前系统只支持扩展名为xls的Excel文件，").appendTo('#msg');
+				$('<p class="text-error"/>').text("目前系统只支持扩展名为xls的Excel文件").appendTo('#msg');
 			}
 		},
 		done : function(e, data) {

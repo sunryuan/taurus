@@ -1,6 +1,7 @@
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <%@ include file="jsp/common-header.jsp"%>
+    <%@ include file="jsp/common-api.jsp"%>
 	<link href="css/index.css" rel="stylesheet" type="text/css" >
 </head>
 <body  data-spy="scroll">
@@ -32,8 +33,7 @@
       <a class="right carousel-control" href="#myCarousel" data-slide="next">&rsaquo;</a>
     </div><!-- /.carousel -->
    
-	<%@ include file="jsp/common-footer.jsp"%>
-	<script>	
+<script>	
       !function ($) {
         $(function(){
           // carousel demo

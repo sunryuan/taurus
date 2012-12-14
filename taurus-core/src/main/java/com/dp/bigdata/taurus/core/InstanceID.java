@@ -11,7 +11,7 @@ public class InstanceID extends ID {
 	public static final String INSTANCEID_REGEX = INSTANCE + SEPARATOR + "[0-9]+"
 			+ SEPARATOR + "[0-9]+";
 	
-	private String indentify;
+	private final String indentify;
 	
 	public InstanceID(TaskID taskID, int id) {
 		super(id);
@@ -32,7 +32,8 @@ public class InstanceID extends ID {
 		return builder;
 	}
 
-	public String toString() {
+	@Override
+    public String toString() {
 		return appendTo(new StringBuilder(INSTANCE)).toString();
 	}
 	

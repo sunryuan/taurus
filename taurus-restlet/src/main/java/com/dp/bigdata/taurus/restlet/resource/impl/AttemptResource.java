@@ -1,14 +1,23 @@
 package com.dp.bigdata.taurus.restlet.resource.impl;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.restlet.data.MediaType;
 import org.restlet.data.Status;
+import org.restlet.representation.FileRepresentation;
+import org.restlet.resource.Get;
 import org.restlet.resource.ServerResource;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.dp.bigdata.taurus.core.ScheduleException;
 import com.dp.bigdata.taurus.core.Scheduler;
 import com.dp.bigdata.taurus.restlet.resource.IAttemptResource;
+import com.dp.bigdata.taurus.restlet.utils.FilePathManager;
+import com.dp.bigdata.taurus.restlet.utils.HdfsUtils;
 
 /**
  * Resource url : http://xxx.xxx/api/attempt/{attempt_id}
@@ -22,24 +31,48 @@ public class AttemptResource extends ServerResource implements IAttemptResource 
     @Autowired
     private Scheduler scheduler;
 
+    @Autowired
+    private FilePathManager pathManager;
+
+    @Autowired
+    private HdfsUtils hdfsUtils;
+
     @Override
-    public void remove() {
+    public void kill() {
         String attemptID = (String) getRequest().getAttributes().get("attempt_id");
 
         boolean isRunning = scheduler.isRuningAttempt(attemptID);
-        
-        if(!isRunning){
+
+        if (!isRunning) {
             setStatus(Status.CLIENT_ERROR_CONFLICT);
             return;
         }
-        
+
         try {
             scheduler.killAttempt(attemptID);
         } catch (ScheduleException se) {
-            LOG.error(se.getMessage(),se);
+            LOG.error(se.getMessage(), se);
             setStatus(Status.SERVER_ERROR_INTERNAL);
         }
 
     }
 
+    @Override
+    @Get
+    public FileRepresentation log() {
+        String attemptID = (String) getRequest().getAttributes().get("attempt_id");
+        String logPath = pathManager.getWorkDir() + "/" + "logs" + "/" + attemptID + ".html";
+        String localDir = "E:";
+        try {
+            hdfsUtils.readFile(logPath, localDir);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String localFile = localDir + File.separatorChar + attemptID + ".html";
+        FileRepresentation fr = new FileRepresentation(new File(localFile), MediaType.TEXT_HTML);
+
+        return fr;
+    }
 }
