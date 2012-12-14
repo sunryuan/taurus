@@ -3,12 +3,14 @@ package com.dp.bigdata.taurus.restlet.utils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Properties;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -52,7 +54,7 @@ public class DefaultHdfsUtils implements HdfsUtils {
     @Override
     public void writeFile(String srcFile, String destFile) throws IOException, FileNotFoundException {
         File file = new File(srcFile);
-        if(!file.exists()){
+        if (!file.exists()) {
             throw new FileNotFoundException("File not found");
         }
         byte[] buf = new byte[BUFFER_SIZE];
@@ -86,9 +88,23 @@ public class DefaultHdfsUtils implements HdfsUtils {
 
     @Override
     public void readFile(String srcFile, String destFile) throws IOException, FileNotFoundException {
+        File file = new File(destFile);
+
+        byte[] buf = new byte[BUFFER_SIZE];
+        FileOutputStream fos = new FileOutputStream(file);
+        if (file.exists()) {
+            file.delete();
+        }
         FileSystem fs = FileSystem.get(URI.create(srcFile), conf);
-        fs.moveToLocalFile(new Path(srcFile), new Path(destFile));
+        FSDataInputStream hdfsInput = fs.open(new Path(srcFile));
+        int num = hdfsInput.read(buf);
+        while (num != (-1)) {//是否读完文件
+            fos.write(buf, 0, num);//把文件数据写出网络缓冲区
+            fos.flush();//刷新缓冲区把数据写往客户端
+            num = hdfsInput.read(buf);//继续从文件中读取数据
+        }
+        hdfsInput.close();
+        fos.close();
         fs.close();
     }
-
 }

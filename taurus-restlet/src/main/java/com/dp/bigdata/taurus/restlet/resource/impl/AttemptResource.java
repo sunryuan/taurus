@@ -60,19 +60,24 @@ public class AttemptResource extends ServerResource implements IAttemptResource 
     @Override
     @Get
     public FileRepresentation log() {
-        String attemptID = (String) getRequest().getAttributes().get("attempt_id");
-        String logPath = pathManager.getWorkDir() + "/" + "logs" + "/" + attemptID + ".html";
-        String localDir = "E:";
-        try {
-            hdfsUtils.readFile(logPath, localDir);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        String attemptID = "attempt_201209241101_0009_0001_0001";
+        //String attemptID = (String) getRequest().getAttributes().get("attempt_id");
+        String logPath = pathManager.getRemoteLog(attemptID);
+        String localPath = pathManager.getLocalLogPath(attemptID);
+        File file = new File(localPath);
+        if (!file.exists()) {
+            try {
+                hdfsUtils.readFile(logPath, localPath);
+            } catch (FileNotFoundException e) {
+                setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+                LOG.error("File not found", e);
+                return null;
+            } catch (IOException e) {
+                setStatus(Status.SERVER_ERROR_INTERNAL);
+                LOG.error("Server internal error", e);
+                return null;
+            }
         }
-        String localFile = localDir + File.separatorChar + attemptID + ".html";
-        FileRepresentation fr = new FileRepresentation(new File(localFile), MediaType.TEXT_HTML);
-
-        return fr;
+        return new FileRepresentation(file, MediaType.TEXT_HTML);
     }
 }
