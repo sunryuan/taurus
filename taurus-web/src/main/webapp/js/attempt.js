@@ -8,9 +8,10 @@ function action(id) {
 
 function action_ok() {
 	$.ajax({
-		url : "./attempts",
+		url : "attempts.do",
 		data : {
-			id : attemptID
+			id : attemptID,
+			action : 'kill'
 		},
 		type : 'POST',
 		statusCode : {
@@ -26,4 +27,8 @@ function action_ok() {
 			}
 		}
 	});
+}
+
+function viewLog(){
+	
 }

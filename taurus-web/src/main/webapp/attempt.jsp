@@ -79,7 +79,7 @@
 								<li><a href="#confirm" onClick="action($(this).parents('tr').find('td')[0].textContent)">Kill</a>
 								</li>
                                 <%}else {%>
-								<li><a href="#log">日志</a>
+								<li><a target="_blank" href="attempts.do?id=<%=dto.getAttemptID()%>&action=view-log">日志</a>
 								</li>
                                 <%}%>
 							</ul>

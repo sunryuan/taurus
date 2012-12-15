@@ -12,7 +12,11 @@ import com.dp.bigdata.taurus.restlet.shared.AttemptDTO;
 import com.dp.bigdata.taurus.restlet.shared.TaskDTO;
 
 
-
+/**
+ * RestletClientSample
+ * 
+ * @author damon.zhu
+ */
 public class RestletClientSample{
 
     public static void main(String args[]){

@@ -21,7 +21,7 @@ function action(id, index) {
 
 function action_ok() {
 	$.ajax({
-		url : "./tasks",
+		url : "tasks.do",
 		data : {
 			action : toAction(action_chinese),
 			id : taskID

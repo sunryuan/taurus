@@ -9,7 +9,7 @@
 		<div class="row-fluid">
 			<div class="span6">
 				<h4>请上传Excel文件（.xsl）:</h4>
-				<br> <input id="fileupload" type="file" data-url="batch_upload">
+				<br> <input id="fileupload" type="file" data-url="batch_upload.do">
 			</div>
 			<div class="span5">
 				<h4>请通过下面的链接下载Excel文件模板:</h4>
