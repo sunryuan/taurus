@@ -12,14 +12,14 @@ import org.apache.zookeeper.data.Stat;
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.interfaces.CleanInfoChannel;
 import com.google.inject.Inject;
 
-public class TaurusZkCleanerInfoChannel extends TaurusZKInfoChannel implements CleanInfoChannel{
+public class TaurusZKCleanerInfoChannel extends TaurusZKInfoChannel implements CleanInfoChannel{
 
-	private Log LOGGER = LogFactory.getLog(TaurusZkCleanerInfoChannel.class);
+	private Log LOGGER = LogFactory.getLog(TaurusZKCleanerInfoChannel.class);
 	
 	@Inject
-	TaurusZkCleanerInfoChannel(ZooKeeper zk) {
-		super(zk);
-	}
+	TaurusZKCleanerInfoChannel(ZooKeeper zk) {
+        super(zk);
+    }
 	
 
 	@Override

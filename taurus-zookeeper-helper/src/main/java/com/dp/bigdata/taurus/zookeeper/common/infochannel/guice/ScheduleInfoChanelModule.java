@@ -1,8 +1,9 @@
-package com.dp.bigdata.taurus.zookeeper.common.infochannel;
+package com.dp.bigdata.taurus.zookeeper.common.infochannel.guice;
 
 
 import org.apache.zookeeper.ZooKeeper;
 
+import com.dp.bigdata.taurus.zookeeper.common.infochannel.TaurusZKScheduleInfoChannel;
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.interfaces.ScheduleInfoChannel;
 import com.google.inject.AbstractModule;
 

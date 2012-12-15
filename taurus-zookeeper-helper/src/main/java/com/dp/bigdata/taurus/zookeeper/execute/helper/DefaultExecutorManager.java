@@ -14,9 +14,9 @@ import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 
 import com.dp.bigdata.taurus.zookeeper.common.MachineType;
-import com.dp.bigdata.taurus.zookeeper.common.infochannel.ScheduleInfoChanelModule;
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.bean.ScheduleConf;
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.bean.ScheduleStatus;
+import com.dp.bigdata.taurus.zookeeper.common.infochannel.guice.ScheduleInfoChanelModule;
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.interfaces.ScheduleInfoChannel;
 import com.google.inject.Guice;
 import com.google.inject.Injector;

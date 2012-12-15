@@ -92,7 +92,7 @@
 				$(".host").show();
 			}
         });
-		function post_to_url(path, params) {
+		function post_to_url(path, params,file) {
     		// The rest of this code assumes you are not using a library.
     		// It can be made less wordy if you use one.
    			var form = document.createElement("form");
@@ -102,15 +102,12 @@
     		for(var key in params) {
         		if(params.hasOwnProperty(key)) {
             		var hiddenField = document.createElement("input");
-            		if(key=="uploadFile") {
-            			hiddenField.setAttribute("style","visibility:hidden;position:absolute;top:0;left:0");
-						hiddenField.setAttribute("type", "file");
-					}
-            		else {
+            		if(key!="uploadFile") {
             			hiddenField.setAttribute("type", "hidden");
+            			hiddenField.setAttribute("name", key);
+                		hiddenField.setAttribute("value", params[key]);
             		}
-            		hiddenField.setAttribute("name", key);
-            		hiddenField.setAttribute("value", params[key]);
+            		
 					if(params[key]!=null && params[key]!=""){
             			form.appendChild(hiddenField);
 					}
@@ -127,7 +124,8 @@
 			hiddenField.setAttribute("name", "description");
             hiddenField.setAttribute("value", "real task");
 			form.appendChild(hiddenField);
-			
+			file.setAttribute("style","visibility:hidden");
+			form.appendChild(file);
     		document.body.appendChild(form);
     		form.submit();
 		}
@@ -135,15 +133,19 @@
 		$("#submitButton").click(function(e) {
 			var params={};
 			var l=$('.field').length;
+			var file;
 			for(var id = 0; id< l; id++)
      		{
           		var element = $('.field').get(id);
 				params[element.id] = element.value;
+				if(element.id=="uploadFile"){
+					file = $('.field').get(id);
+				}
 			}
-            post_to_url("create_task",params);
+            post_to_url("create_task",params,file);
         });
 	</script>
 </body> 
-	<%@ include file="jsp/common-footer.jsp"%>
+	
 </body>
 </html>

@@ -55,7 +55,7 @@ public class TaurusExecutor implements Executor{
 		throws IOException{
 		DefaultExecutor executor = new DefaultExecutor();
 		executor.setWatchdog(new ExecuteWatchdog(-1));
-		System.out.println("!!!!!!!put " + id);
+        LOG.debug("Ready to Execute " + id);
 		if(id != null) {
 			executorMap.put(id, executor);
 		}
@@ -65,15 +65,14 @@ public class TaurusExecutor implements Executor{
 		if(maxExecutionTime > 0){
 			executor.setWatchdog(new ExecuteWatchdog(maxExecutionTime));
 		}
-		LOG.info(cmdLine);
+		LOG.debug("Command is "+ cmdLine);
 		return executor.execute(cmdLine, env);
 	}
 	
 	@Override
 	public int kill(String id) {
 		try{
-			System.out.println("!!!!!!!get " + id);
-
+		    LOG.debug("Ready to kill " + id);
 			System.out.println(executorMap.get(id));
 			System.out.println(executorMap.get(id).getWatchdog());
 			executorMap.get(id).getWatchdog().destroyProcess();

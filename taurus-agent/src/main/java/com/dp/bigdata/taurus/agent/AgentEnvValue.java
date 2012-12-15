@@ -14,12 +14,12 @@ public final class AgentEnvValue {
 	
 	private static final Log LOG = LogFactory.getLog(AgentEnvValue.class);
 
-	static final String CONF = "agentConf.properties";
-	static final String KEY_CHECK_INTERVALS = "checkIntervals";
-	static final String AGENT_ROOT_PATH = "taurusAgentPath";
-	static final String JOB_PATH = "taurusJobPath";
-	static final String HADOOP_AUTHORITY = "hadoopAuthority";
-	static final String WORMHOLE_COMMAND = "wormholeCommand";
+	public static final String CONF = "agentConf.properties";
+	public static final String KEY_CHECK_INTERVALS = "checkIntervals";
+	public static final String AGENT_ROOT_PATH = "taurusAgentPath";
+	public static final String JOB_PATH = "taurusJobPath";
+	public static final String HADOOP_AUTHORITY = "hadoopAuthority";
+	public static final String WORMHOLE_COMMAND = "wormholeCommand";
 	
 	public static String getValue(String key){
 		try{

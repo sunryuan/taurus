@@ -1,26 +1,21 @@
 package com.dp.bigdata.taurus.agent;
 
-import java.io.InputStream;
-import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.dp.bigdata.taurus.agent.exec.Executor;
 import com.dp.bigdata.taurus.agent.exec.TaurusExecutor;
-import com.dp.bigdata.taurus.zookeeper.common.infochannel.DeploymentInfoChannelModule;
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.TaurusZKScheduleInfoChannel;
+import com.dp.bigdata.taurus.zookeeper.common.infochannel.guice.DeploymentInfoChannelModule;
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.interfaces.DeploymentInfoChannel;
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.interfaces.ScheduleInfoChannel;
-import com.dp.bigdata.taurus.zookeeper.common.utils.ClassLoaderUtils;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 public class AgentServerModule extends DeploymentInfoChannelModule{
 	
 	private static final Log LOG = LogFactory.getLog(AgentServerModule.class);
-	
-	
 
 	@Override
 	protected void configureOthers() {

@@ -63,7 +63,7 @@ public class TaskRequestExtractor implements RequestExtrator<Task> {
         task.setUpdatetime(current);
         Map<String, String> formMap;
         Representation re = request.getEntity();
-        if (MediaType.MULTIPART_FORM_DATA.equals(re.getMediaType(), false)) {
+        if (MediaType.MULTIPART_FORM_DATA.equals(re.getMediaType(), true)) {
             formMap = new HashMap<String, String>();
             List<FileItem> items = getFileItem(request);
             for (final Iterator<FileItem> it = items.iterator(); it.hasNext();) {

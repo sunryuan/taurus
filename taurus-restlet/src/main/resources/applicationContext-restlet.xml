@@ -49,7 +49,7 @@
 
 	<!-- Core Service -->
 	<bean id="hdfsUtils" class="com.dp.bigdata.taurus.restlet.utils.DefaultHdfsUtils"
-		init-method="init" />
+		init-method="init"/>
 	<bean id="agentDeployUtils"
 		class="com.dp.bigdata.taurus.restlet.utils.DefaultAgentDeploymentUtils" />
 	<bean id="requestExtractor"

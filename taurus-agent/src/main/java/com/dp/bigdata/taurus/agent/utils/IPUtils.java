@@ -1,4 +1,4 @@
-package com.dp.bigdata.taurus.agent;
+package com.dp.bigdata.taurus.agent.utils;
 
 import java.net.Inet6Address;
 import java.net.InetAddress;
