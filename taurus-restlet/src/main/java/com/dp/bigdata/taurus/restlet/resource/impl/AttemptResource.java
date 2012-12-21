@@ -41,6 +41,11 @@ public class AttemptResource extends ServerResource implements IAttemptResource 
     public void kill() {
         String attemptID = (String) getRequest().getAttributes().get("attempt_id");
 
+        if (attemptID.split("_").length != 5) {
+            setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+            return;
+        }
+
         boolean isRunning = scheduler.isRuningAttempt(attemptID);
 
         if (!isRunning) {
