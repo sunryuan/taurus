@@ -1,5 +1,5 @@
 
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<%@ page contentType="text/html;charset=utf-8" %>
 <title>Taurus作业调度平台</title>
 <!-- JavaScript -->
 <script src="http://code.jquery.com/jquery-latest.js" ></script>

@@ -101,13 +101,13 @@ $.widget("bootstrap.bwizard", {
 		/// Code example:
 		/// $("#element").bwizard("option", "backBtnText", "Back Button");
 		/// </summary>
-		backBtnText: '&larr; Previous',
+		backBtnText: '&larr; 上一步',
 		/// <summary>
 		/// A value that indicates the text of next button.
 		/// Code example:
 		/// $("#element").bwizard("option", "nextBtnText", "next Button");
 		/// </summary>
-		nextBtnText: 'Next &rarr;',
+		nextBtnText: '下一步 &rarr;',
 		/// <summary>
 		/// The add event handler. A function called when a panel is added.
 		/// Default: null.
@@ -310,7 +310,7 @@ $.widget("bootstrap.bwizard", {
 			this.buttons.addClass('bwizard-buttons');
 
 			this.backBtn =
-				$("<li class='previous'><a href='#'>" +
+				$("<li class='midPrevious'><a href='#'>" +
 					backBtnText + "</a></li>")
 				.appendTo(this.buttons).bind({
 					'click': function () {
@@ -318,13 +318,19 @@ $.widget("bootstrap.bwizard", {
 						return false;
 					}
 				}).attr("role", "button");
-
+			this.submitBtn=$("<li class='midSubmit' id='submitButton'><a href='#'>" +
+					"提交" + "</a>")
+					.appendTo(this.buttons);
 			this.nextBtn =
-				$("<li class='next'><a href='#'>" +
+				$("<li class='midNext'><a href='#'>" +
 					nextBtnText + "</a>")
 				.appendTo(this.buttons).bind({
 					'click': function () {
-						self.next();
+						if($('#deploy-form').validate().form()
+						&& $('#basic-form').validate().form()
+						&& $('#extended-form').validate().form()) {
+							self.next();
+						}
 						return false;
 					}
 				}).attr("role", "button");
@@ -370,8 +376,7 @@ $.widget("bootstrap.bwizard", {
 		}
 
 		if (init) {
-			this.form = $('> form', this.element).get(0);
-			this.panels = $('> div', this.form);
+			this.panels = $('> div', this.element);
 
 			this.panels.each(function (i, p) {
 				var url = $(p).attr('src');
@@ -475,6 +480,7 @@ $.widget("bootstrap.bwizard", {
 			this.backBtn[o.activeIndex <= 0 ? 'addClass' :
 				'removeClass']('disabled')
 				.attr('aria-disabled', o.activeIndex === 0);
+			this.submitBtn.attr('style',[o.activeIndex <= 0 ? 'display:none':'']);				
 			this.nextBtn[o.activeIndex >= this.panels.length - 1 ?
 				'addClass' : 'removeClass']('disabled')
 				.attr('aria-disabled', (o.activeIndex >= this.panels.length - 1));

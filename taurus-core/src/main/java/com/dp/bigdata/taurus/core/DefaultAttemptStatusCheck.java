@@ -60,6 +60,7 @@ public class DefaultAttemptStatusCheck implements AttemptStatusCheck {
         }
         int status = history.getStatus();
 
+        //TODO bugs.
         if ((status == AttemptStatus.SUCCEEDED || status == AttemptStatus.FAILED || status == AttemptStatus.KILLED)
                 && history.getReturnvalue() == operation.getValue()) {
             return true;

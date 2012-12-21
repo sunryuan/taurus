@@ -56,9 +56,9 @@ import org.restlet.ext.fileupload.RestletFileUpload;
  */
 public class CreateTaskServlet extends HttpServlet{
     private static final long serialVersionUID = 2348545179764589572L;
-    private static final String targetUri = "http://localhost:8182/api/task";
+    //private static final String targetUri = "http://localhost:8182/api/task";
 
-   // private static final String targetUri = "http://10.1.77.85:8182/api/task";
+    private static final String targetUri = "http://10.1.77.85:8182/api/task";
     private static final Log LOG = LogFactory.getLog(HttpServlet.class);
     private static final String[] PARAM_NAME_LIST = {"taskName","taskType","poolId",
         "taskState","taskCommand","multiInstance","crontab","dependency","proxyUser",

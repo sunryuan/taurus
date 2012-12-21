@@ -1,19 +1,26 @@
 <%@ page contentType="text/html;charset=utf-8" %>
-<html lang="zh-CN">
+<!DOCTYPE html>
+<html lang="en">
 <head>
 	<%@ include file="jsp/common-header.jsp"%>
-</head>
-<body data-spy="scroll">
-	<%@ include file="jsp/common-nav.jsp"%>
-<head>
-	<meta charset="utf-8" />
-	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-	<link href="./css/bootstrap.min.css" rel="stylesheet" />
-	<style>body{padding-top: 60px;}</style>
-	<link href="./css/bootstrap-responsive.min.css" rel="stylesheet" />
-	<link href="./css/bwizard.min.css" rel="stylesheet" />
+	<link href="css/bwizard.min.css" rel="stylesheet" />
+    <link href="css/validate.css" rel="stylesheet">
 </head>
 <body>
+	<%@ include file="jsp/common-nav.jsp"%>
+    <%@ include file="jsp/common-api.jsp"%>
+    <%@page import="org.restlet.resource.ClientResource"%>
+	<%@page import="com.dp.bigdata.taurus.restlet.resource.IPoolsResource"%>
+    <%@page import="com.dp.bigdata.taurus.restlet.shared.PoolDTO"%>
+    <%@page import="java.util.ArrayList"%>
+    <%@page import="org.restlet.data.MediaType"%>
+    <%@page import="java.text.SimpleDateFormat"%>
+   	<% ClientResource cr = new ClientResource(host + "pool");
+   		IPoolsResource resource = cr.wrap(IPoolsResource.class);
+    	cr.accept(MediaType.APPLICATION_XML);
+   		ArrayList<PoolDTO> pools = resource.retrieve();
+   		int UNALLOCATED = 1;
+    %>
 	<div class="container">
 		<div id="wizard">
 			<ol>
@@ -21,131 +28,160 @@
 				<li>基本设置</li>
 				<li>其他设置</li>
 			</ol>
-			<form id="taskForm">
-			<div>
+			<div id="deploy">
+				<form id="deploy-form" class="form-horizontal">
   					<fieldset>
-					<label>
-      					<input type="checkbox"  id="autodeploy"> 使用Pool部署
-    				</label><br/>
+                    <legend>部署设置</legend>
 					
-                    <div class="host">
-                    	<label>部署的机器</label>
-    					<input type="text"   id="host" name="host" style="width: 500"  class="field"><br/><br/>
+					<div class="control-group">
+						<label class="control-label"  for="autodeploy">部署方式</label>
+						<div class="controls">
+      						<input type="checkbox"  id="autodeploy">使用Pool部署
+	      				</div>
+      				</div>
+
+                    <div id="host"  class="control-group">
+                    	<label class="control-label"  for="host">部署的机器*</label>
+                    	<div class="controls">
+    						<input type="text" id="host" name="host" class="input-big field"  placeholder="10.0.0.1">
+    					</div>
 					</div>
                     
-                    <div class="poolDeployDiv" style="display: none;">
-                   		<label>部署的Pool</label>
-    					<select id="poolId" name="poolId" style="width: 500"  class="field">
-							<option>hadoop(10.1.1.161,10.1.1.162)</option>
-							<option>其他</option>
-						</select><br/><br/>
-					
-						<label>选择作业类型</label>
-    					<select  id="taskType" name="taskType"  class="field">
-    						<option>hadoop</option>
-							<option>wormhole</option>
-							<option>其他</option>
-						</select><br/><br/>
-						<label>上传作业</label>
-						<input type="file" id="uploadFile" name="uploadFile"  class="field"/>
+                    <div id="poolDeployDiv" style="display: none;">
+                    	<div class="control-group">
+                   			<label   class="control-label"  for="poolId">部署的Pool*</label>
+                            <div class="controls">
+    						<select id="poolId" name="poolId"  class="input-big  field" >
+                        		<% for(PoolDTO dto : pools){
+                        	    	if(dto.getId()!=UNALLOCATED){%>
+                            		<option><%=dto.getName()%></option>
+								<%}}%>
+							</select>
+                       		</div>
+                        </div>
+
+						<div class="control-group">
+							<label  class="control-label"  for="taskType">选择作业类型*</label>
+							<div class="controls">
+    						<select  id="taskType" name="taskType"  class="input-big  field" >
+    							<option>hadoop</option>
+								<option>wormhole</option>
+								<option>其他</option>
+							</select>
+                       		</div>
+                       	</div>
+
+                        <div class="control-group">
+							<label class="control-label"  for="uploadFile">上传作业*</label>
+                        	<div id="fileDiv"  class="controls">
+								<input type="file" id="uploadFile" name="uploadFile" class="input-big  field"/>
+                        	</div>
+                    	</div>
                     </div>
                     </fieldset>
-
+				</form>
 			</div>
 				
 			<div id="base">
-				<fieldset>
-					<legend>必填设置</legend>
-					<label class="text">名称	<input type="text"  id="taskName" name="taskName"  style="width: 500"  class="field"></label>
-					<label class="text">Crontab<input type="text"  id="crontab" name="crontab"  style="width: 500"  class="field"></label>
-                    <label class="text">命令	<input type="text"  id="taskCommand" name="taskCommand"  style="width: 500"  class="field"></label>
-					<label class="text">以该用户身份运行（默认nobody）	<input type="text" id="proxyUser" name="proxyUser"  style="width: 500"  class="field"></label>
-					<label class="text">报警收件人邮件（逗号分隔）	<input type="text"  id="mail" name="mail"  style="width: 500"  class="field"></label>
-  				</fieldset>
+			<form id="basic-form" class="form-horizontal">
+			<fieldset>
+					<legend>必要设置</legend>
+             	<div class="control-group">
+            		<label class="control-label"  for="taskName">名称*</label>
+            		<div class="controls">
+              			<input type="text" class="input-xxlarge field"  id="taskName" name="taskName"  placeholder="name">
+            		</div>
+          		</div>
+                <div class="control-group">
+            		<label class="control-label" for="crontab">Crontab*</label>
+            		<div class="controls">
+              			<input type="text" class="input-xxlarge field" id="crontab" name="crontab"  placeholder="0 0 * * ?">
+            		</div>
+          		</div>
+                <div class="control-group">
+            		<label class="control-label" for="taskCommand">命令*</label>
+            		<div class="controls">
+              			<input type="text" class="input-xxlarge field" id="taskCommand" name="taskCommand"  placeholder="command">
+            		</div>
+          		</div>
+                <div class="control-group">
+            		<label class="control-label" for="proxyUser">以该用户身份运行（默认nobody）</label>
+            		<div class="controls">
+              			<input type="text" class="input-xxlarge field" id="proxyUser" name="proxyUser"  placeholder="userName">
+            		</div>
+          		</div>
+                <div class="control-group">
+            		<label class="control-label" for="taskMail">报警收件人邮件（逗号分隔）*</label>
+            		<div class="controls">
+              			<input type="text" class="input-xxlarge field" id="taskMail" name="taskMail" placeholder="example1,example2(default add @dianping)">
+            		</div>
+          		</div>
+                <div class="control-group">
+            		<label class="control-label" for="description">描述*</label>
+            		<div class="controls">
+              			<input type="text" class="input-xxlarge field" id="description" name="description" value="" placeholder="description of task">
+            		</div>
+          		</div>
+                <input type="text" class="field hidden" id="creator" name="creator" value="<%=(String)session.getAttribute(com.dp.bigdata.taurus.web.servlet.LoginServlet.USER_NAME)%>">
+          	</fieldset>
+			</form>	
 			</div>
-			<div  id="extion">
+			<div  id="extention">
+			<form id="extended-form" class="form-horizontal">
 				<fieldset>
 					<legend>可选设置</legend>
-					<label class="text">最长执行时间（分钟）<input type="text" id="maxExecutionTime" name="maxExecutionTime" style="width: 100" class="field"></label>
-					<label class="text">最长等待时间（分钟）<input type="text" id="maxWaitTime" name="maxWaitTime"  style="width: 100"  class="field"></label>
-					<label class="text">依赖 <input type="text" id="dependency" name="dependency"  style="width: 100"  class="field"></label>
-					<label class="text">重试次数	<input type="text" id="retryTimes" name="retryTimes"  style="width: 100"  class="field"></label>
-					<label class="checkbox"><input type="checkbox" id="multiInstance" name="multiInstance"  class="field"> 允许多个实例</label>
-                    <input type="submit" id="submitButton" />
+					<div class="control-group">
+            			<label class="control-label">最长执行时间（分钟）*</label>
+            			<div class="controls">
+              				<input type="number" class="input-small field" id="maxExecutionTime" name="maxExecutionTime" style="text-align:right" value=0>
+            			</div>
+          			</div>
+          			<div class="control-group">
+            			<label class="control-label">依赖</label>
+            			<div class="controls">
+              				<input type="text" class="input-small field" id="dependency" name="dependency" placeholder="dependency expression"  value="">
+            			</div>
+          			</div>
+          			<div class="control-group">
+            			<label class="control-label">最长等待时间（分钟）*</label>
+            			<div class="controls">
+              				<input type="number" class="input-small field" id="maxWaitTime" name="maxWaitTime" style="text-align:right" value=0>
+            			</div>
+          			</div>
+          			
+          			<div class="control-group">
+            			<label class="control-label">重试次数*</label>
+            			<div class="controls">
+              				<input type="number" class="input-small field" id="retryTimes" name="retryTimes" style="text-align:right" value=0>
+            			</div>
+          			</div>
+          			<div class="control-group">
+            			<label class="control-label">允许同时执行实例个数*</label>
+            			<div class="controls">
+              				<input type="number" class="input-small field" id="multiInstance" name="multiInstance" style="text-align:right" value=1>
+            			</div>
+          			</div>
   				</fieldset>
+  			</form>	
 			</div>
-			</form>
 		</div>
 	</div>
-
-	<script src="./js/jquery.min.js"></script>
-	<script src="./js/bootstrap.min.js"></script>
-	<script src="./js/bwizard.js" type="text/javascript"></script>
-	<script type="text/javascript">
-		$("#wizard").bwizard();
-		$("#autodeploy").change(function(e) {
-            if($("#autodeploy").attr("checked")=="checked"){
-				$(".poolDeployDiv").show();
-				$(".host").hide();
-			} else {
-				$(".poolDeployDiv").hide();
-				$(".host").show();
-			}
-        });
-		function post_to_url(path, params,file) {
-    		// The rest of this code assumes you are not using a library.
-    		// It can be made less wordy if you use one.
-   			var form = document.createElement("form");
-    		form.setAttribute("method", "post");
-    		form.setAttribute("action", path);
-			form.setAttribute("enctype","multipart/form-data");
-    		for(var key in params) {
-        		if(params.hasOwnProperty(key)) {
-            		var hiddenField = document.createElement("input");
-            		if(key!="uploadFile") {
-            			hiddenField.setAttribute("type", "hidden");
-            			hiddenField.setAttribute("name", key);
-                		hiddenField.setAttribute("value", params[key]);
-            		}
-            		
-					if(params[key]!=null && params[key]!=""){
-            			form.appendChild(hiddenField);
-					}
-         		}
-    		}
-			var hiddenField = document.createElement("input");
-			hiddenField.setAttribute("type", "hidden");
-			hiddenField.setAttribute("name", "creator");
-            hiddenField.setAttribute("value", "renyuan.sun");
-			form.appendChild(hiddenField);
-
-			var hiddenField = document.createElement("input");
-			hiddenField.setAttribute("type", "hidden");
-			hiddenField.setAttribute("name", "description");
-            hiddenField.setAttribute("value", "real task");
-			form.appendChild(hiddenField);
-			file.setAttribute("style","visibility:hidden");
-			form.appendChild(file);
-    		document.body.appendChild(form);
-    		form.submit();
-		}
-		
-		$("#submitButton").click(function(e) {
-			var params={};
-			var l=$('.field').length;
-			var file;
-			for(var id = 0; id< l; id++)
-     		{
-          		var element = $('.field').get(id);
-				params[element.id] = element.value;
-				if(element.id=="uploadFile"){
-					file = $('.field').get(id);
-				}
-			}
-            post_to_url("create_task",params,file);
-        });
-	</script>
+    <div id="confirm" class="modal hide fade">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" >&times;</button>
+        <h3 id="id_header"></h3>
+      </div>
+      <div class="modal-body">
+        <p id="id_body"></p>
+      </div>
+      <div class="modal-footer">
+      </div>
+    </div>
+   
+    
+	<script src="js/bwizard.js" type="text/javascript"></script>
+    <script src="js/jquery.validate.min.js" type="text/javascript"></script>
+    <script src="js/taurus_validate.js" type="text/javascript"></script>
+	<script src="js/task.js" type="text/javascript"></script>
 </body> 
-	
-</body>
 </html>
