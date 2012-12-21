@@ -34,7 +34,7 @@
 		class="com.dp.bigdata.taurus.restlet.resource.impl.AttemptResource" />
 	<bean name="/api/attempt" id="attemptsResource" autowire="byName"
 		scope="prototype" class="com.dp.bigdata.taurus.restlet.resource.impl.AttemptsResource" />
-	<bean name="/api/host/{host_id}" id="hostResource" autowire="byName"
+	<bean name="/api/host/{hostname}" id="hostResource" autowire="byName"
 		scope="prototype" class="com.dp.bigdata.taurus.restlet.resource.impl.HostResource" />
 	<bean name="/api/host" id="hostsResource" autowire="byName" scope="prototype"
 		class="com.dp.bigdata.taurus.restlet.resource.impl.HostsResource" />
@@ -44,8 +44,6 @@
 		scope="prototype" class="com.dp.bigdata.taurus.restlet.resource.impl.PoolResource" />
 	<bean name="/api/pool" id="poolsResource" autowire="byName" scope="prototype"
 		class="com.dp.bigdata.taurus.restlet.resource.impl.PoolsResource" />
-	<bean name="/api/user" id="userResource" autowire="byName" scope="prototype"
-		class="com.dp.bigdata.taurus.restlet.resource.impl.UserResource" />
 
 	<!-- Core Service -->
 	<bean id="hdfsUtils" class="com.dp.bigdata.taurus.restlet.utils.DefaultHdfsUtils"
