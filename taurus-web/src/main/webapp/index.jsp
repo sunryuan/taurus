@@ -1,3 +1,4 @@
+<%@ page contentType="text/html;charset=utf-8" %>
 <html lang="en">
 <head>
     <%@ include file="jsp/common-header.jsp"%>

@@ -13,9 +13,9 @@ import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 
 import com.dp.bigdata.taurus.zookeeper.common.MachineType;
-import com.dp.bigdata.taurus.zookeeper.common.infochannel.DeploymentInfoChannelModule;
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.bean.DeploymentConf;
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.bean.DeploymentStatus;
+import com.dp.bigdata.taurus.zookeeper.common.infochannel.guice.DeploymentInfoChannelModule;
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.interfaces.DeploymentInfoChannel;
 import com.google.inject.Guice;
 import com.google.inject.Injector;

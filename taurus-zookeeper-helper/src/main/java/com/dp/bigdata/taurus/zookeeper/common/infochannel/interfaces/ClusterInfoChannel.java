@@ -8,7 +8,10 @@ import org.apache.zookeeper.Watcher;
 import com.dp.bigdata.taurus.zookeeper.common.MachineType;
 
 public interface ClusterInfoChannel {
-
+    public void registerWatcher(Watcher w);
+    
+    public void reconnectToCluster(Watcher watcher);
+    
 	public void connectToCluster(MachineType mt, String ip);
 
 	public boolean exists(MachineType mt, String ip);

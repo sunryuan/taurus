@@ -1,25 +1,38 @@
 package com.dp.bigdata.taurus.agent;
 
-public final class AgentEnvValue {
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
-	private static final String AGENT_HOME = "taurusAgentPath";
-	private static final String AGENT_JOB_PATH = "taurusJobPath";
-	private static final String DEFAULT_JOB_PATH = "/data/app/taurus/jobs/";
-	private static final String DEFAULT_AGENT_PATH = "/data/app/taurus";
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import com.dp.bigdata.taurus.zookeeper.common.utils.ClassLoaderUtils;
+
+
+public final class AgentEnvValue {
 	
-	static String getAgentPath() {
-		String path = System.getenv(AgentEnvValue.AGENT_HOME);
-		if(path == null) {
-			path = AgentEnvValue.DEFAULT_AGENT_PATH;
+	private static final Log LOG = LogFactory.getLog(AgentEnvValue.class);
+
+	public static final String CONF = "agentConf.properties";
+	public static final String KEY_CHECK_INTERVALS = "checkIntervals";
+	public static final String AGENT_ROOT_PATH = "taurusAgentPath";
+	public static final String JOB_PATH = "taurusJobPath";
+	public static final String HADOOP_AUTHORITY = "hadoopAuthority";
+	public static final String WORMHOLE_COMMAND = "wormholeCommand";
+	
+	public static String getValue(String key){
+		try{
+			Properties props = new Properties();
+			InputStream in = ClassLoaderUtils.getDefaultClassLoader().getResourceAsStream(CONF);
+			props.load(in);
+			String result = props.getProperty(key);
+			in.close();
+			return result;
+		} catch(IOException e) {
+			LOG.error(e.getMessage(),e);
+			return null;
 		}
-		return path;
 	}
 	
-	static String getJobPath() {
-		String path = System.getenv(AgentEnvValue.AGENT_JOB_PATH);
-		if(path == null) {
-			path = AgentEnvValue.DEFAULT_JOB_PATH;
-		}
-		return path;
-	}
 }

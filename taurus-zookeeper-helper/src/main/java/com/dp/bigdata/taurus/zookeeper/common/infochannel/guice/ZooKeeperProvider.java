@@ -1,15 +1,18 @@
-package com.dp.bigdata.taurus.zookeeper.common.infochannel;
+package com.dp.bigdata.taurus.zookeeper.common.infochannel.guice;
 
 import java.io.InputStream;
 import java.util.Properties;
 
-import org.apache.zookeeper.Watcher;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.zookeeper.ZooKeeper;
 
 import com.dp.bigdata.taurus.zookeeper.common.utils.ClassLoaderUtils;
 import com.google.inject.Provider;
 
 public final class ZooKeeperProvider implements Provider<ZooKeeper>{
+    private static final Log LOG = LogFactory.getLog(ZooKeeperProvider.class);
+
 	
 	private static final String ZK_CONF = "zooKeeper.properties";
 	
@@ -24,9 +27,10 @@ public final class ZooKeeperProvider implements Provider<ZooKeeper>{
 			in.close();
 			String connectString = props.getProperty(KEY_CONNECT_STRING);
 			int sessionTimeout = Integer.parseInt(props.getProperty(KEY_SESSION_TIMEOUT));
-			Watcher watcher = new DefaultZKWatcher();
-			return new ZooKeeper(connectString, sessionTimeout, watcher);
+			ZooKeeper zk = new ZooKeeper(connectString, sessionTimeout, null);
+			return zk ;
 		} catch (Exception e) {
+		    LOG.error(e.getMessage(),e);
 			return null;
 		}
 	}

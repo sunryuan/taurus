@@ -8,6 +8,7 @@ import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooKeeper;
 
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.bean.ScheduleStatus;
+import com.dp.bigdata.taurus.zookeeper.common.infochannel.guice.ZooKeeperProvider;
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.interfaces.CleanInfoChannel;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -69,7 +70,7 @@ public class ZooKeeperCleaner {
 	class CleanInfoChannelModule extends AbstractModule{
 		@Override
 		protected void configure() {
-			bind(CleanInfoChannel.class).to(TaurusZkCleanerInfoChannel.class);
+			bind(CleanInfoChannel.class).to(TaurusZKCleanerInfoChannel.class);
 			bindZooKeeper();
 		}
 		
