@@ -5,7 +5,6 @@ import com.dp.bigdata.taurus.frontend.client.main.presenter.MainPresenter;
 import com.dp.bigdata.taurus.frontend.client.pool.PoolModule;
 import com.dp.bigdata.taurus.frontend.client.scheduler.SchedulerModule;
 import com.dp.bigdata.taurus.frontend.client.task.TaskModule;
-import com.dp.bigdata.taurus.frontend.client.workflow.WorkflowModule;
 import com.mvp4g.client.annotation.Debug;
 import com.mvp4g.client.annotation.Event;
 import com.mvp4g.client.annotation.Events;

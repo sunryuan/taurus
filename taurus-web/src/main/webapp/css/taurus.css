@@ -33,3 +33,20 @@ body{
 	margin-bottom: 15px;
 	padding: 7px 9px;
 }
+
+.pager .midPrevious > a,
+{
+  	top: 50%;
+	left: 50%;
+}
+
+.pager .midNext > a {
+  	top: 50%;
+	left: 50%;
+
+}
+
+.pager .btn btn-primary > button{
+	top: 50%;
+	left: 50%;
+}

@@ -14,7 +14,7 @@
 			<lineEnding>keep</lineEnding>
 		</fileSet>
 		<fileSet>
-			<directory>./conf</directory>
+			<directory>./src/main/resources</directory>
 			<outputDirectory>conf</outputDirectory>
 		</fileSet>
 		<fileSet>
