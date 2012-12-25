@@ -48,8 +48,9 @@ public class HostsResource extends ServerResource implements IHostsResource {
         HostExample example = new HostExample();
         example.or().andPoolidEqualTo(Integer.parseInt(poolID));
         ArrayList<Host> _hosts = (ArrayList<Host>) hostMapper.selectByExample(example);
+        int i = 1;
         for (Host _host : _hosts) {
-            hosts.add(new HostDTO(_host.getId(), _host.getName(), _host.getIp(), _host.getPoolid(), _host.getIsconnected()));
+            hosts.add(new HostDTO(i++, _host.getName(), _host.getIp(), _host.getPoolid(), _host.getIsconnected()));
         }
         return hosts;
     }

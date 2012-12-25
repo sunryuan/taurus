@@ -51,6 +51,8 @@ public class TaskDTO implements Serializable {
 
     private Integer poolid;
 
+    private String hostname;
+
     private String type;
     
     private String description;
@@ -60,7 +62,7 @@ public class TaskDTO implements Serializable {
     public TaskDTO(String taskid, String name, String creator, String dependencyexpr, Date addtime, Date lastscheduletime,
                    Date updatetime, String crontab, String status, Integer allowmultiinstances, String proxyuser,
                    Integer waittimeout, Integer executiontimeout, Boolean isautoretry, Integer retrytimes, String command,
-                   Integer poolid, String type, String description) {
+                   Integer poolid, String hostname, String type, String description) {
         super();
         this.taskid = taskid;
         this.name = name;
@@ -79,11 +81,10 @@ public class TaskDTO implements Serializable {
         this.retrytimes = retrytimes;
         this.command = command;
         this.poolid = poolid;
+        this.hostname = hostname;
         this.type = type;
         this.description = description;
     }
-
-
 
     public String getTaskid() {
         return taskid;
@@ -151,6 +152,10 @@ public class TaskDTO implements Serializable {
 
     public Integer getPoolid() {
         return poolid;
+    }
+
+    public String getHostname() {
+        return hostname;
     }
 
     public String getType() {
@@ -229,6 +234,10 @@ public class TaskDTO implements Serializable {
         this.poolid = poolid;
     }
 
+    public void setHostname(String hostname) {
+        this.hostname = hostname;
+    }
+
     public void setType(String type) {
         this.type = type;
     }
@@ -243,8 +252,8 @@ public class TaskDTO implements Serializable {
                 + ", addtime=" + addtime + ", lastscheduletime=" + lastscheduletime + ", updatetime=" + updatetime + ", crontab="
                 + crontab + ", status=" + status + ", allowmultiinstances=" + allowmultiinstances + ", proxyuser=" + proxyuser
                 + ", waittimeout=" + waittimeout + ", executiontimeout=" + executiontimeout + ", isautoretry=" + isautoretry
-                + ", retrytimes=" + retrytimes + ", command=" + command + ", poolid=" + poolid + ", type=" + type
-                + ", description=" + description + "]";
+                + ", retrytimes=" + retrytimes + ", command=" + command + ", poolid=" + poolid + ", hostname=" + hostname
+                + ", type=" + type + ", description=" + description + "]";
     }
-    
+
 }

@@ -4,9 +4,8 @@
 <mapper namespace="com.dp.bigdata.taurus.generated.mapper.TableCreatorMapper">
 
 	<update id="createHost">
-		CREATE TABLE TaurusHost (id INT NOT NULL GENERATED
-		ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
-		name VARCHAR(60), ip VARCHAR(60), poolID INT, isConnected INT, PRIMARY KEY (id))
+		CREATE TABLE TaurusHost (
+		name VARCHAR(60), ip VARCHAR(60), poolID INT, isConnected INT, PRIMARY KEY (name))
 	</update>
 
 	<update id="createInstanceCounter">
@@ -32,8 +31,8 @@
 		executionTimeout INT, isAutoRetry INT,
 		retryTimes INT,
 		command VARCHAR(255), poolID
-		INT,
-		type VARCHAR(100),fileName VARCHAR(200), PRIMARY KEY (taskID))
+		INT,hostName VARCHAR(100),
+		type VARCHAR(100),fileName VARCHAR(200), description VARCHAR(255), PRIMARY KEY (taskID))
 	</update>
 
 	<update id="createTaskAttempt">

@@ -14,6 +14,8 @@
 		java.util.ArrayList"%>
 
 	<div class="container" style="margin-top: 10px">
+        <div id="alertContainer" class="container">
+        </div>
 		<table cellpadding="0" cellspacing="0" border="0"
 			class="table table-striped table-format" id="example">
 			<thead>
@@ -77,7 +79,7 @@
 							</button>
 							<ul class="dropdown-menu">
                             	<%if(state.equals("RUNNING")){%>
-								<li><a href="#confirm" onClick="action($(this).parents('tr').find('td')[0].textContent)">Kill</a>
+								<li><a href="#confirm" onClick="action($(this).parents('tr').attr('id'))">Kill</a>
 								</li>
                                 <%}else {%>
 								<li><a target="_blank" href="attempts.do?id=<%=dto.getAttemptID()%>&action=view-log">日志</a>
