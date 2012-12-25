@@ -17,13 +17,14 @@ import com.dp.bigdata.taurus.zookeeper.common.utils.ClassLoaderUtils;
 public class DefaultAgentMonitor implements AgentMonitor {
 
     private ZkClient zkClient;
-    private static final String WARCH_PACH = "/taurus/heartbeats/agent/realtime";
+    private static String WATCH_PACH = "/taurus/heartbeats/agent/realtime";
+    private static final String ZKCONFIG = "zooKeeper.properties";
     private List<String> lastAgentsIp;
 
     public DefaultAgentMonitor() {
         Properties props = new Properties();
         try {
-            InputStream in = ClassLoaderUtils.getDefaultClassLoader().getResourceAsStream("zooKeeper.properties");
+            InputStream in = ClassLoaderUtils.getDefaultClassLoader().getResourceAsStream(ZKCONFIG);
             props.load(in);
             in.close();
             String connectString = props.getProperty("connectionString");
@@ -36,12 +37,12 @@ public class DefaultAgentMonitor implements AgentMonitor {
 
     @Override
     public void agentMonitor(final AgentHandler handler) {
-        lastAgentsIp = zkClient.getChildren(WARCH_PACH);
+        lastAgentsIp = zkClient.getChildren(WATCH_PACH);
         for (String ip : lastAgentsIp) {
-            handler.update(ip);
+            handler.connected(ip);
         }
 
-        zkClient.subscribeChildChanges(WARCH_PACH, new IZkChildListener() {
+        zkClient.subscribeChildChanges(WATCH_PACH, new IZkChildListener() {
             @Override
             public void handleChildChange(String parentPath, List<String> currentChilds) throws Exception {
                 for (String disConnectedIP : lastAgentsIp) {

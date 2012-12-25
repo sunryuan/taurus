@@ -118,23 +118,12 @@ final public class Engine implements Scheduler {
 
             @Override
             public void connected(String ip) {
-                Host host = new Host();
-                host.setName(ip);
-                host.setIp(ip);
-                host.setIsconnected(true);
-                host.setPoolid(1);
-                hostMapper.insert(host);
-            }
-
-            @Override
-            public void update(String ip) {
                 Host host = hostMapper.selectByPrimaryKey(ip);
                 Host newHost = new Host();
                 newHost.setIp(ip);
                 newHost.setName(ip);
                 newHost.setIsconnected(true);
                 if (host == null) {
-                    newHost.setPoolid(1);
                     hostMapper.insert(newHost);
                 } else {
                     hostMapper.updateByPrimaryKeySelective(newHost);

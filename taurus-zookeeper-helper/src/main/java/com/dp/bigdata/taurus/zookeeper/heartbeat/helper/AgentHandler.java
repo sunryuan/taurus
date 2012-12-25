@@ -10,6 +10,4 @@ public interface AgentHandler {
     public void disConnected(String ip);
 
     public void connected(String ip);
-
-    public void update(String ip);
 }
