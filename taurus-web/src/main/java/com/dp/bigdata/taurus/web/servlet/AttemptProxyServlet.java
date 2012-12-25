@@ -3,6 +3,8 @@ package com.dp.bigdata.taurus.web.servlet;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -12,7 +14,6 @@ import org.restlet.data.MediaType;
 import org.restlet.resource.ClientResource;
 
 import com.dp.bigdata.taurus.restlet.resource.IAttemptResource;
-import com.dp.bigdata.taurus.web.common.Constant;
 
 /**
  * AttemptProxyServlet
@@ -28,6 +29,14 @@ public class AttemptProxyServlet extends HttpServlet {
 
     private static final String KILL = "kill";
     private static final String LOG = "view-log";
+    private String RESTLET_URL_BASE;
+
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        ServletContext context = getServletContext();
+        RESTLET_URL_BASE = context.getInitParameter("RESTLET_SERVER");
+    }
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -40,7 +49,7 @@ public class AttemptProxyServlet extends HttpServlet {
         String attemptID = request.getParameter("id");
         String action = request.getParameter("action") == null ? "" : request.getParameter("action").toLowerCase();
 
-        ClientResource attemptCr = new ClientResource(Constant.RESTFUL_URL_BASE + "attempt/" + attemptID);
+        ClientResource attemptCr = new ClientResource(RESTLET_URL_BASE + "attempt/" + attemptID);
         IAttemptResource attemptResource = attemptCr.wrap(IAttemptResource.class);
         
         if (action.equals(KILL)) {
