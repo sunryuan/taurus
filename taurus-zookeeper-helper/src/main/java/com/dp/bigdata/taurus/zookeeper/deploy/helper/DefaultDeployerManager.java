@@ -27,8 +27,8 @@ public class DefaultDeployerManager implements Deployer{
 	private static final int DEFAULT_TIME_OUT_IN_SECONDS = 60;
 	private static Map<String, Lock> taskIDToLockMap = new HashMap<String, Lock>();
 
-	private DeploymentInfoChannel dic;
-	private int opTimeout = DEFAULT_TIME_OUT_IN_SECONDS;
+	private final DeploymentInfoChannel dic;
+	private final int opTimeout = DEFAULT_TIME_OUT_IN_SECONDS;
 	
 	public DefaultDeployerManager(){
 		Injector injector = Guice.createInjector(new DeploymentInfoChannelModule());
@@ -87,7 +87,7 @@ public class DefaultDeployerManager implements Deployer{
 					lock.unlock();
 				}
 				if(status.getStatus() != DeploymentStatus.DEPLOY_SUCCESS) {
-					throw new DeploymentException("Task " + taskId + "deploy failed");
+                    throw new DeploymentException("Task " + taskId + " deploy failed");
 				}
 				
 			}
@@ -144,12 +144,12 @@ public class DefaultDeployerManager implements Deployer{
     
     private static final class DeploymentStatusWatcher implements Watcher{
 
-		private Condition deployFinish;
-		private Lock lock;
+		private final Condition deployFinish;
+		private final Lock lock;
 		private DeploymentStatus status;
-		private DeploymentInfoChannel dic;
-		private String agentIp;
-		private String taskID;
+		private final DeploymentInfoChannel dic;
+		private final String agentIp;
+		private final String taskID;
 
 		DeploymentStatusWatcher(Lock lock, Condition deployFinish, DeploymentInfoChannel cs, String agentIp,
 				String taskID){

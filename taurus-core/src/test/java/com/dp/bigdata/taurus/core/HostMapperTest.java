@@ -1,6 +1,6 @@
 package com.dp.bigdata.taurus.core;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +21,9 @@ public class HostMapperTest extends AbstractDaoTest {
     
     @Test
     public void insertHostData(){
-        Host record = hostMapper.selectByPrimaryKey(1);
-        int exprected = record.getId();
-        assertEquals(1, exprected);
+        Host record = hostMapper.selectByPrimaryKey("HADOOP");
+        String ip = record.getIp();
+        assertEquals("10.1.77.84", ip);
     }
     
     @Override

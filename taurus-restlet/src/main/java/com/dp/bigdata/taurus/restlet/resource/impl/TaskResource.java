@@ -1,5 +1,6 @@
 package com.dp.bigdata.taurus.restlet.resource.impl;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.restlet.Request;
@@ -21,7 +22,6 @@ import com.dp.bigdata.taurus.restlet.utils.FilePathManager;
 import com.dp.bigdata.taurus.restlet.utils.HdfsUtils;
 import com.dp.bigdata.taurus.restlet.utils.RequestExtrator;
 import com.dp.bigdata.taurus.restlet.utils.TaskConverter;
-import com.mysql.jdbc.StringUtils;
 
 /**
  * Resource url : http://xxx.xxx/api/task/{task_id}
@@ -86,7 +86,7 @@ public class TaskResource extends ServerResource implements ITaskResource {
             return;
         }
 
-        if (MediaType.MULTIPART_FORM_DATA.equals(re.getMediaType(), false) && !StringUtils.isNullOrEmpty(task.getFilename())) {
+        if (MediaType.MULTIPART_FORM_DATA.equals(re.getMediaType(), true) && !StringUtils.isBlank(task.getFilename())) {
             final String srcPath = filePathManager.getLocalPath(task.getFilename());
             final String destPath = filePathManager.getRemotePath(task.getTaskid(), task.getFilename());
             try {

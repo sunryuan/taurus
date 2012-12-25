@@ -13,6 +13,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import com.dp.bigdata.taurus.generated.mapper.HostMapper;
 import com.dp.bigdata.taurus.generated.mapper.TaskAttemptMapper;
 import com.dp.bigdata.taurus.generated.mapper.TaskMapper;
 import com.dp.bigdata.taurus.generated.module.Host;
@@ -23,6 +24,8 @@ import com.dp.bigdata.taurus.generated.module.TaskExample;
 import com.dp.bigdata.taurus.zookeeper.execute.helper.ExecuteException;
 import com.dp.bigdata.taurus.zookeeper.execute.helper.ExecuteStatus;
 import com.dp.bigdata.taurus.zookeeper.execute.helper.ExecutorManager;
+import com.dp.bigdata.taurus.zookeeper.heartbeat.helper.AgentHandler;
+import com.dp.bigdata.taurus.zookeeper.heartbeat.helper.AgentMonitor;
 
 /**
  * Engine is the default implementation of the <code>Scheduler</code>.
@@ -57,6 +60,11 @@ final public class Engine implements Scheduler {
     private IDFactory idFactory;
     @Autowired
     private ExecutorManager zookeeper;
+    @Autowired
+    private HostMapper hostMapper;
+    @Autowired
+    private AgentMonitor agentMonitor;
+
     /**
      * Maximum concurrent running attempt number
      */
@@ -96,6 +104,32 @@ final public class Engine implements Scheduler {
      */
     public void start() {
         new Thread(progressMonitor).start();
+
+        agentMonitor.agentMonitor(new AgentHandler() {
+
+            @Override
+            public void disConnected(String ip) {
+                Host host = new Host();
+                host.setName(ip);
+                host.setIp(ip);
+                host.setIsconnected(false);
+                hostMapper.updateByPrimaryKeySelective(host);
+            }
+
+            @Override
+            public void connected(String ip) {
+                Host host = hostMapper.selectByPrimaryKey(ip);
+                Host newHost = new Host();
+                newHost.setIp(ip);
+                newHost.setName(ip);
+                newHost.setIsconnected(true);
+                if (host == null) {
+                    hostMapper.insert(newHost);
+                } else {
+                    hostMapper.updateByPrimaryKeySelective(newHost);
+                }
+            }
+        });
 
         while (true) {
             LOG.info("Engine trys to scan the database...");
@@ -205,7 +239,16 @@ final public class Engine implements Scheduler {
 
     public synchronized void executeAttempt(AttemptContext context) throws ScheduleException {
         TaskAttempt attempt = context.getAttempt();
-        Host host = assignPolicy.assignTask(context.getTask());
+        Task task = context.getTask();
+        Host host;
+        if (task.getPoolid() == 1) {
+            host = new Host();
+            //TODO: assume that hostname is ip address!!
+            host.setIp(task.getHostname());
+            //host = hostMapper.selectByPrimaryKey(task.getHostname());
+        } else {
+            host = assignPolicy.assignTask(task);
+        }
         attempt.setExechost(host.getIp());
         attempt.setStarttime(new Date());
         final long start = System.nanoTime();
@@ -214,7 +257,8 @@ final public class Engine implements Scheduler {
         } catch (ExecuteException ee) {
             attempt.setStatus(AttemptStatus.SUBMIT_FAIL);
             taskAttemptMapper.updateByPrimaryKey(attempt);
-            throw new ScheduleException("Fail to execute attemptID : " + attempt.getAttemptid() + " on host : " + host.getIp());
+            throw new ScheduleException("Fail to execute attemptID : " + attempt.getAttemptid() + " on host : "
+                    + host.getIp());
         }
         final long end = System.nanoTime();
         LOG.info("Time (seconds) taken " + (end - start) / 1.0e9 + " to start attempt : " + context.getAttemptid());
