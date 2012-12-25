@@ -24,6 +24,8 @@ import com.dp.bigdata.taurus.generated.module.TaskExample;
 import com.dp.bigdata.taurus.zookeeper.execute.helper.ExecuteException;
 import com.dp.bigdata.taurus.zookeeper.execute.helper.ExecuteStatus;
 import com.dp.bigdata.taurus.zookeeper.execute.helper.ExecutorManager;
+import com.dp.bigdata.taurus.zookeeper.heartbeat.helper.AgentHandler;
+import com.dp.bigdata.taurus.zookeeper.heartbeat.helper.AgentMonitor;
 
 /**
  * Engine is the default implementation of the <code>Scheduler</code>.
@@ -60,6 +62,8 @@ final public class Engine implements Scheduler {
     private ExecutorManager zookeeper;
     @Autowired
     private HostMapper hostMapper;
+    @Autowired
+    private AgentMonitor agentMonitor;
 
     /**
      * Maximum concurrent running attempt number
@@ -100,6 +104,43 @@ final public class Engine implements Scheduler {
      */
     public void start() {
         new Thread(progressMonitor).start();
+
+        agentMonitor.agentMonitor(new AgentHandler() {
+
+            @Override
+            public void disConnected(String ip) {
+                Host host = new Host();
+                host.setName(ip);
+                host.setIp(ip);
+                host.setIsconnected(false);
+                hostMapper.updateByPrimaryKeySelective(host);
+            }
+
+            @Override
+            public void connected(String ip) {
+                Host host = new Host();
+                host.setName(ip);
+                host.setIp(ip);
+                host.setIsconnected(true);
+                host.setPoolid(1);
+                hostMapper.insert(host);
+            }
+
+            @Override
+            public void update(String ip) {
+                Host host = hostMapper.selectByPrimaryKey(ip);
+                Host newHost = new Host();
+                newHost.setIp(ip);
+                newHost.setName(ip);
+                newHost.setIsconnected(true);
+                if (host == null) {
+                    newHost.setPoolid(1);
+                    hostMapper.insert(newHost);
+                } else {
+                    hostMapper.updateByPrimaryKeySelective(newHost);
+                }
+            }
+        });
 
         while (true) {
             LOG.info("Engine trys to scan the database...");
@@ -212,7 +253,10 @@ final public class Engine implements Scheduler {
         Task task = context.getTask();
         Host host;
         if (task.getPoolid() == 1) {
-            host = hostMapper.selectByPrimaryKey(task.getHostname());
+            host = new Host();
+            //TODO: assume that hostname is ip address!!
+            host.setIp(task.getHostname());
+            //host = hostMapper.selectByPrimaryKey(task.getHostname());
         } else {
             host = assignPolicy.assignTask(task);
         }
