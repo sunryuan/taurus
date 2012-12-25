@@ -2,6 +2,8 @@ package com.dp.bigdata.taurus.web.servlet;
 
 import java.io.IOException;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -11,7 +13,6 @@ import org.restlet.resource.ClientResource;
 
 import com.dp.bigdata.taurus.restlet.resource.IManualTaskResource;
 import com.dp.bigdata.taurus.restlet.resource.ITaskResource;
-import com.dp.bigdata.taurus.web.common.Constant;
 
 /**
  * 
@@ -31,6 +32,15 @@ public class TaskProxyServlet extends HttpServlet {
     private static final String EXECUTE = "execute";
     private static final String RESUME = "resume";
 
+    private String RESTLET_URL_BASE;
+
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        ServletContext context = getServletContext();
+        RESTLET_URL_BASE = context.getInitParameter("RESTLET_SERVER");
+    }
+
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
         doPost(request, response);
@@ -41,10 +51,10 @@ public class TaskProxyServlet extends HttpServlet {
         String action = request.getParameter("action").toLowerCase();
         String taskID = request.getParameter("id");
         
-        ClientResource taskCr = new ClientResource(Constant.RESTFUL_URL_BASE + "task/" + taskID);
+        ClientResource taskCr = new ClientResource(RESTLET_URL_BASE + "task/" + taskID);
         ITaskResource taskResource = taskCr.wrap(ITaskResource.class);
 
-        ClientResource manualCr = new ClientResource(Constant.RESTFUL_URL_BASE + "manualtask/" + taskID);
+        ClientResource manualCr = new ClientResource(RESTLET_URL_BASE + "manualtask/" + taskID);
         IManualTaskResource manualResource = manualCr.wrap(IManualTaskResource.class);
 
         if(action.equals(DELETE)){

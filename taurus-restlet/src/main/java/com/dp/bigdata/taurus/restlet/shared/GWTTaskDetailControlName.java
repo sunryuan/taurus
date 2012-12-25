@@ -11,6 +11,7 @@ public enum GWTTaskDetailControlName {
     TASKNAME("taskName"),
     TASKTYPE("taskType"),
     TASKPOOL("poolId"),
+    TASKHOSTNAME("hostname"),
     TAKSSTATE("taskState"),
     TASKFILE("taskFile"),
     TASKCOMMAND("taskCommand"),
