@@ -38,7 +38,7 @@ public class DefaultAgentMonitor implements AgentMonitor {
     public void agentMonitor(final AgentHandler handler) {
         lastAgentsIp = zkClient.getChildren(WARCH_PACH);
         for (String ip : lastAgentsIp) {
-            handler.update(ip);
+            handler.connected(ip);
         }
 
         zkClient.subscribeChildChanges(WARCH_PACH, new IZkChildListener() {
