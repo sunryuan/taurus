@@ -10,6 +10,48 @@ $(document).ready(function() {
 		}
     });
 	
+	function post_to_url_no_file(path, params, form) {
+		for(var key in params) {
+    		if(params.hasOwnProperty(key)) {
+        		var hiddenField = document.createElement("input");
+        		hiddenField.setAttribute("type", "hidden");
+    			hiddenField.setAttribute("name", key);
+        		hiddenField.setAttribute("value", params[key]);
+				form.appendChild(hiddenField);
+     		}
+		}
+		
+		var formData = new FormData(form);
+		//validate
+		if($('#deploy-form').validate().form()
+				&&$('#basic-form').validate().form()
+				&&$('#extended-form').validate().form())
+		//submit
+		$.ajax({
+	        url: 'create_task',  //server script to process data
+	        type: 'POST',
+	        //Ajax events
+	        success:function(data){
+	            $("#id_header").html("成功");
+				$("#id_body").html("添加作业成功!");
+				$(".modal-footer").html('<a href="schedule.jsp" class="btn btn-info">确定</a>');
+				$("#confirm").modal('toggle');
+	    	},
+	    	error:function(data){
+	    		$("#id_header").html("失败");
+				$("#id_body").html("添加作业失败!");
+				$(".modal-footer").html('<a href="#" class="btn btn-info" data-dismiss="modal">确定</a>');
+				$("#confirm").modal('toggle');
+	    	},
+	        // Form data
+	        data: formData,
+	        //Options to tell JQuery not to process data or worry about content-type
+	        cache: false,
+	        contentType: false,
+	        processData: false
+	    });
+	}
+	
 	function post_to_url(path, params, form) {
 		for(var key in params) {
     		if(params.hasOwnProperty(key)) {
@@ -62,8 +104,7 @@ $(document).ready(function() {
 	        contentType: false,
 	        processData: false
 	    });
-		
-		}
+	}
 	$("#submitButton").click(function(e) {
 		var params={};
 		var len=$(".field").length;
@@ -94,10 +135,12 @@ $(document).ready(function() {
 		if(autodeploy){
 			form.setAttribute("enctype","multipart/form-data");
 			form.appendChild(file);
+			post_to_url("create_task",params,form);
+			$('#fileDiv').append(file);
 		} else {
 			form.setAttribute("enctype","application/x-www-form-urlencoded");
+			post_to_url_no_file("create_task",params,form);
 		}
-        post_to_url("create_task",params,form);
-		$('#fileDiv').append(file);
+       
     });
 });

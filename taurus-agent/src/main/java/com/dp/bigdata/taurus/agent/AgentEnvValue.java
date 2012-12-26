@@ -18,21 +18,31 @@ public final class AgentEnvValue {
 	public static final String KEY_CHECK_INTERVALS = "checkIntervals";
 	public static final String AGENT_ROOT_PATH = "taurusAgentPath";
 	public static final String JOB_PATH = "taurusJobPath";
+	public static final String LOG_PATH = "taurusLogPath";
+	public static final String TASK_DEPLOY = "taskDeploy";
 	public static final String HADOOP_AUTHORITY = "hadoopAuthority";
+	public static final String LOG_FILE_UPLOAD = "logFileUpload";
 	public static final String WORMHOLE_COMMAND = "wormholeCommand";
 	
 	public static String getValue(String key){
-		try{
-			Properties props = new Properties();
-			InputStream in = ClassLoaderUtils.getDefaultClassLoader().getResourceAsStream(CONF);
-			props.load(in);
-			String result = props.getProperty(key);
-			in.close();
-			return result;
-		} catch(IOException e) {
-			LOG.error(e.getMessage(),e);
-			return null;
-		}
+		return getValue(key,"");
 	}
+	
+	public static String getValue(String key,String defaultValue){
+        try{
+            Properties props = new Properties();
+            InputStream in = ClassLoaderUtils.getDefaultClassLoader().getResourceAsStream(CONF);
+            props.load(in);
+            String result = props.getProperty(key);
+            in.close();
+            if(result == null) {
+                return defaultValue;
+            }
+            return result;
+        } catch(IOException e) {
+            LOG.error(e.getMessage(),e);
+            return defaultValue;
+        }
+    }
 	
 }

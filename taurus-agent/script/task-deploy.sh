@@ -21,6 +21,7 @@ function extract () {
    fi
 }
 
+source /etc/profile;
 source ~/.bash_profile;
 kinit -r 12l -k -t /home/hadoop/.keytab hadoop@DIANPING.COM;
 kinit -R;
@@ -31,4 +32,4 @@ fi
 mkdir -p $path
 hadoop fs -copyToLocal $1 $2
 extract $2
-exit 0
+exit $?

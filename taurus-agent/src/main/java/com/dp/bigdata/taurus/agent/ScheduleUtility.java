@@ -3,12 +3,15 @@ package com.dp.bigdata.taurus.agent;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.SimpleFormatter;
 
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.logging.Log;
@@ -27,25 +30,34 @@ public class ScheduleUtility {
 	private static final Log s_logger = LogFactory.getLog(ScheduleUtility.class);
 	private static Map<String, Lock> jobInstanceToLockMap = new HashMap<String, Lock>();
 	
-	private static String agentPath;
-	private static String jobPath;
+	private static String agentRoot = "/data/app/taurus";
+	private static String jobPath = "jobs";
+	private static String logPath = "logs";
 	private static String hadoopAuthority = "/script/hadoop-authority.sh";
+    private static String logFileUpload = "/script/log-upload.sh";
+
+
 	private static String wormholeCmd;
 	private static ExecutorService killThreadPool;
 	private static ExecutorService executeThreadPool;
 	
+	
+	private static final String FILE_SEPRATOR = File.separator;
 	private static final String HADOOP_JOB = "hadoop";
 	private static final String WORMHOLE_JOB = "wormhole";
 	private static final String HIVE_JOB = "hive";
 	private static final String SHELL_JOB = "shell script";
+	private static final String COMMAND_PATTERN = "sudo -u %s -i \"cd %s && %s\"";
 	
 	static{
 		killThreadPool = AgentServerHelper.createThreadPool(2, 4);
 		executeThreadPool = AgentServerHelper.createThreadPool(4, 10);
-		jobPath = AgentEnvValue.getValue(AgentEnvValue.JOB_PATH);
-		agentPath = AgentEnvValue.getValue(AgentEnvValue.AGENT_ROOT_PATH);
-		wormholeCmd = AgentEnvValue.getValue(AgentEnvValue.WORMHOLE_COMMAND);
-		hadoopAuthority = AgentEnvValue.getValue(AgentEnvValue.HADOOP_AUTHORITY);
+	    wormholeCmd = AgentEnvValue.getValue(AgentEnvValue.WORMHOLE_COMMAND);
+		agentRoot = AgentEnvValue.getValue(AgentEnvValue.AGENT_ROOT_PATH,agentRoot);
+		jobPath = agentRoot + AgentEnvValue.getValue(AgentEnvValue.JOB_PATH,jobPath);
+        logPath = agentRoot + AgentEnvValue.getValue(AgentEnvValue.LOG_PATH,logPath);
+		hadoopAuthority = agentRoot + AgentEnvValue.getValue(AgentEnvValue.HADOOP_AUTHORITY, hadoopAuthority);
+		logFileUpload =   agentRoot + AgentEnvValue.getValue(AgentEnvValue.LOG_FILE_UPLOAD, logFileUpload);
 	}
 
 	private static Lock getLock(String jobInstanceId){
@@ -174,6 +186,9 @@ public class ScheduleUtility {
 			String taskID = conf.getTaskID();
 			String command = conf.getCommand();
 			String userName = conf.getUserName();
+			if(userName.isEmpty()) {
+                userName = "nobody";
+            }
 			
 			if(attemptID == null || taskID == null || command == null || taskType == null){
 				s_logger.error("Configure is not completed!");
@@ -182,51 +197,66 @@ public class ScheduleUtility {
 				cs.updateStatus(localIp, taskAttempt, status);
 				return;
 			}
-			String logFilePath = jobPath + '/' + taskID + "/logs/" + attemptID;
-	
+			
+            //create log file stream
+			SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+			String date = format.format(new Date());
+			String logFilePath = logPath + FILE_SEPRATOR + date + FILE_SEPRATOR + attemptID + ".log";
+            String errorFilePath = logPath + FILE_SEPRATOR + date + FILE_SEPRATOR + attemptID + ".error";
+            String htmlFileName = attemptID + ".html";
+            String htmlFilePath = logPath + FILE_SEPRATOR + date + FILE_SEPRATOR + htmlFileName;
+            FileOutputStream logFileStream = null;
+            FileOutputStream errorFileStream = null;
+            try{
+                File logFile = new File(logFilePath);
+                File errorFile = new File(errorFilePath);
+                logFile.getParentFile().mkdirs();
+                logFile.createNewFile();
+                errorFile.createNewFile();
+                logFileStream = new FileOutputStream(logFilePath);
+                errorFileStream = new FileOutputStream(errorFilePath);
+            } catch (IOException e) {
+                s_logger.error(e,e);
+            }
+            	
 			if(taskType.equals(HADOOP_JOB)||taskType.equals(HIVE_JOB)||taskType.equals(WORMHOLE_JOB)) {
-//				try {
-//					FileOutputStream logFileStream = new FileOutputStream(logFilePath);
-//					int returnCode = executor.execute(null,null, logFileStream, agentPath + hadoopAuthority);
-//					if(returnCode != 0) {
-//						s_logger.error("Hadoop authority script executing failed");
-//						status.setStatus(ScheduleStatus.EXECUTE_FAILED);
-//						status.setFailureInfo("Job failed to get hadoop authority");
-//						return;
-//					}
-//				} catch (IOException e) {
-//					s_logger.error(e,e);
-//					status.setStatus(ScheduleStatus.EXECUTE_FAILED);
-//					status.setFailureInfo("Job failed to get hadoop authority");
-//				}
-				
+				try {
+					int returnCode = executor.execute(null, logFileStream, errorFileStream, hadoopAuthority,userName);
+					if(returnCode != 0) {
+						s_logger.error("Hadoop authority script executing failed");
+						status.setStatus(ScheduleStatus.EXECUTE_FAILED);
+						status.setFailureInfo("Job failed to get hadoop authority");
+						return;
+					}
+				} catch (IOException e) {
+					s_logger.error(e,e);
+					status.setStatus(ScheduleStatus.EXECUTE_FAILED);
+					status.setFailureInfo("Job failed to get hadoop authority");
+				}		
 			}
 			if(taskType.equals(WORMHOLE_JOB)) {
 				command = wormholeCmd + " " + command;
 			}
-			String path = jobPath + '/' + taskID +"/";
+			String path = jobPath + FILE_SEPRATOR + taskID + FILE_SEPRATOR;
 			
 			int returnCode = 0;
 			try {
 				if(!command.isEmpty()) {
-					File logFile = new File(logFilePath);
-					logFile.getParentFile().mkdirs();
-					logFile.createNewFile();
+					
+					//execute
 					CommandLine cmdLine;
-					if(userName.isEmpty()) {
-						userName = "nobody";
-			        }
+					
 				    String escapedCmd = command.replaceAll("\\\\", "\\\\\\\\");
 				    escapedCmd = escapedCmd.replaceAll("\"", "\\\\\\\"");
 				      
 				    cmdLine = new CommandLine("bash");
 				    cmdLine.addArgument("-c");
-				    cmdLine.addArgument("sudo -u " + userName + " -s \"cd "+ path  +" && " + escapedCmd + "\"", false);
-					
-					FileOutputStream logFileStream = new FileOutputStream(logFilePath);
-					s_logger.debug(taskAttempt + " start execute");
+                    cmdLine.addArgument(String.format(COMMAND_PATTERN, userName, path, escapedCmd), false);
 
-					returnCode = executor.execute(attemptID, 0, null, cmdLine, logFileStream, logFileStream);
+				    cmdLine.addArgument("sudo -u " + userName + " -s \"cd "+ path  +" && " + escapedCmd + "\"", false);
+					s_logger.debug(taskAttempt + " start execute");
+					returnCode = executor.execute(attemptID, 0, null, cmdLine, logFileStream, errorFileStream);
+					executor.execute(null, logFileStream, errorFileStream, logFileUpload,logFilePath,errorFilePath,htmlFilePath,htmlFileName);
 				}
 				if(returnCode == 0) {
 					status.setStatus(ScheduleStatus.EXECUTE_SUCCESS);

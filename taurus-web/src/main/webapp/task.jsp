@@ -4,7 +4,6 @@
 <head>
 	<%@ include file="jsp/common-header.jsp"%>
 	<link href="css/bwizard.min.css" rel="stylesheet" />
-    <link href="css/validate.css" rel="stylesheet">
 </head>
 <body>
 	<%@ include file="jsp/common-nav.jsp"%>
@@ -122,7 +121,7 @@
               			<input type="text" class="input-xxlarge field" id="description" name="description" value="" placeholder="description of task">
             		</div>
           		</div>
-                <input type="text" class="field hidden" id="creator" name="creator" value="<%=(String)session.getAttribute(com.dp.bigdata.taurus.web.servlet.LoginServlet.USER_NAME)%>">
+                <input type="text" class="field" style="display:none" id="creator" name="creator" value="<%=(String)session.getAttribute(com.dp.bigdata.taurus.web.servlet.LoginServlet.USER_NAME)%>">
           	</fieldset>
 			</form>	
 			</div>
