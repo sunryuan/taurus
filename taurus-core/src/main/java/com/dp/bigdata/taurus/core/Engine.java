@@ -163,7 +163,7 @@ final public class Engine implements Scheduler {
     public synchronized void registerTask(Task task) throws ScheduleException {
         if (!registedTasks.containsKey(task.getTaskid())) {
             registedTasks.put(task.getTaskid(), task);
-            taskMapper.insert(task);
+            taskMapper.insertSelective(task);
         } else {
             throw new ScheduleException("The task : " + task.getTaskid() + " has been registered.");
         }
