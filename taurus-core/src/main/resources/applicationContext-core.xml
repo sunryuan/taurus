@@ -50,6 +50,7 @@
 	<bean id="assignPolicy" class="com.dp.bigdata.taurus.core.RoundRobinTaskAssignPolicy" init-method="init" />
 	<bean id="zookeeper" class="com.dp.bigdata.taurus.zookeeper.execute.helper.DefaultExecutorManager" />
 	<bean id="statusChecker" class="com.dp.bigdata.taurus.core.DefaultAttemptStatusCheck" />
+	<bean id="agentMonitor" class="com.dp.bigdata.taurus.zookeeper.heartbeat.helper.DefaultAgentMonitor"/>
 
 </beans>
 

@@ -41,6 +41,11 @@ public class AttemptResource extends ServerResource implements IAttemptResource 
     public void kill() {
         String attemptID = (String) getRequest().getAttributes().get("attempt_id");
 
+        if (attemptID.split("_").length != 5) {
+            setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+            return;
+        }
+
         boolean isRunning = scheduler.isRuningAttempt(attemptID);
 
         if (!isRunning) {
@@ -60,8 +65,8 @@ public class AttemptResource extends ServerResource implements IAttemptResource 
     @Override
     @Get
     public FileRepresentation log() {
-        String attemptID = "attempt_201209241101_0009_0001_0001";
-        //String attemptID = (String) getRequest().getAttributes().get("attempt_id");
+        //String attemptID = "attempt_201209241101_0009_0001_0001";
+        String attemptID = (String) getRequest().getAttributes().get("attempt_id");
         String logPath = pathManager.getRemoteLog(attemptID);
         String localPath = pathManager.getLocalLogPath(attemptID);
         File file = new File(localPath);

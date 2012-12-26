@@ -1,7 +1,5 @@
 package com.dp.bigdata.taurus.restlet.resource.impl;
 
-import java.util.ArrayList;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.restlet.data.Status;
@@ -16,7 +14,7 @@ import com.dp.bigdata.taurus.restlet.resource.IHostResource;
 import com.dp.bigdata.taurus.restlet.shared.HostDTO;
 
 /**
- * Resource url : http://xxx.xxx/api/host/{host_id}
+ * Resource url : http://xxx.xxx/api/host/{hostname}
  * 
  * @author damon.zhu
  */
@@ -29,45 +27,37 @@ public class HostResource extends ServerResource implements IHostResource {
     
     @Override
     @Get
-    public ArrayList<HostDTO> retrieve() {
-        int hostID = Integer.parseInt((String) getRequest().getAttributes().get("host_id"));
-        Host host = hostMapper.selectByPrimaryKey(hostID);
-        ArrayList<HostDTO> dtos = new ArrayList<HostDTO>();
+    public HostDTO retrieve() {
+        String hostname = (String) getRequest().getAttributes().get("hostname");
+        Host host = hostMapper.selectByPrimaryKey(hostname);
         if (host != null) {
-            dtos.add(new HostDTO(host.getId(), host.getName(), host.getIp(), host.getPoolid(), host.getIsconnected()));
+            setStatus(Status.SUCCESS_OK);
+            return new HostDTO(1, host.getName(), host.getIp(), host.getPoolid(), host.getIsconnected());
+        } else {
+            return new HostDTO();
         }
-        return dtos;
     }
 
     @Override
     @Put
     public void update(HostDTO dto) {
-        int hostID = 0;
+
+        String hostname = (String) getRequest().getAttributes().get("hostname");
 
         try {
-            hostID = Integer.parseInt((String) getRequest().getAttributes().get("host_id"));
-        } catch (Exception e) {
-            setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-            return;
-        }
-
-        try {
-            Host host = hostMapper.selectByPrimaryKey(hostID);
+            Host host = hostMapper.selectByPrimaryKey(hostname);
             if (host == null) {
                 setStatus(Status.CLIENT_ERROR_NOT_FOUND);
                 return;
             }
-            //TODO:modify poolID only
-            dto.setId(hostID);
             host.setIp(dto.getIp());
             host.setIsconnected(dto.isConnected());
-            host.setName(dto.getName());
             host.setPoolid(dto.getPoolid());
             hostMapper.updateByPrimaryKey(host);
             setStatus(Status.SUCCESS_OK);
         } catch (RuntimeException e) {
             setStatus(Status.SERVER_ERROR_INTERNAL);
-            LOG.error("Fail to update the host : " + hostID, e);
+            LOG.error("Fail to update the host : " + hostname, e);
         }
     }
 

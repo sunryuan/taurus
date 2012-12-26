@@ -8,6 +8,15 @@
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>
 
+	<context-param>
+		<param-name>RESTLET_SERVER</param-name>
+		<param-value>http://10.1.77.85:8182/api/</param-value>
+	</context-param>
+	<context-param>
+		<param-name>XSL_UPLOAD_TMP_DIR</param-name>
+		<param-value>/tmp/</param-value>
+	</context-param>
+	
 	<filter>
 		<filter-name>AuthenticationFilter</filter-name>
 		<filter-class>com.dp.bigdata.taurus.web.servlet.filter.AuthenticationFilter</filter-class>

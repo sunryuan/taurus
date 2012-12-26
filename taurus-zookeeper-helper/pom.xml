@@ -8,15 +8,15 @@
   <artifactId>taurus-zookeeper-helper</artifactId>
   <name>taurus-zookeeper-helper</name>
   <dependencies>
-  		<dependency>
-			<groupId>org.apache.hadoop</groupId>
-			<artifactId>zookeeper</artifactId>
-			<version>3.3.1</version>
-		</dependency>
 		<dependency>
 			<groupId>com.google.inject</groupId>
 			<artifactId>guice</artifactId>
 			<version>3.0</version>
 		</dependency>
+		<dependency>
+	        <groupId>com.github.sgroschupf</groupId>
+	        <artifactId>zkclient</artifactId>
+	        <version>0.1</version>
+	    </dependency>
 	</dependencies>
 </project>
