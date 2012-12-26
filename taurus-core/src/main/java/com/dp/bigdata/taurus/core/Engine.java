@@ -230,7 +230,9 @@ final public class Engine implements Scheduler {
         if (registedTasks.containsKey(taskID)) {
             Task task = registedTasks.get(taskID);
             task.setStatus(TaskStatus.RUNNING);
-            task.setUpdatetime(new Date());
+            Date current = new Date();
+            task.setLastscheduletime(current);
+            task.setUpdatetime(current);
             taskMapper.updateByPrimaryKey(task);
         } else {
             throw new ScheduleException("The task : " + taskID + " has not been found.");
