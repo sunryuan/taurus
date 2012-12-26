@@ -11,8 +11,6 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.SimpleFormatter;
-
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -224,14 +222,9 @@ public class ScheduleUtility {
 					int returnCode = executor.execute(null, logFileStream, errorFileStream, hadoopAuthority,userName);
 					if(returnCode != 0) {
 						s_logger.error("Hadoop authority script executing failed");
-						status.setStatus(ScheduleStatus.EXECUTE_FAILED);
-						status.setFailureInfo("Job failed to get hadoop authority");
-						return;
 					}
 				} catch (IOException e) {
-					s_logger.error(e,e);
-					status.setStatus(ScheduleStatus.EXECUTE_FAILED);
-					status.setFailureInfo("Job failed to get hadoop authority");
+					s_logger.error(e.getMessage(),e);
 				}		
 			}
 			if(taskType.equals(WORMHOLE_JOB)) {

@@ -60,9 +60,6 @@ public class CreateTaskServlet extends HttpServlet{
 
     private static final String targetUri = "http://10.1.77.85:8182/api/task";
     private static final Log LOG = LogFactory.getLog(HttpServlet.class);
-    private static final String[] PARAM_NAME_LIST = {"taskName","taskType","poolId",
-        "taskState","taskCommand","multiInstance","crontab","dependency","proxyUser",
-        "maxExecutionTime","maxWaitTime","isAutoRetry","retryTimes"};
 
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp)
