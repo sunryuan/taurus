@@ -1,6 +1,8 @@
+<%@ page contentType="text/html;charset=utf-8" %>
 <html lang="en">
 <head>
-	<%@ include file="jsp/sub-header.jsp"%>
+	<%@ include file="jsp/common-header.jsp"%>
+    <link rel="stylesheet" type="text/css" href="css/DT_bootstrap.css">
 </head>
 <body data-spy="scroll">
 	<%@ include file="jsp/common-nav.jsp"%>
@@ -17,7 +19,7 @@
         <div id="alertContainer" class="container">
         </div>
 		<table cellpadding="0" cellspacing="0" border="0"
-			class="table table-striped table-bordered" id="example">
+			class="table table-striped table-format" id="example">
 			<thead>
 				<tr>
 					<th class="hide">ID</th>
@@ -95,8 +97,6 @@
       </div>
     </div>
 
-
-    <%@ include file="jsp/common-footer.jsp"%>
 	<script type="text/javascript" charset="utf-8" language="javascript" src="js/jquery.dataTables.js"></script>
 	<script type="text/javascript" charset="utf-8" language="javascript" src="js/DT_bootstrap.js"></script>
     <script type="text/javascript" charset="utf-8" language="javascript" src="js/schedule.js"></script>

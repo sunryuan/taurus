@@ -20,7 +20,7 @@ public class FilePathManager {
     private final String TMP = "/data/appdata/taurus/task_files";
     private final String LOCALPATH;
     private final String NAMENODE;
-    private final String HADOOPPATH;
+    private final String WORKDIR;
     
     public FilePathManager(){
         Properties props = new Properties();
@@ -36,15 +36,19 @@ public class FilePathManager {
 
         LOCALPATH = props.getProperty("localpath", TMP);
         NAMENODE = props.getProperty("host");
-        HADOOPPATH = props.getProperty("path");
+        WORKDIR = props.getProperty("path");
     }
     
+    public String getRemoteLog(String attemptID) {
+        return NAMENODE + WORKDIR + "/" + "logs" + "/" + attemptID + ".html";
+    }
 
 	public String getRemoteFolder(String taskID){
-		String destPath = NAMENODE + HADOOPPATH+ "/"
+        String destPath = NAMENODE + WORKDIR + "/"
 				+ taskID;
 		return destPath;
 	}
+
 	public String getRemotePath(String taskID, String fileName) {
 		return getRemoteFolder(taskID) + "/" + fileName;
 	}
@@ -59,6 +63,14 @@ public class FilePathManager {
 		String file = fold + File.separator + fileName;
 		return file;
 	}
+
+    public String getLocalLogPath(String attemptID) {
+        String fold = LOCALPATH + File.separator + "logs";
+        if (!isExist(fold)) {
+            mkdir(fold);
+        }
+        return fold + File.separator + attemptID + ".html";
+    }
 
 	public boolean isExist(String fold) {
 		File file = new File(fold);

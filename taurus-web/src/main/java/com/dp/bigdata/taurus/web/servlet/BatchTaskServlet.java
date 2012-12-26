@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -29,7 +31,6 @@ import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.resource.ClientResource;
 
-import com.dp.bigdata.taurus.web.common.Constant;
 import com.google.gson.Gson;
 
 public class BatchTaskServlet extends HttpServlet{
@@ -57,6 +58,14 @@ public class BatchTaskServlet extends HttpServlet{
 	}
 	
 
+    private String XSL_UPLOAD_TMP_DIR;
+
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        ServletContext context = getServletContext();
+        XSL_UPLOAD_TMP_DIR = context.getInitParameter("XSL_UPLOAD_TMP_DIR");
+    }
 
 	@Override
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
@@ -69,12 +78,12 @@ public class BatchTaskServlet extends HttpServlet{
 			@SuppressWarnings("unchecked")
 			List<FileItem> items = upload.parseRequest(req);
 			FileItem item = items.get(0);
-			File file = new File(Constant.XSL_UPLOAD_TMP_DIR + item.getName());
+            File file = new File(XSL_UPLOAD_TMP_DIR + item.getName());
 			item.write(file);
 			List<Representation> repList = createRepFromExcel(file);
 			List<String> taskList = getTaskFromExcel(file);
 			List<Result> results = new ArrayList<Result>();
-			ClientResource taskResource = new ClientResource(Constant.RESTFUL_URL_TASK);
+            ClientResource taskResource = new ClientResource(XSL_UPLOAD_TMP_DIR);
 			for(int i = 0; i < repList.size(); i++){
 				boolean success = false;
 				try{

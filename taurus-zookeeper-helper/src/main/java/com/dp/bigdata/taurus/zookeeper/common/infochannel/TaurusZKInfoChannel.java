@@ -21,12 +21,17 @@ import org.apache.zookeeper.KeeperException.Code;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.ZooKeeper;
+import org.apache.zookeeper.ZooKeeper.States;
 import org.apache.zookeeper.data.Stat;
 
 import com.dp.bigdata.taurus.zookeeper.common.MachineType;
 import com.dp.bigdata.taurus.zookeeper.common.TaurusZKException;
+import com.dp.bigdata.taurus.zookeeper.common.infochannel.guice.ZooKeeperProvider;
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.interfaces.ClusterInfoChannel;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 
 abstract class TaurusZKInfoChannel implements ClusterInfoChannel{
 	private static final Log LOG = LogFactory.getLog(TaurusZKInfoChannel.class);
@@ -40,14 +45,37 @@ abstract class TaurusZKInfoChannel implements ClusterInfoChannel{
 	private static final String INFO = "info";
 
 	protected ZooKeeper zk;
+	protected MachineType mt;
+	protected String ip;
+	
 
 	@Inject
 	TaurusZKInfoChannel(ZooKeeper zk){
 		this.zk = zk;
 	}
+	
+	@Override
+	public void reconnectToCluster(Watcher watcher) {
+	    try{
+	        zk.close();
+	        Injector injector = Guice.createInjector(new ZooKeeperModule());
+	        zk = injector.getInstance(ZooKeeper.class);
+	        zk.register(watcher);
+	        for(int i=0; i<10; i++){
+	            if(zk.getState()!=States.CONNECTED){
+	                Thread.sleep(1000);
+	            }
+	        }
+	        mkPath(CreateMode.EPHEMERAL, BASE, HEARTBEATS, mt.getName(), REALTIME, ip);
+        } catch(Exception e){
+            throw new TaurusZKException(e);
+        }
+	}
 
 	@Override
 	public void connectToCluster(MachineType mt, String ip) {
+	    this.mt = mt;
+	    this.ip = ip;
 		try{
 			if(!existPath(BASE)){
 				setupBasePath();
@@ -238,5 +266,22 @@ abstract class TaurusZKInfoChannel implements ClusterInfoChannel{
 		bos.close();
 		return byteArray;
 	}
+	private class ZooKeeperModule  extends AbstractModule{
 
+        /* (non-Javadoc)
+         * @see com.google.inject.AbstractModule#configure()
+         */
+        @Override
+        protected void configure() {
+            bind(ZooKeeper.class).toProvider(ZooKeeperProvider.class);
+        }
+	    
+	}
+    /* (non-Javadoc)
+     * @see com.dp.bigdata.taurus.zookeeper.common.infochannel.interfaces.ClusterInfoChannel#registerWatcher(org.apache.zookeeper.Watcher)
+     */
+    @Override
+    public void registerWatcher(Watcher w) {
+        zk.register(w);   
+    }
 }

@@ -63,7 +63,7 @@ public class TaskRequestExtractor implements RequestExtrator<Task> {
         task.setUpdatetime(current);
         Map<String, String> formMap;
         Representation re = request.getEntity();
-        if (MediaType.MULTIPART_FORM_DATA.equals(re.getMediaType(), false)) {
+        if (MediaType.MULTIPART_FORM_DATA.equals(re.getMediaType(), true)) {
             formMap = new HashMap<String, String>();
             List<FileItem> items = getFileItem(request);
             for (final Iterator<FileItem> it = items.iterator(); it.hasNext();) {
@@ -97,6 +97,10 @@ public class TaskRequestExtractor implements RequestExtrator<Task> {
             } else if (key.equals(GWTTaskDetailControlName.TASKPOOL.getName())) {
                 int pid = poolManager.getID(value);
                 task.setPoolid(pid);
+            } else if (key.equals(GWTTaskDetailControlName.TASKHOSTNAME.getName())) {
+                if (StringUtils.isNotEmpty(value)) {
+                    task.setHostname(value);
+                }
             } else if (key.equals(GWTTaskDetailControlName.TASKCOMMAND.getName())) {
                 task.setCommand(value);
             } else if (key.equals(GWTTaskDetailControlName.MULTIINSTANCE.getName())) {
@@ -142,17 +146,25 @@ public class TaskRequestExtractor implements RequestExtrator<Task> {
             throw new InvalidArgumentException("Cannot get creator name from request");
         }
 
+        if (StringUtils.isBlank(task.getProxyuser())) {
+            throw new InvalidArgumentException("Cannot get proxy user from request");
+        }
+
         if (StringUtils.isNotBlank(task.getDependencyexpr())) {
             if (!DependencyParser.isValidateExpression(task.getDependencyexpr())) {
                 throw new InvalidArgumentException("Invalid dependency expression : " + task.getDependencyexpr());
             }
         }
 
+        if (StringUtils.isBlank(task.getName())) {
+            throw new InvalidArgumentException("Cannot get task name from request");
+        }
+
         if (nameResource.isExistTaskName(task.getName())) {
             throw new DuplicatedNameException("Duplicated Name : " + task.getName());
         }
 
-        if (!CronExpression.isValidExpression(task.getCrontab())) {
+        if (StringUtils.isBlank(task.getCrontab()) || !CronExpression.isValidExpression(task.getCrontab())) {
             throw new InvalidArgumentException("Invalid crontab expression : " + task.getCrontab());
         }
     }

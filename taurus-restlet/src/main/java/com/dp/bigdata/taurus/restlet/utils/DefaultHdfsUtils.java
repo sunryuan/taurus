@@ -3,12 +3,14 @@ package com.dp.bigdata.taurus.restlet.utils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Properties;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -25,8 +27,8 @@ import com.dp.bigdata.taurus.zookeeper.common.utils.ClassLoaderUtils;
 public class DefaultHdfsUtils implements HdfsUtils {
     private final String CONFIG_FILE = "restlet.properties";
     private final int BUFFER_SIZE = 1024 * 1024;
-    private Properties props = new Properties();
-    private Configuration conf = new Configuration();
+    private final Properties props = new Properties();
+    private final Configuration conf = new Configuration();
 
     public void init() {
         try {
@@ -49,9 +51,10 @@ public class DefaultHdfsUtils implements HdfsUtils {
         }
     }
 
+    @Override
     public void writeFile(String srcFile, String destFile) throws IOException, FileNotFoundException {
         File file = new File(srcFile);
-        if(!file.exists()){
+        if (!file.exists()) {
             throw new FileNotFoundException("File not found");
         }
         byte[] buf = new byte[BUFFER_SIZE];
@@ -73,6 +76,7 @@ public class DefaultHdfsUtils implements HdfsUtils {
         fs.close();
     }
 
+    @Override
     public void removeFile(String srcFile) throws IOException, FileNotFoundException {
         FileSystem fs = FileSystem.get(URI.create(srcFile), conf);
         Path path = new Path(srcFile);
@@ -82,4 +86,25 @@ public class DefaultHdfsUtils implements HdfsUtils {
         fs.close();
     }
 
+    @Override
+    public void readFile(String srcFile, String destFile) throws IOException, FileNotFoundException {
+        File file = new File(destFile);
+
+        byte[] buf = new byte[BUFFER_SIZE];
+        FileOutputStream fos = new FileOutputStream(file);
+        if (file.exists()) {
+            file.delete();
+        }
+        FileSystem fs = FileSystem.get(URI.create(srcFile), conf);
+        FSDataInputStream hdfsInput = fs.open(new Path(srcFile));
+        int num = hdfsInput.read(buf);
+        while (num != (-1)) {//是否读完文件
+            fos.write(buf, 0, num);//把文件数据写出网络缓冲区
+            fos.flush();//刷新缓冲区把数据写往客户端
+            num = hdfsInput.read(buf);//继续从文件中读取数据
+        }
+        hdfsInput.close();
+        fos.close();
+        fs.close();
+    }
 }

@@ -4,8 +4,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 import org.restlet.data.MediaType;
-import org.restlet.representation.Representation;
-import org.restlet.representation.StreamRepresentation;
 import org.restlet.resource.ClientResource;
 
 import com.dp.bigdata.taurus.restlet.resource.IAttemptsResource;
@@ -14,7 +12,11 @@ import com.dp.bigdata.taurus.restlet.shared.AttemptDTO;
 import com.dp.bigdata.taurus.restlet.shared.TaskDTO;
 
 
-
+/**
+ * RestletClientSample
+ * 
+ * @author damon.zhu
+ */
 public class RestletClientSample{
 
     public static void main(String args[]){

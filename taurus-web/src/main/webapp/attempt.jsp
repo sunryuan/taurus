@@ -1,6 +1,8 @@
+<%@ page contentType="text/html;charset=utf-8" %>
 <html lang="en">
 <head>
-	<%@ include file="jsp/sub-header.jsp"%>
+	<%@ include file="jsp/common-header.jsp"%>
+    <link rel="stylesheet" type="text/css" href="css/DT_bootstrap.css">
 </head>
 <body data-spy="scroll">
 	<%@ include file="jsp/common-nav.jsp"%>
@@ -12,17 +14,19 @@
 		java.util.ArrayList"%>
 
 	<div class="container" style="margin-top: 10px">
+        <div id="alertContainer" class="container">
+        </div>
 		<table cellpadding="0" cellspacing="0" border="0"
-			class="table table-striped table-bordered" id="example">
+			class="table table-striped table-format" id="example">
 			<thead>
 				<tr>
 					<th>ID</th>
 					<th>启动时间</th>
 					<th>结束时间</th>
 					<th>调度时间</th>
-                    <th>状态</th>
+                    <th>IP</th>
 					<th>返回值</th>
-					<th>IP</th>
+					<th>状态</th>
 					<th>-</th>
 				</tr>
 			</thead>
@@ -40,7 +44,7 @@
 					for(AttemptDTO dto : attempts){
 						String state = dto.getStatus();
 				%>
-				<tr id="<%=dto.getId()%>">
+				<tr id="<%=dto.getAttemptID()%>">
 					<td><%=dto.getId()%></td>
                     <%if(dto.getStartTime()!=null){%>
 						<td><%=formatter.format(dto.getStartTime())%></td>
@@ -75,10 +79,10 @@
 							</button>
 							<ul class="dropdown-menu">
                             	<%if(state.equals("RUNNING")){%>
-								<li><a href="#confirm" onClick="action($(this).parents('tr').find('td')[0].textContent)">Kill</a>
+								<li><a href="#confirm" onClick="action($(this).parents('tr').attr('id'))">Kill</a>
 								</li>
                                 <%}else {%>
-								<li><a href="#log">日志</a>
+								<li><a target="_blank" href="attempts.do?id=<%=dto.getAttemptID()%>&action=view-log">日志</a>
 								</li>
                                 <%}%>
 							</ul>
@@ -103,9 +107,8 @@
       </div>
     </div>
     
-	<%@ include file="jsp/common-footer.jsp"%>
 	<script type="text/javascript" charset="utf-8" language="javascript" src="js/jquery.dataTables.js"></script>
 	<script type="text/javascript" charset="utf-8" language="javascript" src="js/DT_bootstrap.js"></script>
-     <script type="text/javascript" charset="utf-8" language="javascript" src="js/attempt.js"></script>
+    <script type="text/javascript" charset="utf-8" language="javascript" src="js/attempt.js"></script>
 </body>
 </html>

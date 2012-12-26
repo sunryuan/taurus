@@ -12,7 +12,7 @@ import com.dp.bigdata.taurus.zookeeper.common.TaurusZKException;
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.interfaces.DeploymentInfoChannel;
 import com.google.inject.Inject;
 
-class TaurusZKDeploymentInfoChannel extends TaurusZKInfoChannel implements DeploymentInfoChannel{
+public class TaurusZKDeploymentInfoChannel extends TaurusZKInfoChannel implements DeploymentInfoChannel{
 
 	private static final String ASSIGNMENTS = "assignments";
 	private static final String CONF = "conf";
@@ -21,9 +21,9 @@ class TaurusZKDeploymentInfoChannel extends TaurusZKInfoChannel implements Deplo
 	private static final String DELETE = "delete";
 	
 	@Inject
-	TaurusZKDeploymentInfoChannel(ZooKeeper zk){
-		super(zk);
-	}
+	TaurusZKDeploymentInfoChannel(ZooKeeper zk) {
+        super(zk);
+    }
 	
 	@Override
 	public void connectToCluster(MachineType mt, String ip) {

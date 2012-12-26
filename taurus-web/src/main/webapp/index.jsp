@@ -1,3 +1,4 @@
+<%@ page contentType="text/html;charset=utf-8" %>
 <html lang="en">
 <head>
     <%@ include file="jsp/common-header.jsp"%>
@@ -33,7 +34,6 @@
       <a class="right carousel-control" href="#myCarousel" data-slide="next">&rsaquo;</a>
     </div><!-- /.carousel -->
    
-	<%@ include file="jsp/common-footer.jsp"%>
 <script>	
       !function ($) {
         $(function(){

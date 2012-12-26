@@ -13,4 +13,6 @@ public interface HdfsUtils {
     public void writeFile(String srcFile, String destFile) throws IOException, FileNotFoundException;
 
     public void removeFile(String srcFile) throws IOException, FileNotFoundException;
+    
+    public void readFile(String srcFile, String destFile) throws IOException, FileNotFoundException;
 }
