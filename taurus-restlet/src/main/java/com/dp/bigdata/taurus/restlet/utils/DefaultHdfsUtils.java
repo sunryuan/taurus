@@ -89,12 +89,11 @@ public class DefaultHdfsUtils implements HdfsUtils {
     @Override
     public void readFile(String srcFile, String destFile) throws IOException, FileNotFoundException {
         File file = new File(destFile);
-
-        byte[] buf = new byte[BUFFER_SIZE];
-        FileOutputStream fos = new FileOutputStream(file);
         if (file.exists()) {
             file.delete();
         }
+        byte[] buf = new byte[BUFFER_SIZE];
+        FileOutputStream fos = new FileOutputStream(file);
         FileSystem fs = FileSystem.get(URI.create(srcFile), conf);
         FSDataInputStream hdfsInput = fs.open(new Path(srcFile));
         int num = hdfsInput.read(buf);
