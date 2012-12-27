@@ -23,6 +23,8 @@ import java.net.URISyntaxException;
 import java.util.Enumeration;
 import java.util.List;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -56,24 +58,27 @@ import org.restlet.ext.fileupload.RestletFileUpload;
  */
 public class CreateTaskServlet extends HttpServlet{
     private static final long serialVersionUID = 2348545179764589572L;
-    //private static final String targetUri = "http://localhost:8182/api/task";
-
-    private static final String targetUri = "http://10.1.77.85:8182/api/task";
+    private static String targetUri = "task";
     private static final Log LOG = LogFactory.getLog(HttpServlet.class);
-    private static final String[] PARAM_NAME_LIST = {"taskName","taskType","poolId",
-        "taskState","taskCommand","multiInstance","crontab","dependency","proxyUser",
-        "maxExecutionTime","maxWaitTime","isAutoRetry","retryTimes"};
 
+    private String RESTLET_URL_BASE;
+
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        ServletContext context = getServletContext();
+        RESTLET_URL_BASE = context.getInitParameter("RESTLET_SERVER");
+        targetUri = RESTLET_URL_BASE + targetUri;
+    }
+
+    
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp)
     throws ServletException, IOException{
         
-//        req.getRequestDispatcher(targetUri).forward(req, resp);
-//
         HttpClient httpclient = new DefaultHttpClient();
         // Determine final URL
-        StringBuffer uri = new StringBuffer();
-        uri.append(targetUri);
+        StringBuffer uri = new StringBuffer(targetUri);
         // Add any supplied query strings
         LOG.info("Access URI : " + uri.toString());
         
@@ -106,7 +111,6 @@ public class CreateTaskServlet extends HttpServlet{
             InputStreamEntity entity = new InputStreamEntity(
                     req.getInputStream(), contentLength);
             tmpRequest.setEntity(entity);
-
             request = tmpRequest;
         }
 
@@ -123,6 +127,8 @@ public class CreateTaskServlet extends HttpServlet{
         while (headers.hasMoreElements()) {
             String headerName = headers.nextElement();
             String headerValue = req.getHeader(headerName);
+            //LOG.info("header: " + headerName + " value: " + headerValue);
+
             // Skip Content-Length and Host
             String lowerHeader = headerName.toLowerCase();
             if (!lowerHeader.equals("content-length")
@@ -140,7 +146,7 @@ public class CreateTaskServlet extends HttpServlet{
         Header[] responseHeaders = response.getAllHeaders();
         for (int i = 0; i < responseHeaders.length; i++) {
             Header header = responseHeaders[i];
-            //LOG.info("header: " + header.getName() + " value: " + header.getValue());
+//            LOG.info("header: " + header.getName() + " value: " + header.getValue());
             if(!header.getName().equals("Transfer-Encoding"))
                 resp.addHeader(header.getName(), header.getValue());
         }

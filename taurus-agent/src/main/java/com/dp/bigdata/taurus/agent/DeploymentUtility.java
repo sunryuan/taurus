@@ -26,19 +26,17 @@ public class DeploymentUtility {
 	private static final Log s_logger = LogFactory.getLog(DeploymentUtility.class);
 	private static Map<String, Lock> taskIdToLockMap = new HashMap<String, Lock>();
 
-
-	private static final String DEPLOYMENT_CMD;
-	private static final String DEPLOYMENT_FILE = "/script/agent-deploy.sh";
 	private static final String UNDEPLOYMENT_CMD = "rm -rf %s";
-	private static final String DELETEFILE_CMD = "rm -f %s";
+	private static String taskDeploy = "/script/agent-deploy.sh";
+
 	private static String deployPath;
 	private static ExecutorService threadPool;
 	
 	static{
 		threadPool = AgentServerHelper.createThreadPool(2, 4);
 		String path = AgentEnvValue.getValue(AgentEnvValue.AGENT_ROOT_PATH);
-		DEPLOYMENT_CMD = path + DEPLOYMENT_FILE;
-		deployPath = AgentEnvValue.getValue(AgentEnvValue.JOB_PATH);
+		taskDeploy = path + AgentEnvValue.getValue(AgentEnvValue.TASK_DEPLOY,taskDeploy);
+		deployPath = path + AgentEnvValue.getValue(AgentEnvValue.JOB_PATH);
 	}
 
 	private static Lock getLock(String taskId){
@@ -135,16 +133,16 @@ public class DeploymentUtility {
 			s_logger.info(hdfsPath);
 			File hdfsFile = new File(hdfsPath);
 			String fileName = hdfsFile.getName();
-			String localParentPath = deployPath + taskID;
+			String localParentPath = deployPath  + File.separator + taskID;
 			String localPath = localParentPath + File.separator + fileName;
 			
 			StringBuilder stdErr = new StringBuilder();
 			try{
 				if(new File(localPath).exists()) {
-					executor.execute(null,System.out, System.err, String.format(DELETEFILE_CMD, localPath));
+					executor.execute(null,System.out, System.err, String.format(UNDEPLOYMENT_CMD, localParentPath));
 				}
 				s_logger.info("hdfsPath:" + hdfsPath + ";localPath:" +hdfsPath);
-				int returnCode = executor.execute(null,System.out, System.err, DEPLOYMENT_CMD,hdfsPath,localPath);
+				int returnCode = executor.execute(null,System.out, System.err, taskDeploy, hdfsPath,localPath);
 				conf.setLocalPath(localParentPath);
 				if(returnCode == 0) {
 					status.setStatus(DeploymentStatus.DEPLOY_SUCCESS);
