@@ -41,6 +41,7 @@ $(document).ready(function(){
 	    		required: true
 	    	},
 			proxyUser: {
+				required: false
 			},
 	    	taskMail: {
 	    		required: true,

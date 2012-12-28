@@ -136,6 +136,7 @@ public class CreateTaskServlet extends HttpServlet{
                 request.addHeader(headerName, headerValue);
             }
         }
+        
         // Execute the request
         HttpResponse response = httpclient.execute(request);
         // Transfer status code to the response
@@ -156,16 +157,15 @@ public class CreateTaskServlet extends HttpServlet{
         InputStream input = entity.getContent();
         OutputStream output = resp.getOutputStream();
         
-/*      byte buffer[] = new byte[50];
+        byte buffer[] = new byte[50];
         while(input.read(buffer)!=-1){
             output.write(buffer);
-        }*/
-        
-        int b = input.read();
-        while (b != -1) {
-            output.write(b);
-            b = input.read();
-        }
+        }  
+//        int b = input.read();
+//        while (b != -1) {
+//            output.write(b);
+//            b = input.read();
+//        }
         // Clean up
         input.close();
         output.close();

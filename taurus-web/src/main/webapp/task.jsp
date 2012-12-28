@@ -42,7 +42,7 @@
                     <div id="host"  class="control-group">
                     	<label class="control-label"  for="host">部署的机器*</label>
                     	<div class="controls">
-    						<input type="text" id="host" name="host" class="input-big field"  placeholder="10.0.0.1">
+    						<input type="text" id="host" name="hostname" class="input-big field"  placeholder="10.0.0.1">
     					</div>
 					</div>
                     

@@ -18,6 +18,7 @@ import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 
 import com.dp.bigdata.taurus.agent.exec.Executor;
+import com.dp.bigdata.taurus.agent.utils.AgentEnvValue;
 import com.dp.bigdata.taurus.agent.utils.AgentServerHelper;
 
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.bean.ScheduleConf;
@@ -33,7 +34,7 @@ public class ScheduleUtility {
 	private static String logPath = "logs";
 	private static String hadoopAuthority = "/script/hadoop-authority.sh";
     private static String logFileUpload = "/script/log-upload.sh";
-
+    private static boolean needHadoopAuthority;
 
 	private static String wormholeCmd;
 	private static ExecutorService killThreadPool;
@@ -43,7 +44,7 @@ public class ScheduleUtility {
 	private static final String FILE_SEPRATOR = File.separator;
 	private static final String HADOOP_JOB = "hadoop";
 	private static final String WORMHOLE_JOB = "wormhole";
-	private static final String HIVE_JOB = "hive";
+//	private static final String HIVE_JOB = "hive";
 	private static final String SHELL_JOB = "shell script";
 	private static final String COMMAND_PATTERN = "sudo -u %s -i \"cd %s && %s\"";
 	
@@ -56,6 +57,7 @@ public class ScheduleUtility {
         logPath = agentRoot + AgentEnvValue.getValue(AgentEnvValue.LOG_PATH,logPath);
 		hadoopAuthority = agentRoot + AgentEnvValue.getValue(AgentEnvValue.HADOOP_AUTHORITY, hadoopAuthority);
 		logFileUpload =   agentRoot + AgentEnvValue.getValue(AgentEnvValue.LOG_FILE_UPLOAD, logFileUpload);
+		needHadoopAuthority = new Boolean(AgentEnvValue.getValue(AgentEnvValue.NEED_HADOOP_AUTHORITY, "false"));
 	}
 
 	private static Lock getLock(String jobInstanceId){
@@ -188,7 +190,7 @@ public class ScheduleUtility {
                 userName = "nobody";
             }
 			
-			if(attemptID == null || taskID == null || command == null || taskType == null){
+			if(attemptID == null || taskID == null || command == null){
 				s_logger.error("Configure is not completed!");
 				status.setStatus(ScheduleStatus.EXECUTE_FAILED);
 				status.setFailureInfo("Configure is not completed!");
@@ -214,20 +216,20 @@ public class ScheduleUtility {
                 logFileStream = new FileOutputStream(logFilePath);
                 errorFileStream = new FileOutputStream(errorFilePath);
             } catch (IOException e) {
-                s_logger.error(e,e);
+                s_logger.error(e.getMessage(),e);
             }
             	
-			if(taskType.equals(HADOOP_JOB)||taskType.equals(HIVE_JOB)||taskType.equals(WORMHOLE_JOB)) {
+			if(needHadoopAuthority) {
 				try {
 					int returnCode = executor.execute(null, logFileStream, errorFileStream, hadoopAuthority,userName);
 					if(returnCode != 0) {
-						s_logger.error("Hadoop authority script executing failed");
+						s_logger.debug("Hadoop authority script executing failed");
 					}
 				} catch (IOException e) {
 					s_logger.error(e.getMessage(),e);
 				}		
 			}
-			if(taskType.equals(WORMHOLE_JOB)) {
+			if(taskType != null && taskType.equals(WORMHOLE_JOB)) {
 				command = wormholeCmd + " " + command;
 			}
 			String path = jobPath + FILE_SEPRATOR + taskID + FILE_SEPRATOR;
