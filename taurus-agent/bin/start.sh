@@ -7,11 +7,11 @@ if [ "$1" == "init" ]; then
 	find ./script -type f | xargs dos2unix --dos2unix --safe
 	chmod 744 script/*
 	if [ "$2" == "production" ]; then
-		sed 's/hadoopDirPro/hadoopDir/g' script/agent-env.sh
-		sed 's/connectionStringPro/connectionString/g' conf/zooKeeper.properties
+		sed -i 's/hadoopDirPro/hadoopDir/g' script/agent-env.sh
+		sed -i 's/connectionStringPro/connectionString/g' conf/zooKeeper.properties
 	elif  [ "$2" == "test" ]; then
-		sed 's/hadoopDirTest/hadoopDir/g' script/agent-env.sh
-		sed 's/connectionStringTest/connectionString/g' conf/zooKeeper.properties
+		sed -i 's/hadoopDirTest/hadoopDir/g' script/agent-env.sh
+		sed -i 's/connectionStringTest/connectionString/g' conf/zooKeeper.properties
 	fi
 else
 	/usr/local/jdk/bin/java -classpath "conf/:lib/*"  com.dp.bigdata.taurus.agent.StartServer
