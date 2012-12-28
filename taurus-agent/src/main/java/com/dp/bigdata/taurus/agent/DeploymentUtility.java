@@ -35,9 +35,9 @@ public class DeploymentUtility {
 	
 	static{
 		threadPool = AgentServerHelper.createThreadPool(2, 4);
-		String path = AgentEnvValue.getValue(AgentEnvValue.AGENT_ROOT_PATH);
-		taskDeploy = path + AgentEnvValue.getValue(AgentEnvValue.TASK_DEPLOY,taskDeploy);
-		deployPath = path + AgentEnvValue.getValue(AgentEnvValue.JOB_PATH);
+		String path = AgentEnvValue.getValue(AgentEnvValue.AGENT_ROOT_PATH,"/data/app/taurus-agent");
+		taskDeploy = path + taskDeploy;
+		deployPath = AgentEnvValue.getValue(AgentEnvValue.JOB_PATH);
 	}
 
 	private static Lock getLock(String taskId){

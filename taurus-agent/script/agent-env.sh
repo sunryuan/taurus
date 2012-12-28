@@ -2,5 +2,10 @@
 export homeDir='/home/'
 
 #hadoop path
-export hadoopDir='hdfs://10.2.6.102:8020'
+export hadoopDirPro='hdfs://10.2.6.102:8020'
+export hadoopDirTest='hdfs://10.2.6.102:8020'
 export taurusLog='${hadoopDir}/user/workcron/taurus/logs/'
+
+#task type
+export WORMHOLE_INSTALL="/data/app/wormhole"
+export PATH=$PATH:$WORMHOLE_INSTALL/bin

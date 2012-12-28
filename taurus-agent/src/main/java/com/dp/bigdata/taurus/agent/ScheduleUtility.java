@@ -29,35 +29,35 @@ public class ScheduleUtility {
 	private static final Log s_logger = LogFactory.getLog(ScheduleUtility.class);
 	private static Map<String, Lock> jobInstanceToLockMap = new HashMap<String, Lock>();
 	
-	private static String agentRoot = "/data/app/taurus";
-	private static String jobPath = "jobs";
-	private static String logPath = "logs";
+	private static String agentRoot = "/data/app/taurus-agent";
+	private static String jobPath = "/jobs";
+	private static String logPath = "/logs";
 	private static String hadoopAuthority = "/script/hadoop-authority.sh";
     private static String logFileUpload = "/script/log-upload.sh";
+    private static String env = "/script/agent-env.sh";
     private static boolean needHadoopAuthority;
 
-	private static String wormholeCmd;
 	private static ExecutorService killThreadPool;
 	private static ExecutorService executeThreadPool;
 	
 	
 	private static final String FILE_SEPRATOR = File.separator;
-	private static final String HADOOP_JOB = "hadoop";
-	private static final String WORMHOLE_JOB = "wormhole";
-//	private static final String HIVE_JOB = "hive";
-	private static final String SHELL_JOB = "shell script";
-	private static final String COMMAND_PATTERN = "sudo -u %s -i \"cd %s && %s\"";
+//	private static final String HADOOP_JOB = "hadoop";
+//	private static final String WORMHOLE_JOB = "wormhole";
+//  private static final String HIVE_JOB = "hive";
+//	private static final String SHELL_JOB = "shell script";
+	private static final String COMMAND_PATTERN = "sudo -u %s -i \"cd %s; source %s && %s\"";
 	
 	static{
 		killThreadPool = AgentServerHelper.createThreadPool(2, 4);
 		executeThreadPool = AgentServerHelper.createThreadPool(4, 10);
-	    wormholeCmd = AgentEnvValue.getValue(AgentEnvValue.WORMHOLE_COMMAND);
 		agentRoot = AgentEnvValue.getValue(AgentEnvValue.AGENT_ROOT_PATH,agentRoot);
-		jobPath = agentRoot + AgentEnvValue.getValue(AgentEnvValue.JOB_PATH,jobPath);
-        logPath = agentRoot + AgentEnvValue.getValue(AgentEnvValue.LOG_PATH,logPath);
-		hadoopAuthority = agentRoot + AgentEnvValue.getValue(AgentEnvValue.HADOOP_AUTHORITY, hadoopAuthority);
-		logFileUpload =   agentRoot + AgentEnvValue.getValue(AgentEnvValue.LOG_FILE_UPLOAD, logFileUpload);
+		jobPath = AgentEnvValue.getValue(AgentEnvValue.JOB_PATH,jobPath);
+        logPath = AgentEnvValue.getValue(AgentEnvValue.LOG_PATH,logPath);
+		hadoopAuthority = agentRoot + hadoopAuthority;
+		logFileUpload =   agentRoot + logFileUpload;
 		needHadoopAuthority = new Boolean(AgentEnvValue.getValue(AgentEnvValue.NEED_HADOOP_AUTHORITY, "false"));
+		env = agentRoot + env;
 	}
 
 	private static Lock getLock(String jobInstanceId){
@@ -229,9 +229,6 @@ public class ScheduleUtility {
 					s_logger.error(e.getMessage(),e);
 				}		
 			}
-			if(taskType != null && taskType.equals(WORMHOLE_JOB)) {
-				command = wormholeCmd + " " + command;
-			}
 			String path = jobPath + FILE_SEPRATOR + taskID + FILE_SEPRATOR;
 			
 			int returnCode = 0;
@@ -246,9 +243,7 @@ public class ScheduleUtility {
 				      
 				    cmdLine = new CommandLine("bash");
 				    cmdLine.addArgument("-c");
-                    cmdLine.addArgument(String.format(COMMAND_PATTERN, userName, path, escapedCmd), false);
-
-				    cmdLine.addArgument("sudo -u " + userName + " -s \"cd "+ path  +" && " + escapedCmd + "\"", false);
+                    cmdLine.addArgument(String.format(COMMAND_PATTERN, userName, path, env, escapedCmd), false);
 					s_logger.debug(taskAttempt + " start execute");
 					returnCode = executor.execute(attemptID, 0, null, cmdLine, logFileStream, errorFileStream);
 					executor.execute(null, logFileStream, errorFileStream, logFileUpload,logFilePath,errorFilePath,htmlFilePath,htmlFileName);

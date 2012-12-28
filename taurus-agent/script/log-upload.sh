@@ -4,7 +4,7 @@ cd `dirname $0`
 source /etc/profile;
 source ~/.bash_profile;
 source ./agent-env.sh
-kinit -r 12l -k -t /home/hadoop/.keytab hadoop@DIANPING.COM;
+kinit -r 12l -k -t ../conf/taurus.keytab taurus@DIANPING.COM;
 if [ $? != 0 ] ; then
         exit 1
 fi

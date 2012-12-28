@@ -19,10 +19,6 @@ public final class AgentEnvValue {
 	public static final String AGENT_ROOT_PATH = "taurusAgentPath";
 	public static final String JOB_PATH = "taurusJobPath";
 	public static final String LOG_PATH = "taurusLogPath";
-	public static final String TASK_DEPLOY = "taskDeploy";
-	public static final String HADOOP_AUTHORITY = "hadoopAuthority";
-	public static final String LOG_FILE_UPLOAD = "logFileUpload";
-	public static final String WORMHOLE_COMMAND = "wormholeCommand";
 	public static final String NEED_HADOOP_AUTHORITY = "needHadoopAuthority";
 	
 	public static String getValue(String key){
