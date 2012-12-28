@@ -10,11 +10,15 @@
 
 	<context-param>
 		<param-name>RESTLET_SERVER</param-name>
-		<param-value>http://10.1.77.85:8182/api/</param-value>
+		<param-value>http://10.1.1.163:8182/api/</param-value>
 	</context-param>
 	<context-param>
 		<param-name>XSL_UPLOAD_TMP_DIR</param-name>
 		<param-value>/tmp/</param-value>
+	</context-param>
+	<context-param>
+		<param-name>ERROR_PAGE</param-name>
+		<param-value>/error.jsp</param-value>
 	</context-param>
 	
 	<filter>

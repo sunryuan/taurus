@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.restlet.data.MediaType;
+import org.restlet.representation.Representation;
 import org.restlet.resource.ClientResource;
 
 import com.dp.bigdata.taurus.restlet.resource.IAttemptResource;
@@ -30,12 +31,14 @@ public class AttemptProxyServlet extends HttpServlet {
     private static final String KILL = "kill";
     private static final String LOG = "view-log";
     private String RESTLET_URL_BASE;
+    private String ERROR_PAGE;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         ServletContext context = getServletContext();
         RESTLET_URL_BASE = context.getInitParameter("RESTLET_SERVER");
+        ERROR_PAGE = context.getInitParameter("ERROR_PAGE");
     }
 
     @Override
@@ -57,11 +60,17 @@ public class AttemptProxyServlet extends HttpServlet {
             response.setStatus(attemptCr.getStatus().getCode());
         } else if (action.equals(LOG)) {
             response.setContentType("text/html;charset=utf-8");
-            OutputStream output = response.getOutputStream();
-            attemptCr.get(MediaType.TEXT_HTML).write(output);
-            output.close();
-        } else {
-
+            Representation rep = attemptCr.get(MediaType.TEXT_HTML);
+            //System.out.println("Status : " + attemptCr.getStatus());
+            if (attemptCr.getStatus().getCode() == 200) {
+                OutputStream output = response.getOutputStream();
+                rep.write(output);
+                output.close();
+            } else {
+                getServletContext().getRequestDispatcher(ERROR_PAGE).forward(request, response);
+            }
+            //attemptCr.get(MediaType.TEXT_HTML).write(output);
+            //response.setStatus(attemptCr.getStatus().getCode());
         }
     }
 }
