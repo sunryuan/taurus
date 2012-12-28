@@ -60,17 +60,18 @@ public class AttemptProxyServlet extends HttpServlet {
             response.setStatus(attemptCr.getStatus().getCode());
         } else if (action.equals(LOG)) {
             response.setContentType("text/html;charset=utf-8");
-            Representation rep = attemptCr.get(MediaType.TEXT_HTML);
-            //System.out.println("Status : " + attemptCr.getStatus());
-            if (attemptCr.getStatus().getCode() == 200) {
-                OutputStream output = response.getOutputStream();
-                rep.write(output);
-                output.close();
-            } else {
+            try {
+                Representation rep = attemptCr.get(MediaType.TEXT_HTML);
+                if (attemptCr.getStatus().getCode() == 200) {
+                    OutputStream output = response.getOutputStream();
+                    rep.write(output);
+                    output.close();
+                } else {
+                    //getServletContext().getRequestDispatcher(ERROR_PAGE).forward(request, response);
+                }
+            } catch (Exception e) {
                 getServletContext().getRequestDispatcher(ERROR_PAGE).forward(request, response);
             }
-            //attemptCr.get(MediaType.TEXT_HTML).write(output);
-            //response.setStatus(attemptCr.getStatus().getCode());
         }
     }
 }

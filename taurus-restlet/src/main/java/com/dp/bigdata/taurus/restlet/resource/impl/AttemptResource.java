@@ -1,7 +1,6 @@
 package com.dp.bigdata.taurus.restlet.resource.impl;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -72,15 +71,9 @@ public class AttemptResource extends ServerResource implements IAttemptResource 
         if (!file.exists()) {
             try {
                 hdfsUtils.readFile(logPath, localPath);
-            } catch (FileNotFoundException e) {
-                setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+            } catch (Exception e) {
                 LOG.error("File not found", e);
                 setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-                return null;
-            } catch (Exception e) {
-                setStatus(Status.SERVER_ERROR_INTERNAL);
-                LOG.error("Server internal error", e);
-                setStatus(Status.SERVER_ERROR_INTERNAL);
                 return null;
             }
         }
