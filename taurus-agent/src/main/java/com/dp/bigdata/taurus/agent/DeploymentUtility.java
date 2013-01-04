@@ -28,7 +28,7 @@ public class DeploymentUtility {
 	private static Map<String, Lock> taskIdToLockMap = new HashMap<String, Lock>();
 
 	private static final String UNDEPLOYMENT_CMD = "rm -rf %s";
-	private static String taskDeploy = "/script/agent-deploy.sh";
+	private static String taskDeploy = "/script/task-deploy.sh";
 
 	private static String deployPath;
 	private static ExecutorService threadPool;

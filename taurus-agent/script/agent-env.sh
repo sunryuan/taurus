@@ -2,8 +2,8 @@
 export homeDir='/home/'
 
 #hadoop path
-export hadoopDirPro='hdfs://10.2.6.102:8020'
-export hadoopDirTest='hdfs://192.168.7.80:8020'
+export hadoopDir='hdfs://10.2.6.102:8020' #production #default
+#export hadoopDir='hdfs://192.168.7.80:8020' #test
 export taurusLog="${hadoopDir}/user/workcron/taurus/logs/"
 
 #task type

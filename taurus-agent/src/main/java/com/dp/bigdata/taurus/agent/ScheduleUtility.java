@@ -36,6 +36,7 @@ public class ScheduleUtility {
 	private static String logPath = "/data/app/taurus-agent/logs";
 	private static String hadoopAuthority = "/script/hadoop-authority.sh";
     private static String logFileUpload = "/script/log-upload.sh";
+    private static String killJob = "/script/kill-tree.sh";
     private static String env = "/script/agent-env.sh";
     public static String running = "/running";
     private static boolean needHadoopAuthority;
@@ -50,7 +51,7 @@ public class ScheduleUtility {
 //  private static final String HIVE_JOB = "hive";
 //	private static final String SHELL_JOB = "shell script";
 	private static final String COMMAND_PATTERN = "sudo -u %s -i \"echo $$ >>%s; [ -f %s ] && cd %s; source %s && %s\"";
-	private static final String KILL_COMMAND = "kill -TERM -%s";
+	private static final String KILL_COMMAND = "%s %s %s";
 
 	static{
 		killThreadPool = AgentServerHelper.createThreadPool(2, 4);
@@ -60,6 +61,7 @@ public class ScheduleUtility {
         logPath = AgentEnvValue.getValue(AgentEnvValue.LOG_PATH,logPath);
 		hadoopAuthority = agentRoot + hadoopAuthority;
 		logFileUpload =   agentRoot + logFileUpload;
+		killJob = agentRoot + killJob;
 		running = jobPath + running;
 	    env = agentRoot + env;
 		needHadoopAuthority = new Boolean(AgentEnvValue.getValue(AgentEnvValue.NEED_HADOOP_AUTHORITY, "false"));
@@ -168,8 +170,7 @@ public class ScheduleUtility {
 				lock.lock();
 				cs.updateConf(localIp, taskAttempt, conf);
 				ScheduleStatus thisStatus = (ScheduleStatus) cs.getStatus(localIp, taskAttempt, null);
-				if(thisStatus.getStatus()!=ScheduleStatus.DELETE_FAILED && thisStatus.getStatus()!=ScheduleStatus.DELETE_SUCCESS
-						&& thisStatus.getStatus()!=ScheduleStatus.DELETE_SUBMITTED) {
+				if(thisStatus.getStatus()!=ScheduleStatus.DELETE_SUCCESS) {
 					cs.updateStatus(localIp, taskAttempt, status);
 				}
 				s_logger.debug(taskAttempt + " end execute");
@@ -249,7 +250,7 @@ public class ScheduleUtility {
 				    cmdLine = new CommandLine("bash");
 				    cmdLine.addArgument("-c");
 				    String pidFile = running + FILE_SEPRATOR + '.' + attemptID;
-                    cmdLine.addArgument(String.format(COMMAND_PATTERN,  userName,pidFile, path, path, env, escapedCmd), false);
+                    cmdLine.addArgument(String.format(COMMAND_PATTERN,  userName, pidFile, path, path, env, escapedCmd), false);
 					s_logger.debug(taskAttempt + " start execute");
 					returnCode = executor.execute(attemptID, 0, null, cmdLine, logFileStream, errorFileStream);
 					executor.execute(null, logFileStream, errorFileStream, logFileUpload,logFilePath,errorFilePath,htmlFilePath,htmlFileName);
@@ -302,19 +303,18 @@ public class ScheduleUtility {
 			String attemptID = conf.getAttemptID();
 			int returnCode = 1;
 			try{
-			    s_logger.debug("Ready to kill " + attemptID);
                 String fileName = running + FILE_SEPRATOR + '.' + attemptID;
                 BufferedReader br = new BufferedReader(new FileReader((new File(fileName)))); 
                 String pid = br.readLine();
-                String kill = String.format(KILL_COMMAND, pid);
-                s_logger.debug("Ready to kill pid: " + pid);
+                br.close();
+                s_logger.debug("Ready to kill " + attemptID + ", pid is " + pid);
+                String kill = String.format(KILL_COMMAND, killJob, pid, "9");
                 returnCode = executor.execute("kill",null,null,kill);
             } catch(Exception e) {
                 s_logger.error(e,e);
                 returnCode = 1;
             }
 			
-	        
 			if(returnCode == 0)  {
 				status.setStatus(ScheduleStatus.DELETE_SUCCESS);
 			} else {
