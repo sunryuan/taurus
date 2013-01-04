@@ -249,7 +249,7 @@ public class ScheduleUtility {
 				    cmdLine = new CommandLine("bash");
 				    cmdLine.addArgument("-c");
 				    String pidFile = running + File.pathSeparator + '.' + attemptID;
-                    cmdLine.addArgument(String.format(COMMAND_PATTERN, pidFile, userName, path, path, env, escapedCmd), false);
+                    cmdLine.addArgument(String.format(COMMAND_PATTERN,  userName,pidFile, path, path, env, escapedCmd), false);
 					s_logger.debug(taskAttempt + " start execute");
 					returnCode = executor.execute(attemptID, 0, null, cmdLine, logFileStream, errorFileStream);
 					executor.execute(null, logFileStream, errorFileStream, logFileUpload,logFilePath,errorFilePath,htmlFilePath,htmlFileName);
