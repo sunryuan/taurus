@@ -1,7 +1,9 @@
 package com.dp.bigdata.taurus.agent;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -30,11 +32,12 @@ public class ScheduleUtility {
 	private static Map<String, Lock> jobInstanceToLockMap = new HashMap<String, Lock>();
 	
 	private static String agentRoot = "/data/app/taurus-agent";
-	private static String jobPath = "/jobs";
-	private static String logPath = "/logs";
+	private static String jobPath = "/data/app/taurus-agent/jobs";
+	private static String logPath = "/data/app/taurus-agent/logs";
 	private static String hadoopAuthority = "/script/hadoop-authority.sh";
     private static String logFileUpload = "/script/log-upload.sh";
     private static String env = "/script/agent-env.sh";
+    public static String running = "/running";
     private static boolean needHadoopAuthority;
 
 	private static ExecutorService killThreadPool;
@@ -46,8 +49,9 @@ public class ScheduleUtility {
 //	private static final String WORMHOLE_JOB = "wormhole";
 //  private static final String HIVE_JOB = "hive";
 //	private static final String SHELL_JOB = "shell script";
-	private static final String COMMAND_PATTERN = "sudo -u %s -i \"cd %s; source %s && %s\"";
-	
+	private static final String COMMAND_PATTERN = "sudo -u %s -i \"echo $$ >>%s; [ -f %s ] && cd %s; source %s && %s\"";
+	private static final String KILL_COMMAND = "kill -TERM -%s";
+
 	static{
 		killThreadPool = AgentServerHelper.createThreadPool(2, 4);
 		executeThreadPool = AgentServerHelper.createThreadPool(4, 10);
@@ -56,8 +60,9 @@ public class ScheduleUtility {
         logPath = AgentEnvValue.getValue(AgentEnvValue.LOG_PATH,logPath);
 		hadoopAuthority = agentRoot + hadoopAuthority;
 		logFileUpload =   agentRoot + logFileUpload;
+		running = jobPath + running;
+	    env = agentRoot + env;
 		needHadoopAuthority = new Boolean(AgentEnvValue.getValue(AgentEnvValue.NEED_HADOOP_AUTHORITY, "false"));
-		env = agentRoot + env;
 	}
 
 	private static Lock getLock(String jobInstanceId){
@@ -243,7 +248,8 @@ public class ScheduleUtility {
 				      
 				    cmdLine = new CommandLine("bash");
 				    cmdLine.addArgument("-c");
-                    cmdLine.addArgument(String.format(COMMAND_PATTERN, userName, path, env, escapedCmd), false);
+				    String pidFile = running + File.pathSeparator + '.' + attemptID;
+                    cmdLine.addArgument(String.format(COMMAND_PATTERN, pidFile, userName, path, path, env, escapedCmd), false);
 					s_logger.debug(taskAttempt + " start execute");
 					returnCode = executor.execute(attemptID, 0, null, cmdLine, logFileStream, errorFileStream);
 					executor.execute(null, logFileStream, errorFileStream, logFileUpload,logFilePath,errorFilePath,htmlFilePath,htmlFileName);
@@ -294,7 +300,20 @@ public class ScheduleUtility {
 		
 		private void killTask(String ip,ScheduleConf conf, ScheduleStatus status){
 			String attemptID = conf.getAttemptID();
-			int returnCode = executor.kill(attemptID);
+			int returnCode = 1;
+			try{
+			    s_logger.debug("Ready to kill " + attemptID);
+                String fileName = ScheduleUtility.running + File.pathSeparator + '.' + attemptID;
+                BufferedReader br = new BufferedReader(new FileReader((new File(fileName)))); 
+                String pid = br.readLine();
+                String kill = String.format(KILL_COMMAND, pid);
+                s_logger.debug("Ready to kill pid: " + pid);
+                returnCode = executor.execute("kill",null,null,kill);
+            } catch(Exception e) {
+                returnCode = 1;
+            }
+			
+	        
 			if(returnCode == 0)  {
 				status.setStatus(ScheduleStatus.DELETE_SUCCESS);
 			} else {
