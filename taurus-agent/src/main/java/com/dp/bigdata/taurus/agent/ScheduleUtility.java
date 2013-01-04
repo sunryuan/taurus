@@ -248,7 +248,7 @@ public class ScheduleUtility {
 				      
 				    cmdLine = new CommandLine("bash");
 				    cmdLine.addArgument("-c");
-				    String pidFile = running + File.pathSeparator + '.' + attemptID;
+				    String pidFile = running + FILE_SEPRATOR + '.' + attemptID;
                     cmdLine.addArgument(String.format(COMMAND_PATTERN,  userName,pidFile, path, path, env, escapedCmd), false);
 					s_logger.debug(taskAttempt + " start execute");
 					returnCode = executor.execute(attemptID, 0, null, cmdLine, logFileStream, errorFileStream);
@@ -303,13 +303,14 @@ public class ScheduleUtility {
 			int returnCode = 1;
 			try{
 			    s_logger.debug("Ready to kill " + attemptID);
-                String fileName = ScheduleUtility.running + File.pathSeparator + '.' + attemptID;
+                String fileName = running + FILE_SEPRATOR + '.' + attemptID;
                 BufferedReader br = new BufferedReader(new FileReader((new File(fileName)))); 
                 String pid = br.readLine();
                 String kill = String.format(KILL_COMMAND, pid);
                 s_logger.debug("Ready to kill pid: " + pid);
                 returnCode = executor.execute("kill",null,null,kill);
             } catch(Exception e) {
+                s_logger.error(e,e);
                 returnCode = 1;
             }
 			
