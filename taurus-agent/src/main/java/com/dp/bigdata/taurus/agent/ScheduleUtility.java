@@ -52,6 +52,7 @@ public class ScheduleUtility {
 //	private static final String SHELL_JOB = "shell script";
 	private static final String COMMAND_PATTERN = "sudo -u %s -i \"echo $$ >>%s; [ -f %s ] && cd %s; source %s && %s\"";
 	private static final String KILL_COMMAND = "%s %s %s";
+	private static final String REMOVE_COMMAND = "rm -f %s";
 
 	static{
 		killThreadPool = AgentServerHelper.createThreadPool(2, 4);
@@ -266,6 +267,14 @@ public class ScheduleUtility {
 				status.setStatus(ScheduleStatus.EXECUTE_FAILED);
 				status.setFailureInfo("Job failed to execute");
 			}
+            String pidFile = running + FILE_SEPRATOR + '.' + attemptID;
+            try {
+                executor.execute("removePidFile", logFileStream,errorFileStream,String.format(REMOVE_COMMAND, pidFile));
+                logFileStream.close();
+                errorFileStream.close();
+            } catch (IOException e) {
+                s_logger.error(e,e);
+            }
 		}
 	}
 	
@@ -309,7 +318,7 @@ public class ScheduleUtility {
                 br.close();
                 s_logger.debug("Ready to kill " + attemptID + ", pid is " + pid);
                 String kill = String.format(KILL_COMMAND, killJob, pid, "9");
-                returnCode = executor.execute("kill",null,null,kill);
+                returnCode = executor.execute("kill",System.out,System.err,kill);
             } catch(Exception e) {
                 s_logger.error(e,e);
                 returnCode = 1;

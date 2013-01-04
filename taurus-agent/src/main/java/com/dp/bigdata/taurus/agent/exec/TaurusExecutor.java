@@ -52,14 +52,13 @@ public class TaurusExecutor implements Executor{
 		throws IOException{
 		DefaultExecutor executor = new DefaultExecutor();
 		executor.setWatchdog(new ExecuteWatchdog(-1));
-        LOG.debug("Ready to Execute " + id);
+        LOG.debug("Ready to Execute " + id + ". Command is "+ cmdLine);
 		executor.setExitValues(null);
 		PumpStreamHandler streamHandler = new PumpStreamHandler(stdOut,stdErr);
 		executor.setStreamHandler(streamHandler);
 		if(maxExecutionTime > 0){
 			executor.setWatchdog(new ExecuteWatchdog(maxExecutionTime));
 		}
-		LOG.debug("Command is "+ cmdLine);
 		return executor.execute(cmdLine, env);
 	}
 	

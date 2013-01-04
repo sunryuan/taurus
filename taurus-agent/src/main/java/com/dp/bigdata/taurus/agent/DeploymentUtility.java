@@ -96,7 +96,7 @@ public class DeploymentUtility {
 		
 		@Override
 		public void run() {
-			s_logger.info("start deploy");
+			s_logger.debug("start deploy");
 			Lock lock = getLock(task);
 			try{
 				lock.lock();
@@ -131,7 +131,6 @@ public class DeploymentUtility {
 				s_logger.error("Job  ID is empty!");
 				return;
 			}
-			s_logger.info(hdfsPath);
 			File hdfsFile = new File(hdfsPath);
 			String fileName = hdfsFile.getName();
 			String localParentPath = deployPath  + File.separator + taskID;
@@ -140,15 +139,16 @@ public class DeploymentUtility {
 			StringBuilder stdErr = new StringBuilder();
 			try{
 				if(new File(localPath).exists()) {
-					executor.execute(null,System.out, System.err, String.format(UNDEPLOYMENT_CMD, localParentPath));
+					executor.execute("remove task",System.out, System.err, String.format(UNDEPLOYMENT_CMD, localParentPath));
 				}
-				s_logger.info("hdfsPath:" + hdfsPath + ";localPath:" +hdfsPath);
-				int returnCode = executor.execute(null,System.out, System.err, taskDeploy, hdfsPath,localPath);
+				s_logger.debug("hdfsPath:" + hdfsPath + ";localPath:" +hdfsPath);
+				int returnCode = executor.execute("deploy task",System.out, System.err, taskDeploy, hdfsPath,localPath);
 				conf.setLocalPath(localParentPath);
 				if(returnCode == 0) {
 					status.setStatus(DeploymentStatus.DEPLOY_SUCCESS);
-					s_logger.info("Job " + taskID + " deploy successed");
+					s_logger.debug("Job " + taskID + " deploy successed");
 				} else {
+                    s_logger.debug("Job " + taskID + " deploy failed");
 					status.setStatus(DeploymentStatus.DEPLOY_FAILED);
 					status.setFailureInfo(stdErr.toString());
 				}
@@ -206,7 +206,7 @@ public class DeploymentUtility {
 			try{
 				int returnCode = 0;
 				if(new File(localPath).exists()) {
-					returnCode = executor.execute(null,System.out, System.err, String.format(UNDEPLOYMENT_CMD, localPath));
+					returnCode = executor.execute("undeploy task",System.out, System.err, String.format(UNDEPLOYMENT_CMD, localPath));
 				}
 				if(returnCode == 0) {
 					status.setStatus(DeploymentStatus.DELETE_SUCCESS);

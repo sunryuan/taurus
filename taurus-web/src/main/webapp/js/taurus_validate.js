@@ -2,7 +2,14 @@
 //	jQuery Validate for task.jsp
 //
 
-
+$.validator.addMethod("panduan",function(value,element,params){
+	 var p = /\s/;
+	 var q = /(.*)[\u4E00-\u9FA5]+(.*)/; 
+	 if(q.test(value) || p.test(value)) return false; 
+	 return true; 
+},"文件名必须没有中文,且不包含空格");
+  
+	 
 $(document).ready(function(){
 	// Validate
 
@@ -16,7 +23,10 @@ $(document).ready(function(){
     		uploadFile: {
     			required: function(element) {
                 	return ($("#autodeploy").attr("checked") == "checked" );
-        		}          	
+        		},
+    			panduan: function(element) {
+                	return ($("#autodeploy").attr("checked") == "checked" );
+        		}
     		}    
 		}, 
 	    highlight: function(label) {
