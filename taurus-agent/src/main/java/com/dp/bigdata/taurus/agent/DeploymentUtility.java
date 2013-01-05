@@ -14,6 +14,7 @@ import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 
 import com.dp.bigdata.taurus.agent.exec.Executor;
+import com.dp.bigdata.taurus.agent.utils.AgentEnvValue;
 import com.dp.bigdata.taurus.agent.utils.AgentServerHelper;
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.bean.DeploymentConf;
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.bean.DeploymentStatus;
@@ -27,16 +28,16 @@ public class DeploymentUtility {
 	private static Map<String, Lock> taskIdToLockMap = new HashMap<String, Lock>();
 
 	private static final String UNDEPLOYMENT_CMD = "rm -rf %s";
-	private static String taskDeploy = "/script/agent-deploy.sh";
+	private static String taskDeploy = "/script/task-deploy.sh";
 
 	private static String deployPath;
 	private static ExecutorService threadPool;
 	
 	static{
 		threadPool = AgentServerHelper.createThreadPool(2, 4);
-		String path = AgentEnvValue.getValue(AgentEnvValue.AGENT_ROOT_PATH);
-		taskDeploy = path + AgentEnvValue.getValue(AgentEnvValue.TASK_DEPLOY,taskDeploy);
-		deployPath = path + AgentEnvValue.getValue(AgentEnvValue.JOB_PATH);
+		String path = AgentEnvValue.getValue(AgentEnvValue.AGENT_ROOT_PATH,"/data/app/taurus-agent");
+		taskDeploy = path + taskDeploy;
+		deployPath = AgentEnvValue.getValue(AgentEnvValue.JOB_PATH);
 	}
 
 	private static Lock getLock(String taskId){
@@ -95,7 +96,7 @@ public class DeploymentUtility {
 		
 		@Override
 		public void run() {
-			s_logger.info("start deploy");
+			s_logger.debug("start deploy");
 			Lock lock = getLock(task);
 			try{
 				lock.lock();
@@ -130,7 +131,6 @@ public class DeploymentUtility {
 				s_logger.error("Job  ID is empty!");
 				return;
 			}
-			s_logger.info(hdfsPath);
 			File hdfsFile = new File(hdfsPath);
 			String fileName = hdfsFile.getName();
 			String localParentPath = deployPath  + File.separator + taskID;
@@ -139,15 +139,16 @@ public class DeploymentUtility {
 			StringBuilder stdErr = new StringBuilder();
 			try{
 				if(new File(localPath).exists()) {
-					executor.execute(null,System.out, System.err, String.format(UNDEPLOYMENT_CMD, localParentPath));
+					executor.execute("remove task",System.out, System.err, String.format(UNDEPLOYMENT_CMD, localParentPath));
 				}
-				s_logger.info("hdfsPath:" + hdfsPath + ";localPath:" +hdfsPath);
-				int returnCode = executor.execute(null,System.out, System.err, taskDeploy, hdfsPath,localPath);
+				s_logger.debug("hdfsPath:" + hdfsPath + ";localPath:" +hdfsPath);
+				int returnCode = executor.execute("deploy task",System.out, System.err, taskDeploy, hdfsPath,localPath);
 				conf.setLocalPath(localParentPath);
 				if(returnCode == 0) {
 					status.setStatus(DeploymentStatus.DEPLOY_SUCCESS);
-					s_logger.info("Job " + taskID + " deploy successed");
+					s_logger.debug("Job " + taskID + " deploy successed");
 				} else {
+                    s_logger.debug("Job " + taskID + " deploy failed");
 					status.setStatus(DeploymentStatus.DEPLOY_FAILED);
 					status.setFailureInfo(stdErr.toString());
 				}
@@ -205,7 +206,7 @@ public class DeploymentUtility {
 			try{
 				int returnCode = 0;
 				if(new File(localPath).exists()) {
-					returnCode = executor.execute(null,System.out, System.err, String.format(UNDEPLOYMENT_CMD, localPath));
+					returnCode = executor.execute("undeploy task",System.out, System.err, String.format(UNDEPLOYMENT_CMD, localPath));
 				}
 				if(returnCode == 0) {
 					status.setStatus(DeploymentStatus.DELETE_SUCCESS);

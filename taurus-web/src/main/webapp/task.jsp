@@ -42,7 +42,7 @@
                     <div id="host"  class="control-group">
                     	<label class="control-label"  for="host">部署的机器*</label>
                     	<div class="controls">
-    						<input type="text" id="host" name="host" class="input-big field"  placeholder="10.0.0.1">
+    						<input type="text" id="host" name="hostname" class="input-big field"  placeholder="10.0.0.1">
     					</div>
 					</div>
                     
@@ -94,7 +94,7 @@
                 <div class="control-group">
             		<label class="control-label" for="crontab">Crontab*</label>
             		<div class="controls">
-              			<input type="text" class="input-xxlarge field" id="crontab" name="crontab"  placeholder="0 0 * * ?">
+              			<input type="text" class="input-xxlarge field" id="crontab" name="crontab"  value="0 0 * * ?">
             		</div>
           		</div>
                 <div class="control-group">
@@ -132,7 +132,7 @@
 					<div class="control-group">
             			<label class="control-label">最长执行时间（分钟）*</label>
             			<div class="controls">
-              				<input type="number" class="input-small field" id="maxExecutionTime" name="maxExecutionTime" style="text-align:right" value=0>
+              				<input type="number" class="input-small field" id="maxExecutionTime" name="maxExecutionTime" style="text-align:right" value=60>
             			</div>
           			</div>
           			<div class="control-group">
@@ -144,7 +144,7 @@
           			<div class="control-group">
             			<label class="control-label">最长等待时间（分钟）*</label>
             			<div class="controls">
-              				<input type="number" class="input-small field" id="maxWaitTime" name="maxWaitTime" style="text-align:right" value=0>
+              				<input type="number" class="input-small field" id="maxWaitTime" name="maxWaitTime" style="text-align:right" value=60>
             			</div>
           			</div>
           			

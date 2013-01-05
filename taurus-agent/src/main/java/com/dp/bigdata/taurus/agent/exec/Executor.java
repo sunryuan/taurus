@@ -23,6 +23,4 @@ public interface Executor {
 	public int execute(String id, long maxExecutionTime, Map env, CommandLine cmdLine,
 			OutputStream stdOut, OutputStream stdErr) throws IOException;
 	
-	public int kill(String id);
-	
 }

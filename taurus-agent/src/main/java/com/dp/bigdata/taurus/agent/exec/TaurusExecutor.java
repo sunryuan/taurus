@@ -2,7 +2,6 @@ package com.dp.bigdata.taurus.agent.exec;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.exec.CommandLine;
@@ -18,8 +17,6 @@ import com.google.inject.Singleton;
 public class TaurusExecutor implements Executor{
 	
 	private static final Log LOG = LogFactory.getLog(TaurusExecutor.class);
-	private Map<String,DefaultExecutor> executorMap = new HashMap<String,DefaultExecutor>();
-	
 
 	@Override
 	public int execute(String id, long maxExecutionTime, Map env, OutputStream stdOut, OutputStream stdErr,
@@ -55,32 +52,35 @@ public class TaurusExecutor implements Executor{
 		throws IOException{
 		DefaultExecutor executor = new DefaultExecutor();
 		executor.setWatchdog(new ExecuteWatchdog(-1));
-        LOG.debug("Ready to Execute " + id);
-		if(id != null) {
-			executorMap.put(id, executor);
-		}
+        LOG.debug("Ready to Execute " + id + ". Command is "+ cmdLine);
 		executor.setExitValues(null);
 		PumpStreamHandler streamHandler = new PumpStreamHandler(stdOut,stdErr);
 		executor.setStreamHandler(streamHandler);
 		if(maxExecutionTime > 0){
 			executor.setWatchdog(new ExecuteWatchdog(maxExecutionTime));
 		}
-		LOG.debug("Command is "+ cmdLine);
 		return executor.execute(cmdLine, env);
 	}
 	
-	@Override
-	public int kill(String id) {
-		try{
-		    LOG.debug("Ready to kill " + id);
-			System.out.println(executorMap.get(id));
-			System.out.println(executorMap.get(id).getWatchdog());
-			executorMap.get(id).getWatchdog().destroyProcess();
-		} catch(Exception e) {
-			LOG.error(e,e);
-			return 1;
-		}
-		return 0;
-	}
+//	@Override
+//	public int kill(String id) {
+//		try{
+//		    LOG.debug("Ready to kill " + id);
+//		    if(executorMap.contains(id)){
+//		          executorMap.remove(id);
+//		          String fileName = ScheduleUtility.running + File.pathSeparator + '.' + id;
+//		          BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(fileName)))); 
+//		          String pid = br.readLine();
+//		          
+//		          
+//		    } else{
+//		        return 1;
+//		    }
+//		} catch(Exception e) {
+//			LOG.error(e,e);
+//			return 1;
+//		}
+//		return 0;
+//	}
 
 }

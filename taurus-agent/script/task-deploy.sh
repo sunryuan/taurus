@@ -1,3 +1,6 @@
+#!/bin/sh
+# Deploy taurus executing files
+cd `dirname $0`
 function extract () {
    path=`dirname $1`
    if [ -f $1 ] ; then
@@ -23,7 +26,7 @@ function extract () {
 
 source /etc/profile;
 source ~/.bash_profile;
-kinit -r 12l -k -t /home/hadoop/.keytab hadoop@DIANPING.COM;
+kinit -r 12l -k -t ../conf/taurus.keytab taurus@DIANPING.COM;
 kinit -R;
 path=`dirname $2`
 if [ -f $path ] ; then
@@ -33,3 +36,4 @@ mkdir -p $path
 hadoop fs -copyToLocal $1 $2
 extract $2
 exit $?
+# end 

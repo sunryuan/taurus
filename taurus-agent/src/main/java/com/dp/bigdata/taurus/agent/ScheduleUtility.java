@@ -1,7 +1,9 @@
 package com.dp.bigdata.taurus.agent;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -18,6 +20,7 @@ import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 
 import com.dp.bigdata.taurus.agent.exec.Executor;
+import com.dp.bigdata.taurus.agent.utils.AgentEnvValue;
 import com.dp.bigdata.taurus.agent.utils.AgentServerHelper;
 
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.bean.ScheduleConf;
@@ -28,34 +31,41 @@ public class ScheduleUtility {
 	private static final Log s_logger = LogFactory.getLog(ScheduleUtility.class);
 	private static Map<String, Lock> jobInstanceToLockMap = new HashMap<String, Lock>();
 	
-	private static String agentRoot = "/data/app/taurus";
-	private static String jobPath = "jobs";
-	private static String logPath = "logs";
+	private static String agentRoot = "/data/app/taurus-agent";
+	private static String jobPath = "/data/app/taurus-agent/jobs";
+	private static String logPath = "/data/app/taurus-agent/logs";
 	private static String hadoopAuthority = "/script/hadoop-authority.sh";
     private static String logFileUpload = "/script/log-upload.sh";
+    private static String killJob = "/script/kill-tree.sh";
+    private static String env = "/script/agent-env.sh";
+    public static String running = "/running";
+    private static boolean needHadoopAuthority;
 
-
-	private static String wormholeCmd;
 	private static ExecutorService killThreadPool;
 	private static ExecutorService executeThreadPool;
 	
 	
 	private static final String FILE_SEPRATOR = File.separator;
-	private static final String HADOOP_JOB = "hadoop";
-	private static final String WORMHOLE_JOB = "wormhole";
-	private static final String HIVE_JOB = "hive";
-	private static final String SHELL_JOB = "shell script";
-	private static final String COMMAND_PATTERN = "sudo -u %s -i \"cd %s && %s\"";
-	
+//	private static final String HADOOP_JOB = "hadoop";
+//	private static final String WORMHOLE_JOB = "wormhole";
+//  private static final String HIVE_JOB = "hive";
+//	private static final String SHELL_JOB = "shell script";
+	private static final String COMMAND_PATTERN = "sudo -u %s -i \"echo $$ >>%s; [ -f %s ] && cd %s; source %s && %s\"";
+	private static final String KILL_COMMAND = "%s %s %s";
+	private static final String REMOVE_COMMAND = "rm -f %s";
+
 	static{
 		killThreadPool = AgentServerHelper.createThreadPool(2, 4);
 		executeThreadPool = AgentServerHelper.createThreadPool(4, 10);
-	    wormholeCmd = AgentEnvValue.getValue(AgentEnvValue.WORMHOLE_COMMAND);
 		agentRoot = AgentEnvValue.getValue(AgentEnvValue.AGENT_ROOT_PATH,agentRoot);
-		jobPath = agentRoot + AgentEnvValue.getValue(AgentEnvValue.JOB_PATH,jobPath);
-        logPath = agentRoot + AgentEnvValue.getValue(AgentEnvValue.LOG_PATH,logPath);
-		hadoopAuthority = agentRoot + AgentEnvValue.getValue(AgentEnvValue.HADOOP_AUTHORITY, hadoopAuthority);
-		logFileUpload =   agentRoot + AgentEnvValue.getValue(AgentEnvValue.LOG_FILE_UPLOAD, logFileUpload);
+		jobPath = AgentEnvValue.getValue(AgentEnvValue.JOB_PATH,jobPath);
+        logPath = AgentEnvValue.getValue(AgentEnvValue.LOG_PATH,logPath);
+		hadoopAuthority = agentRoot + hadoopAuthority;
+		logFileUpload =   agentRoot + logFileUpload;
+		killJob = agentRoot + killJob;
+		running = jobPath + running;
+	    env = agentRoot + env;
+		needHadoopAuthority = new Boolean(AgentEnvValue.getValue(AgentEnvValue.NEED_HADOOP_AUTHORITY, "false"));
 	}
 
 	private static Lock getLock(String jobInstanceId){
@@ -161,8 +171,7 @@ public class ScheduleUtility {
 				lock.lock();
 				cs.updateConf(localIp, taskAttempt, conf);
 				ScheduleStatus thisStatus = (ScheduleStatus) cs.getStatus(localIp, taskAttempt, null);
-				if(thisStatus.getStatus()!=ScheduleStatus.DELETE_FAILED && thisStatus.getStatus()!=ScheduleStatus.DELETE_SUCCESS
-						&& thisStatus.getStatus()!=ScheduleStatus.DELETE_SUBMITTED) {
+				if(thisStatus.getStatus()!=ScheduleStatus.DELETE_SUCCESS) {
 					cs.updateStatus(localIp, taskAttempt, status);
 				}
 				s_logger.debug(taskAttempt + " end execute");
@@ -188,7 +197,7 @@ public class ScheduleUtility {
                 userName = "nobody";
             }
 			
-			if(attemptID == null || taskID == null || command == null || taskType == null){
+			if(attemptID == null || taskID == null || command == null){
 				s_logger.error("Configure is not completed!");
 				status.setStatus(ScheduleStatus.EXECUTE_FAILED);
 				status.setFailureInfo("Configure is not completed!");
@@ -214,21 +223,18 @@ public class ScheduleUtility {
                 logFileStream = new FileOutputStream(logFilePath);
                 errorFileStream = new FileOutputStream(errorFilePath);
             } catch (IOException e) {
-                s_logger.error(e,e);
+                s_logger.error(e.getMessage(),e);
             }
             	
-			if(taskType.equals(HADOOP_JOB)||taskType.equals(HIVE_JOB)||taskType.equals(WORMHOLE_JOB)) {
+			if(needHadoopAuthority) {
 				try {
 					int returnCode = executor.execute(null, logFileStream, errorFileStream, hadoopAuthority,userName);
 					if(returnCode != 0) {
-						s_logger.error("Hadoop authority script executing failed");
+						s_logger.debug("Hadoop authority script executing failed");
 					}
 				} catch (IOException e) {
 					s_logger.error(e.getMessage(),e);
 				}		
-			}
-			if(taskType.equals(WORMHOLE_JOB)) {
-				command = wormholeCmd + " " + command;
 			}
 			String path = jobPath + FILE_SEPRATOR + taskID + FILE_SEPRATOR;
 			
@@ -244,9 +250,8 @@ public class ScheduleUtility {
 				      
 				    cmdLine = new CommandLine("bash");
 				    cmdLine.addArgument("-c");
-                    cmdLine.addArgument(String.format(COMMAND_PATTERN, userName, path, escapedCmd), false);
-
-				    cmdLine.addArgument("sudo -u " + userName + " -s \"cd "+ path  +" && " + escapedCmd + "\"", false);
+				    String pidFile = running + FILE_SEPRATOR + '.' + attemptID;
+                    cmdLine.addArgument(String.format(COMMAND_PATTERN,  userName, pidFile, path, path, env, escapedCmd), false);
 					s_logger.debug(taskAttempt + " start execute");
 					returnCode = executor.execute(attemptID, 0, null, cmdLine, logFileStream, errorFileStream);
 					executor.execute(null, logFileStream, errorFileStream, logFileUpload,logFilePath,errorFilePath,htmlFilePath,htmlFileName);
@@ -262,6 +267,14 @@ public class ScheduleUtility {
 				status.setStatus(ScheduleStatus.EXECUTE_FAILED);
 				status.setFailureInfo("Job failed to execute");
 			}
+            String pidFile = running + FILE_SEPRATOR + '.' + attemptID;
+            try {
+                executor.execute("removePidFile", logFileStream,errorFileStream,String.format(REMOVE_COMMAND, pidFile));
+                logFileStream.close();
+                errorFileStream.close();
+            } catch (IOException e) {
+                s_logger.error(e,e);
+            }
 		}
 	}
 	
@@ -297,7 +310,20 @@ public class ScheduleUtility {
 		
 		private void killTask(String ip,ScheduleConf conf, ScheduleStatus status){
 			String attemptID = conf.getAttemptID();
-			int returnCode = executor.kill(attemptID);
+			int returnCode = 1;
+			try{
+                String fileName = running + FILE_SEPRATOR + '.' + attemptID;
+                BufferedReader br = new BufferedReader(new FileReader((new File(fileName)))); 
+                String pid = br.readLine();
+                br.close();
+                s_logger.debug("Ready to kill " + attemptID + ", pid is " + pid);
+                String kill = String.format(KILL_COMMAND, killJob, pid, "9");
+                returnCode = executor.execute("kill",System.out,System.err,kill);
+            } catch(Exception e) {
+                s_logger.error(e,e);
+                returnCode = 1;
+            }
+			
 			if(returnCode == 0)  {
 				status.setStatus(ScheduleStatus.DELETE_SUCCESS);
 			} else {
