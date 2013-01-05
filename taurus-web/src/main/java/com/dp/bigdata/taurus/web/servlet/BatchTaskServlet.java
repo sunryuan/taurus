@@ -14,6 +14,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import jxl.Sheet;
 import jxl.Workbook;
@@ -23,8 +24,10 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.http.HttpStatus;
 import org.restlet.data.Form;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
@@ -80,7 +83,9 @@ public class BatchTaskServlet extends HttpServlet{
 			FileItem item = items.get(0);
             File file = new File(XSL_UPLOAD_TMP_DIR + item.getName());
 			item.write(file);
-			List<Representation> repList = createRepFromExcel(file);
+			HttpSession session = req.getSession();
+			String username = (String)session.getAttribute(LoginServlet.USER_NAME);
+			List<Representation> repList = createRepFromExcel(file, username);
 			List<String> taskList = getTaskFromExcel(file);
 			List<Result> results = new ArrayList<Result>();
             ClientResource taskResource = new ClientResource(XSL_UPLOAD_TMP_DIR);
@@ -104,8 +109,10 @@ public class BatchTaskServlet extends HttpServlet{
 			processResponse(results, resp);
 		} catch (FileUploadException e) {
 			s_logger.error(e);
+			resp.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
 		} catch (Exception e){
 			s_logger.error(e);
+			resp.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
 		}
 	}
 	
@@ -120,7 +127,11 @@ public class BatchTaskServlet extends HttpServlet{
 		return result;
 	}
 
-	private List<Representation> createRepFromExcel(File file) throws BiffException, IOException{
+	private List<Representation> createRepFromExcel(File file, String username) throws BiffException, IOException{
+		if(StringUtils.isEmpty(username)){
+			s_logger.error("current username is empty!");
+			throw new RuntimeException("current username is empty");
+		}
 		Workbook workbook = Workbook.getWorkbook(file);
 		Sheet s = workbook.getSheet(0);
 		int columnNum = s.getColumns();
@@ -138,7 +149,7 @@ public class BatchTaskServlet extends HttpServlet{
 				form.add(paramName, value);
 			}
 			//TODO modified when login module is ready
-			form.add("creator", "hadoop");
+			form.add("creator", username);
 			Representation r = form.getWebRepresentation();
 			r.setMediaType(MediaType.APPLICATION_XML);
 			result.add(r);

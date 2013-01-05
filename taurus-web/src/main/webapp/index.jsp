@@ -2,13 +2,12 @@
 <html lang="en">
 <head>
     <%@ include file="jsp/common-header.jsp"%>
-    <%@ include file="jsp/common-api.jsp"%>
 	<link href="css/index.css" rel="stylesheet" type="text/css" >
 </head>
 <body  data-spy="scroll">
 
  <%@ include file="jsp/common-nav.jsp" %>
- 
+ <%@ include file="jsp/common-api.jsp"%>
 <div id="myCarousel" class="carousel slide">
       <div class="carousel-inner">
         <div class="item active">

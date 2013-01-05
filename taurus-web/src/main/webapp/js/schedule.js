@@ -27,38 +27,29 @@ function action_ok() {
 			id : taskID
 		},
 		type : 'POST',
-		statusCode : {
-			200 : function() {
-				$("#alertContainer").html('<div id="alertContainer" class="alert alert-success"><button type="button" class="close" data-dismiss="alert">&times;</button> <strong>'
-						+ action_chinese + '成功</strong></div>');
-				$(".alert").alert();
-				$('#confirm').modal("hide");
-				if(action_chinese == '删除'){
-					$('#' + taskID).remove();
-				}else if(action_chinese == '暂停'){
-					$('#' + taskID).addClass("error");
-					$('#' + taskID + ' td .label').addClass("label-important").removeClass('label-info');
-					$('#' + taskID + ' td .label').html('SUSPEND');
-					$('#' + taskID + ' .dropdown-menu li:nth-child(2) a').html("恢复");
-				}else if(action_chinese == '恢复'){
-					$('#' + taskID).removeClass("error");
-					$('#' + taskID + ' td .label').addClass("label-info").removeClass('label-important');
-					$('#' + taskID + ' td .label').html('RUNNING');
-					$('#' + taskID + ' .dropdown-menu li:nth-child(2) a').html("暂停");
-				}
-				
-			},
-			400 : function() {
-				$("#alertContainer").html('<div id="alertContainer" class="alert alert-error"><button type="button" class="close" data-dismiss="alert">&times;</button> <strong>'
-						+ action_chinese + '失败</strong></div>');
-				$(".alert").alert();
-				$('#confirm').modal("hide");
-			},
-			500 : function() {
-				$("#alertContainer").html('<div id="alertContainer" class="alert alert-error"><button type="button" class="close" data-dismiss="alert">&times;</button> 由于服务器原因， <strong>'
-						+ action_chinese + '失败</strong></div>');
-				$(".alert").alert();
-				$('#confirm').modal("hide");
+		error: function(){
+			$("#alertContainer").html('<div id="alertContainer" class="alert alert-error"><button type="button" class="close" data-dismiss="alert">&times;</button> <strong>'
+					+ action_chinese + '失败</strong></div>');
+			$(".alert").alert();
+			$('#confirm').modal("hide");
+		},
+		success: function(){
+			$("#alertContainer").html('<div id="alertContainer" class="alert alert-success"><button type="button" class="close" data-dismiss="alert">&times;</button> <strong>'
+					+ action_chinese + '成功</strong></div>');
+			$(".alert").alert();
+			$('#confirm').modal("hide");
+			if(action_chinese == '删除'){
+				$('#' + taskID).remove();
+			}else if(action_chinese == '暂停'){
+				$('#' + taskID).addClass("error");
+				$('#' + taskID + ' td .label').addClass("label-important").removeClass('label-info');
+				$('#' + taskID + ' td .label').html('SUSPEND');
+				$('#' + taskID + ' .dropdown-menu li:nth-child(2) a').html("恢复");
+			}else if(action_chinese == '恢复'){
+				$('#' + taskID).removeClass("error");
+				$('#' + taskID + ' td .label').addClass("label-info").removeClass('label-important');
+				$('#' + taskID + ' td .label').html('RUNNING');
+				$('#' + taskID + ' .dropdown-menu li:nth-child(2) a').html("暂停");
 			}
 		}
 	});
