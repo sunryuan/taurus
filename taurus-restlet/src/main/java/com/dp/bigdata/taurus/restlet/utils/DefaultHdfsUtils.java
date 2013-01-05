@@ -94,16 +94,25 @@ public class DefaultHdfsUtils implements HdfsUtils {
         }
         byte[] buf = new byte[BUFFER_SIZE];
         FileOutputStream fos = new FileOutputStream(file);
-        FileSystem fs = FileSystem.get(URI.create(srcFile), conf);
-        FSDataInputStream hdfsInput = fs.open(new Path(srcFile));
-        int num = hdfsInput.read(buf);
-        while (num != (-1)) {//是否读完文件
-            fos.write(buf, 0, num);//把文件数据写出网络缓冲区
-            fos.flush();//刷新缓冲区把数据写往客户端
-            num = hdfsInput.read(buf);//继续从文件中读取数据
+        FileSystem fs;
+        FSDataInputStream hdfsInput;
+        try {
+            fs = FileSystem.get(URI.create(srcFile), conf);
+            hdfsInput = fs.open(new Path(srcFile));
+            int num = hdfsInput.read(buf);
+            while (num != (-1)) {//是否读完文件
+                fos.write(buf, 0, num);//把文件数据写出网络缓冲区
+                fos.flush();//刷新缓冲区把数据写往客户端
+                num = hdfsInput.read(buf);//继续从文件中读取数据
+            }
+            hdfsInput.close();
+            fos.close();
+            fs.close();
+        } catch (IOException e) {
+            if (file.exists()) {
+                file.delete();
+            }
+            throw e;
         }
-        hdfsInput.close();
-        fos.close();
-        fs.close();
     }
 }

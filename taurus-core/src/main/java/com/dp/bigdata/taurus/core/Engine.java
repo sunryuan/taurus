@@ -124,6 +124,7 @@ final public class Engine implements Scheduler {
                 newHost.setName(ip);
                 newHost.setIsconnected(true);
                 if (host == null) {
+                    newHost.setPoolid(1);
                     hostMapper.insert(newHost);
                 } else {
                     hostMapper.updateByPrimaryKeySelective(newHost);
