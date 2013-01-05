@@ -124,6 +124,7 @@ final public class Engine implements Scheduler {
                 newHost.setName(ip);
                 newHost.setIsconnected(true);
                 if (host == null) {
+                    newHost.setPoolid(1);
                     hostMapper.insert(newHost);
                 } else {
                     hostMapper.updateByPrimaryKeySelective(newHost);
@@ -163,7 +164,7 @@ final public class Engine implements Scheduler {
     public synchronized void registerTask(Task task) throws ScheduleException {
         if (!registedTasks.containsKey(task.getTaskid())) {
             registedTasks.put(task.getTaskid(), task);
-            taskMapper.insert(task);
+            taskMapper.insertSelective(task);
         } else {
             throw new ScheduleException("The task : " + task.getTaskid() + " has been registered.");
         }
@@ -230,7 +231,9 @@ final public class Engine implements Scheduler {
         if (registedTasks.containsKey(taskID)) {
             Task task = registedTasks.get(taskID);
             task.setStatus(TaskStatus.RUNNING);
-            task.setUpdatetime(new Date());
+            Date current = new Date();
+            task.setLastscheduletime(current);
+            task.setUpdatetime(current);
             taskMapper.updateByPrimaryKey(task);
         } else {
             throw new ScheduleException("The task : " + taskID + " has not been found.");
