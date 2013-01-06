@@ -87,6 +87,7 @@ final public class Engine implements Scheduler {
         List<Task> tasks = taskMapper.selectByExample(example);
         for (Task task : tasks) {
             registedTasks.put(task.getTaskid(), task);
+            tasksMapCache.put(task.getName(), task.getTaskid());
         }
         // load running attempts
         TaskAttemptExample example1 = new TaskAttemptExample();
@@ -164,6 +165,7 @@ final public class Engine implements Scheduler {
     public synchronized void registerTask(Task task) throws ScheduleException {
         if (!registedTasks.containsKey(task.getTaskid())) {
             registedTasks.put(task.getTaskid(), task);
+            tasksMapCache.put(task.getName(), task.getTaskid());
             taskMapper.insertSelective(task);
         } else {
             throw new ScheduleException("The task : " + task.getTaskid() + " has been registered.");
@@ -182,6 +184,7 @@ final public class Engine implements Scheduler {
             task.setStatus(TaskStatus.DELETED);
             taskMapper.updateByPrimaryKeySelective(task);
             registedTasks.remove(taskID);
+            tasksMapCache.remove(task.getName());
         }
     }
 
@@ -440,18 +443,14 @@ final public class Engine implements Scheduler {
     public synchronized Task getTaskByName(String name) throws ScheduleException {
         if (tasksMapCache.containsKey(name)) {
             String taskID = tasksMapCache.get(name);
-            return registedTasks.get(taskID);
-        } else {
-            TaskExample example = new TaskExample();
-            example.or().andNameEqualTo(name);
-            List<Task> tasks = taskMapper.selectByExample(example);
-            if (tasks != null && tasks.size() == 1) {
-                Task task = tasks.get(0);
-                tasksMapCache.put(name, task.getTaskid());
-                return task;
-            } else {
+            Task task = registedTasks.get(taskID);
+            if(task == null ){
                 throw new ScheduleException("Cannot found tasks for the given name.");
+            } else {
+                return task;
             }
+        } else {
+            throw new ScheduleException("Cannot found tasks for the given name.");
         }
     }
 
