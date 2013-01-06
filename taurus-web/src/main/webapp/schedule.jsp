@@ -19,7 +19,7 @@
         <div id="alertContainer" class="container">
         </div>
 		<table cellpadding="0" cellspacing="0" border="0"
-			class="table table-striped table-format" id="example">
+			class="table table-striped table-format table-hover" id="example">
 			<thead>
 				<tr>
 					<th class="hide">ID</th>
