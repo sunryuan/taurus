@@ -38,6 +38,8 @@ public class TaskConverter {
         task.setProxyuser(dto.getProxyuser());
         task.setType(dto.getType());
         task.setWaittimeout(dto.getWaittimeout());
+        task.setHostname(dto.getHostname());
+        task.setDescription(dto.getDescription());
         return task;
     }
 
@@ -64,6 +66,8 @@ public class TaskConverter {
         }else if(task.getStatus() == TaskStatus.SUSPEND){
             dto.setStatus("SUSPEND");
         }
+        dto.setHostname(task.getHostname());
+        dto.setDescription(task.getDescription());
         return dto;
     }
 }
