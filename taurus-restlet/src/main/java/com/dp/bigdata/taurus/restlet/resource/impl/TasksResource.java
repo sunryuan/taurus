@@ -63,7 +63,7 @@ public class TasksResource extends ServerResource implements ITasksResource {
         example.or().andStatusEqualTo(TaskStatus.RUNNING);
         example.or().andStatusEqualTo(TaskStatus.SUSPEND);
 		example.or();
-		List<Task> tasks = taskMapper.selectByExample(example);
+        List<Task> tasks = taskMapper.selectByExampleWithBLOBs(example);
 		List<TaskDTO> result = new ArrayList<TaskDTO>();
 		for (Task task : tasks) {
 			TaskDTO dto = TaskConverter.toDto(task);

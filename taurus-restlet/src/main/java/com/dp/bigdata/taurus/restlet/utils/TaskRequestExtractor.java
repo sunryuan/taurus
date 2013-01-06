@@ -106,7 +106,7 @@ public class TaskRequestExtractor implements RequestExtrator<Task> {
             } else if (key.equals(GWTTaskDetailControlName.MULTIINSTANCE.getName())) {
                 task.setAllowmultiinstances(Integer.parseInt(value));
             } else if (key.equals(GWTTaskDetailControlName.CRONTAB.getName())) {
-                task.setCrontab(value);
+                task.setCrontab(value.trim());
             } else if (key.equals(GWTTaskDetailControlName.DEPENDENCY.getName())) {
                 task.setDependencyexpr(value);
             } else if (key.equals(GWTTaskDetailControlName.PROXYUSER.getName())) {
