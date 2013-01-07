@@ -59,8 +59,9 @@ public class TaskRequestExtractor implements RequestExtrator<Task> {
             String id = idFactory.newTaskID();
             task.setTaskid(id);
             task.setStatus(TaskStatus.RUNNING);
+        } else {
+            task.setUpdatetime(current);
         }
-        task.setUpdatetime(current);
         Map<String, String> formMap;
         Representation re = request.getEntity();
         if (MediaType.MULTIPART_FORM_DATA.equals(re.getMediaType(), true)) {
@@ -106,7 +107,9 @@ public class TaskRequestExtractor implements RequestExtrator<Task> {
             } else if (key.equals(GWTTaskDetailControlName.MULTIINSTANCE.getName())) {
                 task.setAllowmultiinstances(Integer.parseInt(value));
             } else if (key.equals(GWTTaskDetailControlName.CRONTAB.getName())) {
-                task.setCrontab(value.trim());
+                if (!StringUtils.isBlank(value.trim())) {
+                    task.setCrontab("0 " + value.trim());
+                }
             } else if (key.equals(GWTTaskDetailControlName.DEPENDENCY.getName())) {
                 task.setDependencyexpr(value);
             } else if (key.equals(GWTTaskDetailControlName.PROXYUSER.getName())) {
