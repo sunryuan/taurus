@@ -9,5 +9,7 @@
 		<mapper resource="com/dp/bigdata/taurus/generated/mapper/TaskAttemptMapper.xml" />
 		<mapper resource="com/dp/bigdata/taurus/generated/mapper/InstanceIDCounterMapper.xml" />
 		<mapper resource="com/dp/bigdata/taurus/generated/mapper/TaskIDCounterMapper.xml" />
+		<mapper resource="com/dp/bigdata/taurus/generated/mapper/AlertPriorityMapper.xml" />
+		<mapper resource="com/dp/bigdata/taurus/generated/mapper/AlertRuleMapper.xml" />
 	</mappers>
 </configuration>

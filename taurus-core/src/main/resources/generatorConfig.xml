@@ -9,7 +9,7 @@
 
 	<context id="MySQLTables" targetRuntime="MyBatis3">
 		<jdbcConnection driverClass="com.mysql.jdbc.Driver"
-			connectionURL="jdbc:mysql://10.1.77.84:3306/TaurusCopy" userId="root"
+			connectionURL="jdbc:mysql://10.1.1.163:3306/TaurusCopy" userId="root"
 			password="123456">
 		</jdbcConnection>
 
@@ -30,5 +30,8 @@
 		<table schema="" tableName="TaurusTaskAttempt" domainObjectName="TaskAttempt" />
 		<table schema="" tableName="TaurusTaskIDCounter"
 			domainObjectName="TaskIDCounter" />
+		<table schema="" tableName="TaurusAlertPriority" domainObjectName="AlertPriority" />
+		<table schema="" tableName="TaurusAlertRule"
+			domainObjectName="AlertRule" />
 	</context>
 </generatorConfiguration>
