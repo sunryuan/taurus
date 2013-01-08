@@ -59,9 +59,8 @@ public class TaskRequestExtractor implements RequestExtrator<Task> {
             String id = idFactory.newTaskID();
             task.setTaskid(id);
             task.setStatus(TaskStatus.RUNNING);
-        } else {
-            task.setUpdatetime(current);
         }
+        task.setUpdatetime(current);
         Map<String, String> formMap;
         Representation re = request.getEntity();
         if (MediaType.MULTIPART_FORM_DATA.equals(re.getMediaType(), true)) {
