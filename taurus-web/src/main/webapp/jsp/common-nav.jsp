@@ -2,11 +2,6 @@
 <div class="navbar navbar-inverse navbar-fixed-top">
 	<div class="navbar-inner">
 		<div class="container">
-			<button type="button" class="btn btn-navbar" data-toggle="collapse"
-				data-target=".nav-collapse">
-				<span class="icon-bar"></span> <span class="icon-bar"></span> <span
-					class="icon-bar"></span>
-			</button>
 			<a class="brand" href="./index.jsp">Taurus</a>
 			<div class="nav-collapse collapse">
 				<p class="navbar-text pull-right">
@@ -14,9 +9,9 @@
 						String currentUser = (String) session.getAttribute(com.dp.bigdata.taurus.web.servlet.LoginServlet.USER_NAME);
 						if(currentUser != null){
 					%>
-                    	<a role="button" class="btn-link"><%=currentUser%></a>
+                    	<a role="button" class="btn-link"><i class="icon-user icon-white"></i> <%=currentUser%></a>
                     <%}else{%>
-						<a href="./signin.jsp" role="button" class="btn-link" data-toggle="modal">登陆</a>
+						<a href="./signin.jsp" role="button" class="btn-link" data-toggle="modal"><i class="icon-user icon-white"></i> 登陆</a>
                     <%}%>
 				</p>
 

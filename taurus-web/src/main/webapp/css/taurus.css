@@ -72,3 +72,6 @@ label.error {
 .selector-form .form-actions { padding-left: 65px; }
 .selector-form select { width: 150px; }
 .selector-form input { width: 140px; }
+.basic-form .control-group { margin-bottom: 6px; }
+.breadcrumb .active { color: #999; }
+
