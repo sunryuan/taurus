@@ -143,14 +143,16 @@ final public class Engine implements Scheduler {
             } catch (Exception e) {
                 LOG.error("Unexpected Exception", e);
             }
-            for (AttemptContext context : contexts) {
-                try {
-                    executeAttempt(context);
-                } catch (ScheduleException e) {
-                    // do nothing
-                    LOG.error(e.getMessage());
-                } catch (Exception e) {
-                    LOG.error("Unexpected Exception", e);
+            if (contexts != null) {
+                for (AttemptContext context : contexts) {
+                    try {
+                        executeAttempt(context);
+                    } catch (ScheduleException e) {
+                        // do nothing
+                        LOG.error(e.getMessage());
+                    } catch (Exception e) {
+                        LOG.error("Unexpected Exception", e);
+                    }
                 }
             }
             try {
@@ -199,6 +201,8 @@ final public class Engine implements Scheduler {
     @Override
     public synchronized void updateTask(Task task) throws ScheduleException {
         if (registedTasks.containsKey(task.getTaskid())) {
+            Task tmp = registedTasks.get(task.getTaskid());
+            task.setStatus(tmp.getStatus());
             registedTasks.remove(task.getTaskid());
             registedTasks.put(task.getTaskid(), task);
             task.setUpdatetime(new Date());
