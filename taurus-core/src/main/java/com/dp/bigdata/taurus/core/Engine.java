@@ -135,20 +135,28 @@ final public class Engine implements Scheduler {
 
         while (true) {
             LOG.info("Engine trys to scan the database...");
-            crontabTriggle.triggle();
-            dependencyTriggle.triggle();
-            List<AttemptContext> contexts = filter.filter(getReadyToRunAttempt());
+            List<AttemptContext> contexts = null;
+            try {
+                crontabTriggle.triggle();
+                dependencyTriggle.triggle();
+                contexts = filter.filter(getReadyToRunAttempt());
+            } catch (Exception e) {
+                LOG.error("Unexpected Exception", e);
+            }
             for (AttemptContext context : contexts) {
                 try {
                     executeAttempt(context);
                 } catch (ScheduleException e) {
                     // do nothing
                     LOG.error(e.getMessage());
+                } catch (Exception e) {
+                    LOG.error("Unexpected Exception", e);
                 }
             }
             try {
                 Thread.sleep(SCHDUELE_INTERVAL);
             } catch (InterruptedException e) {
+                LOG.error("Interrupted exception", e);
             }
         }
     }
