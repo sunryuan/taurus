@@ -176,7 +176,7 @@ public class TaurusAlert {
         }
 
         private void ruleHandler(TaskAttempt attempt, AlertRule rule) {
-            String[] whens = rule.getWhen() == null ? null : rule.getWhen().split(";");
+            String[] whens = rule.getConditions() == null ? null : rule.getConditions().split(";");
             String userId = rule.getUserid() == null ? "" : rule.getUserid();
             String groupId = rule.getGroupid() == null ? "" : rule.getUserid();
             if (whens == null) {
@@ -241,11 +241,13 @@ public class TaurusAlert {
     }
 
     public static void main(String[] args) {
+
         try {
             ConfigCache.getInstance(EnvZooKeeperConfig.getZKAddress());
         } catch (LionException e) {
             e.printStackTrace();
         }
+
         ApplicationContext context = new FileSystemXmlApplicationContext("classpath:applicationContext.xml");
         TaurusAlert alert = (TaurusAlert) context.getBean("alert");
         try {
