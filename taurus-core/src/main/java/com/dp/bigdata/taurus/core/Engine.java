@@ -201,11 +201,11 @@ final public class Engine implements Scheduler {
     @Override
     public synchronized void updateTask(Task task) throws ScheduleException {
         if (registedTasks.containsKey(task.getTaskid())) {
+            task.setUpdatetime(new Date());
             taskMapper.updateByPrimaryKeySelective(task);
             registedTasks.remove(task.getTaskid());
             Task tmp = taskMapper.selectByPrimaryKey(task.getTaskid());
             registedTasks.put(task.getTaskid(), tmp);
-            task.setUpdatetime(new Date());
         } else {
             throw new ScheduleException("The task : " + task.getTaskid() + " has not been found.");
         }

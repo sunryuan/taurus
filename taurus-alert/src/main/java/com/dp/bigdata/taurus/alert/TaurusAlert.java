@@ -17,6 +17,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 import com.dianping.hawk.common.alarm.service.CommonAlarmService;
+import com.dianping.lion.EnvZooKeeperConfig;
+import com.dianping.lion.client.ConfigCache;
+import com.dianping.lion.client.LionException;
 import com.dp.bigdata.taurus.core.TaskStatus;
 import com.dp.bigdata.taurus.generated.mapper.AlertRuleMapper;
 import com.dp.bigdata.taurus.generated.mapper.TaskAttemptMapper;
@@ -238,6 +241,11 @@ public class TaurusAlert {
     }
 
     public static void main(String[] args) {
+        try {
+            ConfigCache.getInstance(EnvZooKeeperConfig.getZKAddress());
+        } catch (LionException e) {
+            e.printStackTrace();
+        }
         ApplicationContext context = new FileSystemXmlApplicationContext("classpath:applicationContext.xml");
         TaurusAlert alert = (TaurusAlert) context.getBean("alert");
         try {
