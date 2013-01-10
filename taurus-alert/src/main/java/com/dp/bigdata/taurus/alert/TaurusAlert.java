@@ -70,7 +70,7 @@ public class TaurusAlert {
     private TaskAttemptMapper taskAttemptMapper;
 
     @Autowired
-    private CommonAlarmService commonAlarmSerivce;
+    private CommonAlarmService alarmService;
 
     @Autowired
     private TaskMapper taskMapper;
@@ -228,7 +228,7 @@ public class TaurusAlert {
             sbMailContent.append("任务名： " + task.getName() + "</br>");
             sbMailContent.append("任务状态： " + TaskStatus.getTaskRunState(attempt.getStatus()) + "</br>");
             sbMailContent.append("日志查看： " + "http://taurus.dp/attempts.do?id=" + attempt.getAttemptid() + "&action=view-log");
-            commonAlarmSerivce.sendEmail(sbMailContent.toString(), "Taurus告警服务", mailTo);
+            alarmService.sendEmail(sbMailContent.toString(), "Taurus告警服务", mailTo);
         }
 
         private void sendSMS(String tel, TaskAttempt attempt) {
@@ -236,7 +236,7 @@ public class TaurusAlert {
             Task task = taskMapper.selectByPrimaryKey(attempt.getTaskid());
             sbMailContent.append("任务名： " + task.getName() + "</br>");
             sbMailContent.append("任务状态： " + TaskStatus.getTaskRunState(attempt.getStatus()) + "</br>");
-            commonAlarmSerivce.sendSmsMessage(sbMailContent.toString(), tel);
+            alarmService.sendSmsMessage(sbMailContent.toString(), tel);
         }
     }
 
