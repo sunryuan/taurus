@@ -1,11 +1,45 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>com.dp.bigdata</groupId>
-    <artifactId>taurus-parent</artifactId>
-    <version>0.3</version>
-  </parent>
-  <artifactId>taurus-alert</artifactId>
-  <version>0.4</version>
-  <name>taurus-alert</name>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.dp.bigdata</groupId>
+		<artifactId>taurus-parent</artifactId>
+		<version>0.3</version>
+	</parent>
+	<artifactId>taurus-alert</artifactId>
+	<name>taurus-alert</name>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.dp.bigdata</groupId>
+			<artifactId>taurus-core</artifactId>
+			<version>0.3</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.dp.bigdata</groupId>
+					<artifactId>taurus-zookeeper-helper</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.dianping.hawk</groupId>
+			<artifactId>hawk-common</artifactId>
+			<version>0.1.2</version>
+		</dependency>
+		<dependency>
+			<groupId>com.dianping.dpsf</groupId>
+			<artifactId>dpsf-net</artifactId>
+			<version>1.5.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.dianping.lion</groupId>
+			<artifactId>lion-client</artifactId>
+			<version>0.2.2</version>
+		</dependency>
+		<dependency>
+			<groupId>com.dianping.lion</groupId>
+			<artifactId>lion-product</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+	</dependencies>
 </project>

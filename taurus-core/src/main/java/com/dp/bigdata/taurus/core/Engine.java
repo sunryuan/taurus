@@ -274,6 +274,7 @@ final public class Engine implements Scheduler {
             zookeeper.execute(context.getContext());
         } catch (ExecuteException ee) {
             attempt.setStatus(AttemptStatus.SUBMIT_FAIL);
+            attempt.setEndtime(new Date());
             taskAttemptMapper.updateByPrimaryKey(attempt);
             throw new ScheduleException("Fail to execute attemptID : " + attempt.getAttemptid() + " on host : "
                     + host.getIp());
