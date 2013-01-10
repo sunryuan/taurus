@@ -57,9 +57,7 @@
 		<property name="timeout" value="5000" />
 	</bean>
 	
-	<bean id="alert" class="com.dp.bigdata.taurus.alert.TaurusAlert" init-method="load">
-		<property name="alarmService" ref="commonAlarmSerivce" />
-	</bean>
+	<bean id="alert" class="com.dp.bigdata.taurus.alert.TaurusAlert" init-method="load"/>
 </beans>
 
 

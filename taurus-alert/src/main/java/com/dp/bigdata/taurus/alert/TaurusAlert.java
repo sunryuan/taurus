@@ -76,7 +76,7 @@ public class TaurusAlert {
     private TaskMapper taskMapper;
 
     public void load() {
-        //load alert ruls
+        //load alert rules
         AlertRuleExample r_example = new AlertRuleExample();
         r_example.or();
         List<AlertRule> rules = rulesMapper.selectByExample(r_example);
