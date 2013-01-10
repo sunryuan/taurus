@@ -201,12 +201,11 @@ final public class Engine implements Scheduler {
     @Override
     public synchronized void updateTask(Task task) throws ScheduleException {
         if (registedTasks.containsKey(task.getTaskid())) {
-            Task tmp = registedTasks.get(task.getTaskid());
-            task.setStatus(tmp.getStatus());
-            registedTasks.remove(task.getTaskid());
-            registedTasks.put(task.getTaskid(), task);
-            task.setUpdatetime(new Date());
             taskMapper.updateByPrimaryKeySelective(task);
+            registedTasks.remove(task.getTaskid());
+            Task tmp = taskMapper.selectByPrimaryKey(task.getTaskid());
+            registedTasks.put(task.getTaskid(), tmp);
+            task.setUpdatetime(new Date());
         } else {
             throw new ScheduleException("The task : " + task.getTaskid() + " has not been found.");
         }
@@ -235,7 +234,7 @@ final public class Engine implements Scheduler {
             Task task = registedTasks.get(taskID);
             task.setStatus(TaskStatus.SUSPEND);
             task.setUpdatetime(new Date());
-            taskMapper.updateByPrimaryKey(task);
+            taskMapper.updateByPrimaryKeySelective(task);
         } else {
             throw new ScheduleException("The task : " + taskID + " has not been found.");
         }
@@ -249,7 +248,7 @@ final public class Engine implements Scheduler {
             Date current = new Date();
             task.setLastscheduletime(current);
             task.setUpdatetime(current);
-            taskMapper.updateByPrimaryKey(task);
+            taskMapper.updateByPrimaryKeySelective(task);
         } else {
             throw new ScheduleException("The task : " + taskID + " has not been found.");
         }
@@ -275,7 +274,7 @@ final public class Engine implements Scheduler {
         } catch (ExecuteException ee) {
             attempt.setStatus(AttemptStatus.SUBMIT_FAIL);
             attempt.setEndtime(new Date());
-            taskAttemptMapper.updateByPrimaryKey(attempt);
+            taskAttemptMapper.updateByPrimaryKeySelective(attempt);
             throw new ScheduleException("Fail to execute attemptID : " + attempt.getAttemptid() + " on host : "
                     + host.getIp());
         }
@@ -284,7 +283,7 @@ final public class Engine implements Scheduler {
 
         // update the status for TaskAttempt
         attempt.setStatus(AttemptStatus.RUNNING);
-        taskAttemptMapper.updateByPrimaryKey(attempt);
+        taskAttemptMapper.updateByPrimaryKeySelective(attempt);
         // register the attempt context
         registAttemptContext(context);
     }
