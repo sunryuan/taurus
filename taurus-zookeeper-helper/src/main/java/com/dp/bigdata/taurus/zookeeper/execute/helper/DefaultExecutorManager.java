@@ -29,7 +29,7 @@ import com.google.inject.Injector;
  */
 public class DefaultExecutorManager implements ExecutorManager{
 	
-	private static final Log s_logger = LogFactory.getLog(DefaultExecutorManager.class);
+	private static final Log LOGGER = LogFactory.getLog(DefaultExecutorManager.class);
 	private static final int DEFAULT_TIME_OUT_IN_SECONDS = 10;
 	private static Map<String, Lock> attemptIDToLockMap = new HashMap<String, Lock>();
 
@@ -64,6 +64,7 @@ public class DefaultExecutorManager implements ExecutorManager{
     	if(!dic.exists(MachineType.AGENT,agentIP)){
 			ScheduleStatus status = new ScheduleStatus();
 			status.setStatus(ScheduleStatus.AGENT_UNAVAILABLE);
+			LOGGER.error("Agent unavailable");
 			throw new ExecuteException("Agent unavailable");
 		}else{
 			ScheduleStatus status = (ScheduleStatus) dic.getStatus(agentIP, attemptID, null);
@@ -81,6 +82,7 @@ public class DefaultExecutorManager implements ExecutorManager{
 					lock.lock();
 					dic.execute(agentIP, attemptID, conf, status);
 				} catch (RuntimeException e) {
+	                LOGGER.error("Attempt "+attemptID + " schedule failed",e);
 					status.setStatus(ScheduleStatus.SCHEDULE_FAILED);
 					throw new ExecuteException(e);
 				}	
@@ -89,6 +91,7 @@ public class DefaultExecutorManager implements ExecutorManager{
 				}
 			}
 			else{
+			    LOGGER.error("Attempt "+attemptID + " has already scheduled");
 				throw new ExecuteException("Attempt "+attemptID + " has already scheduled");
 			}
 		}
@@ -101,12 +104,13 @@ public class DefaultExecutorManager implements ExecutorManager{
     	
     	ScheduleStatus status = new ScheduleStatus();
 		if(!dic.exists(MachineType.AGENT, agentIP)){
+	        LOGGER.error("Agent unavailable");
 			throw new ExecuteException("Agent unavailable");
 		}else{
 			status = (ScheduleStatus) dic.getStatus(agentIP, attemptID, null);
 			if(status == null||status.getStatus() == ScheduleStatus.DELETE_SUCCESS
 					||status.getStatus() == ScheduleStatus.EXECUTE_SUCCESS||status.getStatus() == ScheduleStatus.EXECUTE_FAILED){
-				s_logger.error("Job Instance:" + attemptID + " cannot be killed!");
+				LOGGER.error("Job Instance:" + attemptID + " cannot be killed!");
 				throw new ExecuteException("Job Instance:" + attemptID + " cannot be killed!");
 			}else{
 				status.setStatus(ScheduleStatus.DELETE_SUBMITTED);
@@ -120,6 +124,7 @@ public class DefaultExecutorManager implements ExecutorManager{
 						status = (ScheduleStatus) dic.getStatus(agentIP, attemptID, null);
 						if(status != null && status.getStatus() == ScheduleStatus.DELETE_SUBMITTED){
 							status.setStatus(ScheduleStatus.DELETE_TIMEOUT);
+			                LOGGER.error("Delete " + attemptID + " timeout");
 							throw new ExecuteException("Delete " + attemptID + " timeout");
 						}
 					}else{
@@ -128,12 +133,14 @@ public class DefaultExecutorManager implements ExecutorManager{
 					
 					dic.completeKill(agentIP, attemptID);
 				} catch(InterruptedException e){
+	                LOGGER.error("Delete " + attemptID + " failed" ,e);
 					throw new ExecuteException("Delete " + attemptID + " failed");
 				}
 				finally{
 					lock.unlock();
 				}
 				if(status.getStatus()!=ScheduleStatus.DELETE_SUCCESS) {
+                    LOGGER.error("Delete " + attemptID + " failed");
 					throw new ExecuteException("Delete " + attemptID + " failed");
 				}
 			}
@@ -145,10 +152,12 @@ public class DefaultExecutorManager implements ExecutorManager{
     	String attemptID = context.getAttemptID();
 
     	if(!dic.exists(MachineType.AGENT, agentIP)){
+            LOGGER.error("Agent unavailable");
 			throw new ExecuteException("Agent unavailable");
 		} else{
 			ScheduleStatus status = (ScheduleStatus) dic.getStatus(agentIP, attemptID, null);
 			if(status == null) {
+		        LOGGER.error("Fail to get status");
 				throw new ExecuteException("Fail to get status");
 			}
 			ExecuteStatus result = null;
@@ -159,10 +168,6 @@ public class DefaultExecutorManager implements ExecutorManager{
 				result = new ExecuteStatus(ExecuteStatus.SUCCEEDED);
 			} else if(statusCode == ScheduleStatus.DELETE_SUCCESS) {
 				result = new ExecuteStatus(ExecuteStatus.KILLED);
-			} else if(statusCode == ScheduleStatus.SCHEDULE_FAILED) {
-				result = new ExecuteStatus(ExecuteStatus.SUBMIT_FAIL);
-			} else if(statusCode == ScheduleStatus.SCHEDULE_SUCCESS) {
-				result = new ExecuteStatus(ExecuteStatus.SUBMIT_SUCCESS);
 			} else {
 				result = new ExecuteStatus(ExecuteStatus.RUNNING);
 			}
