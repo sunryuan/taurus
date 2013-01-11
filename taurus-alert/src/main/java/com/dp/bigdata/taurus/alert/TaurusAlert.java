@@ -194,7 +194,7 @@ public class TaurusAlert {
                         }
                     }
 
-                    if (groupId != null) {
+                    if (StringUtils.isNotBlank(groupId)) {
                         String[] groupIds = groupId.split(";");
                         for (String id : groupIds) {
                             UserGroupMappingExample ugm_example = new UserGroupMappingExample();
