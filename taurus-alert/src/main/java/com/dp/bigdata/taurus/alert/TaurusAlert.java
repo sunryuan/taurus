@@ -182,10 +182,11 @@ public class TaurusAlert {
             if (whens == null) {
                 return;
             }
+            Set<Integer> ids = new HashSet<Integer>();
+
             for (String when : whens) {
                 if (when.equalsIgnoreCase(AttemptStatus.getInstanceRunState(attempt.getStatus()))) {
                     LOG.info("Condition matched : " + when);
-                    Set<Integer> ids = new HashSet<Integer>();
                     if (StringUtils.isNotBlank(userId)) {
                         String[] iDs = userId.split(";");
                         for (String id : iDs) {
@@ -204,21 +205,19 @@ public class TaurusAlert {
                             }
                         }
                     }
+                }
+            }
 
-                    for (Integer id : ids) {
-                        User user = userMap.get(id);
+            //Send alert
+            for (Integer id : ids) {
+                User user = userMap.get(id);
 
-                        if (rule.getHasmail() && StringUtils.isNotBlank(user.getMail())) {
-                            sendMail(user.getMail(), attempt);
-                        }
+                if (rule.getHasmail() && StringUtils.isNotBlank(user.getMail())) {
+                    sendMail(user.getMail(), attempt);
+                }
 
-                        if (rule.getHassms() && StringUtils.isNotBlank(user.getTel())) {
-                            sendSMS(user.getTel(), attempt);
-                        }
-                    }
-
-                    //match a status, break the loop
-                    break;
+                if (rule.getHassms() && StringUtils.isNotBlank(user.getTel())) {
+                    sendSMS(user.getTel(), attempt);
                 }
             }
         }
