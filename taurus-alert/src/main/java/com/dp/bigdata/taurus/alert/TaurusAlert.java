@@ -20,6 +20,7 @@ import com.dianping.hawk.common.alarm.service.CommonAlarmService;
 import com.dianping.lion.EnvZooKeeperConfig;
 import com.dianping.lion.client.ConfigCache;
 import com.dianping.lion.client.LionException;
+import com.dp.bigdata.taurus.core.AttemptStatus;
 import com.dp.bigdata.taurus.core.TaskStatus;
 import com.dp.bigdata.taurus.generated.mapper.AlertRuleMapper;
 import com.dp.bigdata.taurus.generated.mapper.TaskAttemptMapper;
@@ -183,7 +184,7 @@ public class TaurusAlert {
                 return;
             }
             for (String when : whens) {
-                if (when.equalsIgnoreCase(attempt.getStatus().toString())) {
+                if (when.equalsIgnoreCase(AttemptStatus.getInstanceRunState(attempt.getStatus()))) {
                     LOG.info("Condition matched : " + when);
                     Set<Integer> ids = new HashSet<Integer>();
                     if (userId != null) {
