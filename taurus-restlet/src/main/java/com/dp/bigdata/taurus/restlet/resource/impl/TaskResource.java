@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.dp.bigdata.taurus.core.ScheduleException;
 import com.dp.bigdata.taurus.core.Scheduler;
 import com.dp.bigdata.taurus.core.TaskID;
+import com.dp.bigdata.taurus.generated.mapper.AlertRuleMapper;
+import com.dp.bigdata.taurus.generated.module.AlertRuleExample;
 import com.dp.bigdata.taurus.generated.module.Task;
 import com.dp.bigdata.taurus.restlet.resource.ITaskResource;
 import com.dp.bigdata.taurus.restlet.shared.TaskDTO;
@@ -36,13 +38,16 @@ public class TaskResource extends ServerResource implements ITaskResource {
     private Scheduler scheduler;
 
     @Autowired
+    private AlertRuleMapper alertRuleMapper;
+
+    @Autowired
     private HdfsUtils hdfsUtils;
 
     @Autowired
     private AgentDeploymentUtils agentDeployUtils;
 
     @Autowired
-    private RequestExtrator<Task> requestExtractor;
+    private RequestExtrator<TaskDTO> requestExtractor;
 
     @Autowired
     private FilePathManager filePathManager;
@@ -76,7 +81,7 @@ public class TaskResource extends ServerResource implements ITaskResource {
             return;
         }
 
-        final Task task;
+        final TaskDTO task;
         Request req = getRequest();
         try {
             task = requestExtractor.extractTask(req, true);
@@ -94,8 +99,8 @@ public class TaskResource extends ServerResource implements ITaskResource {
             try {
                 hdfsUtils.removeFile(destPath);
                 hdfsUtils.writeFile(srcPath, destPath);
-                agentDeployUtils.notifyAllAgent(task, DeployOptions.UNDEPLOY);
-                agentDeployUtils.notifyAllAgent(task, DeployOptions.DEPLOY);
+                agentDeployUtils.notifyAllAgent(task.getTask(), DeployOptions.UNDEPLOY);
+                agentDeployUtils.notifyAllAgent(task.getTask(), DeployOptions.DEPLOY);
             } catch (Exception e) {
                 LOG.error(e.getMessage(), e);
                 setStatus(Status.SERVER_ERROR_INTERNAL);
@@ -103,7 +108,8 @@ public class TaskResource extends ServerResource implements ITaskResource {
             }
         }
         try {
-            scheduler.updateTask(task);
+            scheduler.updateTask(task.getTask());
+            alertRuleMapper.insertSelective(task.getAlertRule());
             setStatus(Status.SUCCESS_CREATED);
         } catch (ScheduleException e) {
             LOG.error(e.getMessage(), e);
@@ -130,6 +136,9 @@ public class TaskResource extends ServerResource implements ITaskResource {
             }
 
             scheduler.unRegisterTask(taskID);
+            AlertRuleExample example = new AlertRuleExample();
+            example.or().andJobidEqualTo(taskID);
+            alertRuleMapper.deleteByExample(example);
         } catch (ScheduleException e) {
             LOG.error(e.getMessage(), e);
             setStatus(Status.SERVER_ERROR_INTERNAL);

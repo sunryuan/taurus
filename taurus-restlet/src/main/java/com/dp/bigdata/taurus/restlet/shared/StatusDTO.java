@@ -1,11 +1,18 @@
 package com.dp.bigdata.taurus.restlet.shared;
 
+import java.io.Serializable;
+
 /**
  * StatusDTO
  * 
  * @author damon.zhu
  */
-public class StatusDTO {
+public class StatusDTO implements Serializable {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -3411878908440479259L;
 
     private int id;
 
