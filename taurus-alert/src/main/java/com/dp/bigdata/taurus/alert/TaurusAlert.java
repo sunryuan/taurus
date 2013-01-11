@@ -184,6 +184,7 @@ public class TaurusAlert {
             }
             for (String when : whens) {
                 if (when.equalsIgnoreCase(attempt.getStatus().toString())) {
+                    LOG.info("Condition matched : " + when);
                     Set<Integer> ids = new HashSet<Integer>();
                     if (userId != null) {
                         String[] iDs = userId.split(";");
@@ -223,6 +224,7 @@ public class TaurusAlert {
         }
 
         private void sendMail(String mailTo, TaskAttempt attempt) {
+            LOG.info("Send mail to " + mailTo);
             StringBuilder sbMailContent = new StringBuilder();
             Task task = taskMapper.selectByPrimaryKey(attempt.getTaskid());
             sbMailContent.append("任务名： " + task.getName() + "</br>");
@@ -232,6 +234,7 @@ public class TaurusAlert {
         }
 
         private void sendSMS(String tel, TaskAttempt attempt) {
+            LOG.info("Send SMS to " + tel);
             StringBuilder sbMailContent = new StringBuilder();
             Task task = taskMapper.selectByPrimaryKey(attempt.getTaskid());
             sbMailContent.append("任务名： " + task.getName() + "</br>");

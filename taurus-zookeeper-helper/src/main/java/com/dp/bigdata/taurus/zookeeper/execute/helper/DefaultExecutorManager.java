@@ -33,8 +33,8 @@ public class DefaultExecutorManager implements ExecutorManager{
 	private static final int DEFAULT_TIME_OUT_IN_SECONDS = 10;
 	private static Map<String, Lock> attemptIDToLockMap = new HashMap<String, Lock>();
 
-	private ScheduleInfoChannel dic;
-	private int opTimeout = DEFAULT_TIME_OUT_IN_SECONDS;
+	private final ScheduleInfoChannel dic;
+	private final int opTimeout = DEFAULT_TIME_OUT_IN_SECONDS;
 	
 	public DefaultExecutorManager(){
 		Injector injector = Guice.createInjector(new ScheduleInfoChanelModule());
@@ -52,6 +52,7 @@ public class DefaultExecutorManager implements ExecutorManager{
 		}
 	}
 	
+    @Override
     public void execute(ExecuteContext context) throws ExecuteException {
     	
     	String agentIP = context.getAgentIP();
@@ -94,6 +95,7 @@ public class DefaultExecutorManager implements ExecutorManager{
 		}
     }
 
+    @Override
     public void kill(ExecuteContext context) throws ExecuteException {
     	String agentIP = context.getAgentIP();
     	String attemptID = context.getAttemptID();
@@ -104,7 +106,8 @@ public class DefaultExecutorManager implements ExecutorManager{
 			throw new ExecuteException("Agent unavailable");
 		}else{
 			status = (ScheduleStatus) dic.getStatus(agentIP, attemptID, null);
-			if(status == null||status.getStatus() == ScheduleStatus.DELETE_SUCCESS||status.getStatus() == ScheduleStatus.DELETE_SUCCESS
+            if (status == null || status.getStatus() == ScheduleStatus.DELETE_SUCCESS
+                    || status.getStatus() == ScheduleStatus.DELETE_FAILED
 					||status.getStatus() == ScheduleStatus.EXECUTE_SUCCESS||status.getStatus() == ScheduleStatus.EXECUTE_FAILED){
 				s_logger.error("Job Instance:" + attemptID + " cannot be killed!");
 				throw new ExecuteException("Job Instance:" + attemptID + " cannot be killed!");
@@ -140,6 +143,7 @@ public class DefaultExecutorManager implements ExecutorManager{
 		}
     }
 
+    @Override
     public ExecuteStatus getStatus(ExecuteContext context) throws ExecuteException {
     	String agentIP = context.getAgentIP();
     	String attemptID = context.getAttemptID();
@@ -171,18 +175,19 @@ public class DefaultExecutorManager implements ExecutorManager{
 		}
     }
 
+    @Override
     public List<String> registerNewHost() {
         // TODO Auto-generated method stub
         return null;
     }
     private static final class ScheduleStatusWatcher implements Watcher{
 
-		private Condition scheduleFinish;
-		private Lock lock;
+		private final Condition scheduleFinish;
+		private final Lock lock;
 		private ScheduleStatus status;
-		private ScheduleInfoChannel dic;
-		private String agentIp;
-		private String attemptID;
+		private final ScheduleInfoChannel dic;
+		private final String agentIp;
+		private final String attemptID;
 
 		ScheduleStatusWatcher(Lock lock, Condition scheduleFinish, ScheduleInfoChannel cs, String agentIp,
 				String attemptID){
