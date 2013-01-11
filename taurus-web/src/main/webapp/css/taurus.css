@@ -65,3 +65,14 @@ label.error {
 	padding: 2px 8px;
 	margin-top: 2px;
 }
+
+
+a.CLICKABLE {
+	cursor: pointer;
+}
+
+.autocomplete-w1 { position: absolute; top: 0px; left: 0px; margin: 6px 0 0 6px; /* IE6 fix: */ _background: none; _margin: 1px 0 0 0; }
+.autocomplete-suggestions { border: 1px solid #999; background: #FFF; cursor: default; text-align: left; max-height: 350px; overflow: auto; margin: -6px 6px 6px -6px; /* IE6 specific: */ _height: 350px; _margin: 0; _overflow-x: hidden; }
+.autocomplete-suggestion .selected { background: #c9e6ed; }
+.autocomplete-suggestions div { padding: 5px 10px; white-space: nowrap; overflow: hidden; }
+.autocomplete-suggestion strong { font-weight: normal; color: #3399FF; }

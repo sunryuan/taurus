@@ -1,8 +1,12 @@
+<!DOCTYPE HTML>
 <%@ page contentType="text/html;charset=utf-8" %>
 <html lang="en">
 <head>
 	<%@ include file="jsp/common-header.jsp"%>
     <link rel="stylesheet" type="text/css" href="css/DT_bootstrap.css">
+    <script type="text/javascript">
+</script>
+
 </head>
 <body data-spy="scroll">
 	<%@ include file="jsp/common-nav.jsp"%>
@@ -72,7 +76,7 @@
                           <li><a href="#confirm" onClick="action($(this).parents('tr').find('td')[0].textContent,2)">恢复</a></li>   
                           <%}%>
                           <li><a href="#confirm" onClick="action($(this).parents('tr').find('td')[0].textContent,3)">执行</a></li>
-                          <li><a href="#confirm" onClick="">详细</a></li>
+                          <li><a href="#confirm" onClick="action($(this).parents('tr').find('td')[0].textContent,4)">详细</a></li>
                         </ul>
                       </div>
                     </td>
@@ -96,9 +100,14 @@
         <a href="#" class="btn btn-danger" onClick="action_ok()">确定</a>
       </div>
     </div>
+    
+    <jsp:include page="task_form.jsp"/>
 
 	<script type="text/javascript" charset="utf-8" language="javascript" src="js/jquery.dataTables.js"></script>
 	<script type="text/javascript" charset="utf-8" language="javascript" src="js/DT_bootstrap.js"></script>
     <script type="text/javascript" charset="utf-8" language="javascript" src="js/schedule.js"></script>
+    <script src="js/jquery.validate.min.js" type="text/javascript"></script>
+    <script src="js/taurus_validate.js" type="text/javascript"></script>
+
 </body>
 </html>

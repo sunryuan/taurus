@@ -22,6 +22,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -59,6 +60,7 @@ import org.restlet.ext.fileupload.RestletFileUpload;
 public class CreateTaskServlet extends HttpServlet{
     private static final long serialVersionUID = 2348545179764589572L;
     private static String targetUri = "task";
+
     private static final Log LOG = LogFactory.getLog(HttpServlet.class);
 
     private String RESTLET_URL_BASE;
@@ -75,18 +77,41 @@ public class CreateTaskServlet extends HttpServlet{
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp)
     throws ServletException, IOException{
-        
+        System.out.println("start");
         HttpClient httpclient = new DefaultHttpClient();
         // Determine final URL
-        StringBuffer uri = new StringBuffer(targetUri);
-        // Add any supplied query strings
+        StringBuffer uri = new StringBuffer();
+        Enumeration keys = req.getParameterNames();
+        while (keys.hasMoreElements())
+        {
+           String key = (String)keys.nextElement();
+
+           //To retrieve a single value
+           String value = req.getParameter(key);
+
+           System.out.println(key+":"+value);
+        }   
+        keys = req.getAttributeNames();
+        while (keys.hasMoreElements() )
+        {
+           String key = (String)keys.nextElement();
+
+           //To retrieve a single value
+           String value = (String) req.getAttribute(key);
+
+           System.out.println(key+"/"+value);
+        }
+        if(req.getParameter("update")==null){
+            uri.append(targetUri);
+        } else {
+            uri.append(targetUri).append("/").append(req.getParameter("update"));
+        }
         LOG.info("Access URI : " + uri.toString());
-        
         // Get HTTP method
         final String method = req.getMethod();
         // Create new HTTP request container
         HttpRequestBase request = null;
-
+                
         // Get content length
         int contentLength = req.getContentLength();
         // Unknown content length ...
@@ -127,7 +152,7 @@ public class CreateTaskServlet extends HttpServlet{
         while (headers.hasMoreElements()) {
             String headerName = headers.nextElement();
             String headerValue = req.getHeader(headerName);
-            //LOG.info("header: " + headerName + " value: " + headerValue);
+            LOG.info("header: " + headerName + " value: " + headerValue);
 
             // Skip Content-Length and Host
             String lowerHeader = headerName.toLowerCase();

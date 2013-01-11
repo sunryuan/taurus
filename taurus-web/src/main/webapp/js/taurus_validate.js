@@ -9,13 +9,20 @@ $.validator.addMethod("panduan",function(value,element,params){
 	 return true; 
 },"文件名必须没有中文,且不包含空格");
   
-	 
+$.validator.addMethod("notRoot",function(value,element,params){
+	 if(value=="root")
+		 return false;
+	 else 
+		 return true;
+},"ProxyUser不能使root");	 
+
+
 $(document).ready(function(){
 	// Validate
-
+	
 	$('#deploy-form').validate({
 		rules: {
-    		host: {
+    		hostname: {
         		required: function(element) {
                 	return ($("#autodeploy").attr("checked") != "checked" );
         		}
@@ -51,7 +58,7 @@ $(document).ready(function(){
 	    		required: true
 	    	},
 			proxyUser: {
-				required: false
+				notRoot: true
 			},
 	    	taskMail: {
 	    		required: true,
@@ -94,4 +101,54 @@ $(document).ready(function(){
 	    },
 	  });
 	  
+	  var forms = $('.task-form');	  
+	  for(var i=0;i<forms.length;i++){
+		  forms.eq(i).validate({
+			  rules: {
+				  	hostname: {
+				  		required: true
+		    		},
+		    		uploadFile: {
+		    			panduan: true
+		    		},
+			    	crontab: {
+			    		required: true,
+			    		minlength: 6
+			    	},
+			    	taskCommand: {
+			    		required: true
+			    	},
+					proxyUser: {
+						notRoot: true
+					},
+			    	taskMail: {
+			    		required: true,
+			    	},
+			    	description: {
+			    		required: true,
+			    	},
+			    	maxExecutionTime: {
+			    		required: true,
+			    	},
+					dependency: {
+					},
+					maxWaitTime: {
+			    		required: true
+			    	},
+			    	retryTimes: {
+			    		required: true,
+			    	},
+			    	multiInstance: {
+			    		required: true,
+			    	}
+			    },
+			    highlight: function(label) {
+			    	$(label).closest('.control-group').removeClass('success').addClass('error');
+			    },
+			    success: function(label) {
+			    	label.text('OK!').addClass('valid')
+			    		.closest('.control-group').removeClass('error').addClass('success');
+			    },
+		  });
+	  }	  
 }); // end document.ready

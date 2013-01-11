@@ -104,7 +104,7 @@ public class DefaultExecutorManager implements ExecutorManager{
 			throw new ExecuteException("Agent unavailable");
 		}else{
 			status = (ScheduleStatus) dic.getStatus(agentIP, attemptID, null);
-			if(status == null||status.getStatus() == ScheduleStatus.DELETE_SUCCESS||status.getStatus() == ScheduleStatus.DELETE_SUCCESS
+			if(status == null||status.getStatus() == ScheduleStatus.DELETE_SUCCESS
 					||status.getStatus() == ScheduleStatus.EXECUTE_SUCCESS||status.getStatus() == ScheduleStatus.EXECUTE_FAILED){
 				s_logger.error("Job Instance:" + attemptID + " cannot be killed!");
 				throw new ExecuteException("Job Instance:" + attemptID + " cannot be killed!");
