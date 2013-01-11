@@ -24,9 +24,12 @@ public enum GWTTaskDetailControlName {
     ISAUTORETRY("isAutoRetry"),
     RETRYTIMES("retryTimes"),
     TASKID("taskId"),//TODO
-    TASKMAIL("taskMail"), //TODO
     CREATOR("creator"),
-    DESCRIPTION("description");
+    DESCRIPTION("description"),
+    ALERTCONDITION("alertCondition"),
+    ALERTTYPE("alertType"),
+    ALERTGROUP("alertGrup"),
+    ALERTUSER("alertUser");
     
     private String name;
     

@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.dp.bigdata</groupId>
 	<artifactId>taurus-parent</artifactId>
-	<version>0.2</version>
+	<version>0.3</version>
 	<packaging>pom</packaging>
 	<name>taurus-parent</name>
 
@@ -98,7 +98,7 @@ org.eclipse.jdt.core.compiler.compliance=1.6
 		<module>taurus-zookeeper-helper</module>
 		<module>taurus-agent</module>
 		<module>taurus-restlet</module>
-<!-- 		<module>taurus-frontend</module> -->
     	<module>taurus-web</module>
-  </modules>
+    	<module>taurus-alert</module>
+	</modules>
 </project>

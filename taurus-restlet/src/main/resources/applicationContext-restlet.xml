@@ -44,7 +44,11 @@
 		scope="prototype" class="com.dp.bigdata.taurus.restlet.resource.impl.PoolResource" />
 	<bean name="/api/pool" id="poolsResource" autowire="byName" scope="prototype"
 		class="com.dp.bigdata.taurus.restlet.resource.impl.PoolsResource" />
-
+	<bean name="/api/user" id="usersResource" autowire="byName" scope="prototype"
+		class="com.dp.bigdata.taurus.restlet.resource.impl.UsersResource" />
+	<bean name="/api/group" id="groupsResource" autowire="byName" scope="prototype"
+		class="com.dp.bigdata.taurus.restlet.resource.impl.UserGroupsResource" />
+		
 	<!-- Core Service -->
 	<bean id="hdfsUtils" class="com.dp.bigdata.taurus.restlet.utils.DefaultHdfsUtils"
 		init-method="init" />

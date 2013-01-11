@@ -43,13 +43,17 @@ $.extend( $.fn.dataTableExt.oPagination, {
 
 			$(nPaging).addClass('pagination').append(
 				'<ul>'+
+					'<li class="first disabled"><a href="#">'+oLang.sFirst+'</a></li>'+
 					'<li class="prev disabled"><a href="#">&larr; '+oLang.sPrevious+'</a></li>'+
 					'<li class="next disabled"><a href="#">'+oLang.sNext+' &rarr; </a></li>'+
+					'<li class="last disabled"><a href="#">'+oLang.sLast+'</a></li>'+
 				'</ul>'
 			);
 			var els = $('a', nPaging);
-			$(els[0]).bind( 'click.DT', { action: "previous" }, fnClickHandler );
-			$(els[1]).bind( 'click.DT', { action: "next" }, fnClickHandler );
+			$(els[0]).bind( 'click.DT', { action: "first" }, fnClickHandler );
+			$(els[1]).bind( 'click.DT', { action: "previous" }, fnClickHandler );
+			$(els[2]).bind( 'click.DT', { action: "next" }, fnClickHandler );
+			$(els[3]).bind( 'click.DT', { action: "last" }, fnClickHandler );
 		},
 
 		"fnUpdate": function ( oSettings, fnDraw ) {
@@ -75,13 +79,13 @@ $.extend( $.fn.dataTableExt.oPagination, {
 
 			for ( i=0, iLen=an.length ; i<iLen ; i++ ) {
 				// Remove the middle elements
-				$('li:gt(0)', an[i]).filter(':not(:last)').remove();
+				$('li:gt(1)', an[i]).filter(':not(:last)').filter(':not(:last)').remove();
 
 				// Add the new list items and their event handlers
 				for ( j=iStart ; j<=iEnd ; j++ ) {
 					sClass = (j==oPaging.iPage+1) ? 'class="active"' : '';
 					$('<li '+sClass+'><a href="#">'+j+'</a></li>')
-						.insertBefore( $('li:last', an[i])[0] )
+						.insertBefore( $('li:eq(-2)', an[i])[0] )
 						.bind('click', function (e) {
 							e.preventDefault();
 							oSettings._iDisplayStart = (parseInt($('a', this).text(),10)-1) * oPaging.iLength;
@@ -92,14 +96,18 @@ $.extend( $.fn.dataTableExt.oPagination, {
 				// Add / remove disabled classes from the static elements
 				if ( oPaging.iPage === 0 ) {
 					$('li:first', an[i]).addClass('disabled');
+					$('li:eq(1)', an[i]).addClass('disabled');
 				} else {
 					$('li:first', an[i]).removeClass('disabled');
+					$('li:eq(1)', an[i]).removeClass('disabled');
 				}
 
 				if ( oPaging.iPage === oPaging.iTotalPages-1 || oPaging.iTotalPages === 0 ) {
 					$('li:last', an[i]).addClass('disabled');
+					$('li:eq(-2)', an[i]).addClass('disabled');
 				} else {
 					$('li:last', an[i]).removeClass('disabled');
+					$('li:eq(-2)', an[i]).removeClass('disabled');
 				}
 			}
 		}

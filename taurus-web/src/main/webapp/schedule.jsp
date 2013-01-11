@@ -14,18 +14,61 @@
     <%@page import="org.restlet.data.MediaType"%>
     <%@page import="java.text.SimpleDateFormat"%>
 
-
 	<div class="container" style="margin-top: 10px">
-        <div id="alertContainer" class="container">
-        </div>
+        <div id="alertContainer" class="container"></div>
+          <div class="row">
+            <div class="span3 hide">
+                <div class="well well-large">
+                  <form class="form-horizontal selector-form">
+					<div class="control-group hide">
+						<label class="control-label">任务组</label>
+						
+					<div class="controls">
+							<select id="selector-task-group-id">
+								<option value="">--选择全部--</option>
+								<option value="1">wormhole</option>
+								<option value="2">mid/dim</option>
+								<option value="3">dm</option>
+								<option value="4">rpt</option>
+								<option value="5">mail</option>
+								<option value="6">dw</option>
+							</select>
+						</div></div>
+					<div class="control-group">
+						<label class="control-label">创建人</label>
+						<div class="controls">
+							<select id="selector-cycle">
+								
+							</select>
+						</div>
+					</div>
+					<div class="control-group">
+						<label class="control-label">任务名称</label>
+						<div class="controls">
+							<input type="text" id="selector-task-name" placeholder="模糊查询...">
+						</div>
+					</div>
+					<div class="control-group">
+						<div class="controls">
+							<button type="submit" id="search-btn" class="btn btn-large btn-primary pull-right">开始查询</button>
+						</div>
+					</div>
+				</form>
+                </div>
+    	 	</div>
+         <div class="span12">
+         <ul class="breadcrumb">
+				<li><a href="./index.jsp">首页</a> <span class="divider">/</span></li>
+				<li><a href="#" class="active">调度中心</a> <span class="divider">/</span></li>
+		 </ul>
 		<table cellpadding="0" cellspacing="0" border="0"
-			class="table table-striped table-format" id="example">
+			class="table table-striped table-format table-hover" id="example">
 			<thead>
 				<tr>
 					<th class="hide">ID</th>
 					<th>名称</th>
 					<th>调度人</th>
-					<th>组</th>
+					<th class="hide">组</th>
 					<th>创建时间</th>
 					<th>Crontab</th>
                     <th>状态</th>
@@ -52,7 +95,7 @@
                     <td class="hide"><%=dto.getTaskid()%></td>
                     <td><%=dto.getName()%></td>
                     <td><%=dto.getCreator()%></td>
-                    <td>arch(mock)</td>
+                    <td class="hide">arch(mock)</td>
                     <td><%=formatter.format(dto.getAddtime())%></td>
                     <td><%=dto.getCrontab()%></td>
                     <td><%if(isRunning){%>
@@ -81,6 +124,8 @@
                <% } %>
 			</tbody>
 		</table>
+            </div>
+  		</div>
 	</div>
 
 	<div id="confirm" class="modal hide fade">

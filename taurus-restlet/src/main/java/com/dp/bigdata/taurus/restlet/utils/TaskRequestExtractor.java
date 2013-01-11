@@ -106,7 +106,9 @@ public class TaskRequestExtractor implements RequestExtrator<Task> {
             } else if (key.equals(GWTTaskDetailControlName.MULTIINSTANCE.getName())) {
                 task.setAllowmultiinstances(Integer.parseInt(value));
             } else if (key.equals(GWTTaskDetailControlName.CRONTAB.getName())) {
-                task.setCrontab(value);
+                if (!StringUtils.isBlank(value.trim())) {
+                    task.setCrontab("0 " + value.trim());
+                }
             } else if (key.equals(GWTTaskDetailControlName.DEPENDENCY.getName())) {
                 task.setDependencyexpr(value);
             } else if (key.equals(GWTTaskDetailControlName.PROXYUSER.getName())) {
@@ -129,7 +131,7 @@ public class TaskRequestExtractor implements RequestExtrator<Task> {
                 }
             }
         }
-        validate(task);
+        validate(task, isUpdateAction);
         return task;
     }
 
@@ -141,7 +143,7 @@ public class TaskRequestExtractor implements RequestExtrator<Task> {
         return items;
     }
 
-    private void validate(Task task) throws Exception {
+    private void validate(Task task, boolean isUpdateAction) throws Exception {
         if (StringUtils.isBlank(task.getCreator())) {
             throw new InvalidArgumentException("Cannot get creator name from request");
         }
@@ -160,7 +162,7 @@ public class TaskRequestExtractor implements RequestExtrator<Task> {
             throw new InvalidArgumentException("Cannot get task name from request");
         }
 
-        if (nameResource.isExistTaskName(task.getName())) {
+        if (!isUpdateAction && nameResource.isExistTaskName(task.getName())) {
             throw new DuplicatedNameException("Duplicated Name : " + task.getName());
         }
 

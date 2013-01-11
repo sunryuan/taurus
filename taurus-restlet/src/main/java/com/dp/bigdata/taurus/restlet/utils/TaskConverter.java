@@ -29,7 +29,7 @@ public class TaskConverter {
         task.setAllowmultiinstances(dto.getAllowmultiinstances());
         task.setCommand(dto.getCommand());
         task.setCreator(dto.getCreator());
-        task.setCrontab(dto.getCrontab());
+        task.setCrontab(dto.getCrontab().trim());
         task.setDependencyexpr(dto.getDependencyexpr());
         task.setExecutiontimeout(dto.getExecutiontimeout());
         task.setIsautoretry(dto.getIsautoretry());
@@ -38,6 +38,9 @@ public class TaskConverter {
         task.setProxyuser(dto.getProxyuser());
         task.setType(dto.getType());
         task.setWaittimeout(dto.getWaittimeout());
+        task.setRetrytimes(dto.getRetrytimes());
+        task.setHostname(dto.getHostname());
+        task.setDescription(dto.getDescription());
         return task;
     }
 
@@ -50,7 +53,7 @@ public class TaskConverter {
         dto.setAllowmultiinstances(task.getAllowmultiinstances());
         dto.setCommand(task.getCommand());
         dto.setCreator(task.getCreator());
-        dto.setCrontab(task.getCrontab());
+        dto.setCrontab(task.getCrontab().substring(2));
         dto.setDependencyexpr(task.getDependencyexpr());
         dto.setExecutiontimeout(task.getExecutiontimeout());
         dto.setIsautoretry(task.getIsautoretry());
@@ -64,6 +67,9 @@ public class TaskConverter {
         }else if(task.getStatus() == TaskStatus.SUSPEND){
             dto.setStatus("SUSPEND");
         }
+        dto.setRetrytimes(task.getRetrytimes());
+        dto.setHostname(task.getHostname());
+        dto.setDescription(task.getDescription());
         return dto;
     }
 }

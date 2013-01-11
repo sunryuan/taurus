@@ -80,6 +80,8 @@ public class TaskResource extends ServerResource implements ITaskResource {
         Request req = getRequest();
         try {
             task = requestExtractor.extractTask(req, true);
+            String taskID = (String) getRequestAttributes().get("task_id");
+            task.setTaskid(taskID);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             setStatus(Status.CLIENT_ERROR_BAD_REQUEST);

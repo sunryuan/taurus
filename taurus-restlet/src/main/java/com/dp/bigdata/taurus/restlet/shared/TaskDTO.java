@@ -57,12 +57,21 @@ public class TaskDTO implements Serializable {
     
     private String description;
 
+    private String alertCondition;
+
+    private String alertType;
+
+    private String alertUser;
+
+    private String alertGrup;
+
     public TaskDTO(){}
 
     public TaskDTO(String taskid, String name, String creator, String dependencyexpr, Date addtime, Date lastscheduletime,
                    Date updatetime, String crontab, String status, Integer allowmultiinstances, String proxyuser,
                    Integer waittimeout, Integer executiontimeout, Boolean isautoretry, Integer retrytimes, String command,
-                   Integer poolid, String hostname, String type, String description) {
+                   Integer poolid, String hostname, String type, String description, String alertCondition, String alertType,
+                   String alertUser, String alertGrup) {
         super();
         this.taskid = taskid;
         this.name = name;
@@ -84,6 +93,10 @@ public class TaskDTO implements Serializable {
         this.hostname = hostname;
         this.type = type;
         this.description = description;
+        this.alertCondition = alertCondition;
+        this.alertType = alertType;
+        this.alertUser = alertUser;
+        this.alertGrup = alertGrup;
     }
 
     public String getTaskid() {
@@ -166,6 +179,22 @@ public class TaskDTO implements Serializable {
         return description;
     }
 
+    public String getAlertCondition() {
+        return alertCondition;
+    }
+
+    public String getAlertType() {
+        return alertType;
+    }
+
+    public String getAlertUser() {
+        return alertUser;
+    }
+
+    public String getAlertGrup() {
+        return alertGrup;
+    }
+
     public void setTaskid(String taskid) {
         this.taskid = taskid;
     }
@@ -246,14 +275,20 @@ public class TaskDTO implements Serializable {
         this.description = description;
     }
 
-    @Override
-    public String toString() {
-        return "TaskDTO [taskid=" + taskid + ", name=" + name + ", creator=" + creator + ", dependencyexpr=" + dependencyexpr
-                + ", addtime=" + addtime + ", lastscheduletime=" + lastscheduletime + ", updatetime=" + updatetime + ", crontab="
-                + crontab + ", status=" + status + ", allowmultiinstances=" + allowmultiinstances + ", proxyuser=" + proxyuser
-                + ", waittimeout=" + waittimeout + ", executiontimeout=" + executiontimeout + ", isautoretry=" + isautoretry
-                + ", retrytimes=" + retrytimes + ", command=" + command + ", poolid=" + poolid + ", hostname=" + hostname
-                + ", type=" + type + ", description=" + description + "]";
+    public void setAlertCondition(String alertCondition) {
+        this.alertCondition = alertCondition;
+    }
+
+    public void setAlertType(String alertType) {
+        this.alertType = alertType;
+    }
+
+    public void setAlertUser(String alertUser) {
+        this.alertUser = alertUser;
+    }
+
+    public void setAlertGrup(String alertGrup) {
+        this.alertGrup = alertGrup;
     }
 
 }
