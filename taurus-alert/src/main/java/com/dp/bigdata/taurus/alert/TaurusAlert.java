@@ -186,7 +186,7 @@ public class TaurusAlert {
                 if (when.equalsIgnoreCase(AttemptStatus.getInstanceRunState(attempt.getStatus()))) {
                     LOG.info("Condition matched : " + when);
                     Set<Integer> ids = new HashSet<Integer>();
-                    if (userId != null) {
+                    if (StringUtils.isNotBlank(userId)) {
                         String[] iDs = userId.split(";");
                         for (String id : iDs) {
                             ids.add(Integer.parseInt(id));
@@ -227,9 +227,18 @@ public class TaurusAlert {
             LOG.info("Send mail to " + mailTo);
             StringBuilder sbMailContent = new StringBuilder();
             Task task = taskMapper.selectByPrimaryKey(attempt.getTaskid());
-            sbMailContent.append("任务名： " + task.getName() + "</br>");
-            sbMailContent.append("任务状态： " + AttemptStatus.getInstanceRunState(attempt.getStatus()) + "</br>");
-            sbMailContent.append("日志查看： " + "http://taurus.dp/attempts.do?id=" + attempt.getAttemptid() + "&action=view-log");
+            sbMailContent.append("<table>");
+            sbMailContent.append("<tr>");
+            sbMailContent.append("<td>任务名</td><td>" + task.getName() + "</td>");
+            sbMailContent.append("</tr>");
+            sbMailContent.append("<tr>");
+            sbMailContent.append("<td>任务状态</td><td> " + AttemptStatus.getInstanceRunState(attempt.getStatus()) + "</td>");
+            sbMailContent.append("</tr>");
+            sbMailContent.append("<tr>");
+            sbMailContent.append("<td>日志查看</td><td>" + "http://taurus.dp/attempts.do?id=" + attempt.getAttemptid()
+                    + "&action=view-log</td>");
+            sbMailContent.append("</tr>");
+            sbMailContent.append("</table>");
             alarmService.sendEmail(sbMailContent.toString(), "Taurus告警服务", mailTo);
         }
 
