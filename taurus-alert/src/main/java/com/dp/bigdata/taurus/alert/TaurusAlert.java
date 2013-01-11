@@ -149,7 +149,7 @@ public class TaurusAlert {
                 example.or().andEndtimeGreaterThanOrEqualTo(previous);
                 List<TaskAttempt> attempts = taskAttemptMapper.selectByExample(example);
                 previous = new Date();
-                if (attempts != null && attempts.size() != 0) {
+                if (attempts != null && attempts.size() == 0) {
                     continue;
                 }
                 for (TaskAttempt at : attempts) {
