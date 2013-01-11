@@ -21,7 +21,6 @@ import com.dianping.lion.EnvZooKeeperConfig;
 import com.dianping.lion.client.ConfigCache;
 import com.dianping.lion.client.LionException;
 import com.dp.bigdata.taurus.core.AttemptStatus;
-import com.dp.bigdata.taurus.core.TaskStatus;
 import com.dp.bigdata.taurus.generated.mapper.AlertRuleMapper;
 import com.dp.bigdata.taurus.generated.mapper.TaskAttemptMapper;
 import com.dp.bigdata.taurus.generated.mapper.TaskMapper;
@@ -229,7 +228,7 @@ public class TaurusAlert {
             StringBuilder sbMailContent = new StringBuilder();
             Task task = taskMapper.selectByPrimaryKey(attempt.getTaskid());
             sbMailContent.append("任务名： " + task.getName() + "</br>");
-            sbMailContent.append("任务状态： " + TaskStatus.getTaskRunState(attempt.getStatus()) + "</br>");
+            sbMailContent.append("任务状态： " + AttemptStatus.getInstanceRunState(attempt.getStatus()) + "</br>");
             sbMailContent.append("日志查看： " + "http://taurus.dp/attempts.do?id=" + attempt.getAttemptid() + "&action=view-log");
             alarmService.sendEmail(sbMailContent.toString(), "Taurus告警服务", mailTo);
         }
@@ -239,7 +238,7 @@ public class TaurusAlert {
             StringBuilder sbMailContent = new StringBuilder();
             Task task = taskMapper.selectByPrimaryKey(attempt.getTaskid());
             sbMailContent.append("任务名： " + task.getName() + "</br>");
-            sbMailContent.append("任务状态： " + TaskStatus.getTaskRunState(attempt.getStatus()) + "</br>");
+            sbMailContent.append("任务状态： " + AttemptStatus.getInstanceRunState(attempt.getStatus()) + "</br>");
             alarmService.sendSmsMessage(sbMailContent.toString(), tel);
         }
     }
