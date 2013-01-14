@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.dp.bigdata.taurus.core.ScheduleException;
 import com.dp.bigdata.taurus.core.Scheduler;
+import com.dp.bigdata.taurus.restlet.resource.INameResource;
 import com.mysql.jdbc.StringUtils;
 
 /**
@@ -16,15 +17,16 @@ import com.mysql.jdbc.StringUtils;
  * 
  * @author damon.zhu
  */
-public class NameResource extends ServerResource {
+public class NameResource extends ServerResource implements INameResource {
 
     private static final String TASK = "task_name";
 
     @Autowired
     private Scheduler scheduler;
 
+    @Override
     @Get
-    public boolean hasName(String name) {
+    public boolean hasName() {
         Form form = getRequest().getResourceRef().getQueryAsForm();
         for (Parameter parameter : form) {
             if (parameter.getName().equals(TASK)) {

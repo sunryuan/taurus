@@ -3,19 +3,16 @@ package com.dp.bigdata.taurus.restlet.shared;
 import java.io.Serializable;
 import java.util.Date;
 
+import com.dp.bigdata.taurus.core.TaskStatus;
+import com.dp.bigdata.taurus.generated.module.AlertRule;
+import com.dp.bigdata.taurus.generated.module.Task;
 
-/**
- * 
- * TaskDTO
- * @author damon.zhu
- *
- */
 public class TaskDTO implements Serializable {
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 482732054965365244L;
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 482732054965365244L;
 
     private String taskid;
 
@@ -45,6 +42,8 @@ public class TaskDTO implements Serializable {
 
     private Boolean isautoretry;
 
+    private String filename;
+
     private Integer retrytimes;
 
     private String command;
@@ -54,36 +53,62 @@ public class TaskDTO implements Serializable {
     private String hostname;
 
     private String type;
-    
+
     private String description;
 
-    public TaskDTO(){}
+    private int ruleID;
 
-    public TaskDTO(String taskid, String name, String creator, String dependencyexpr, Date addtime, Date lastscheduletime,
-                   Date updatetime, String crontab, String status, Integer allowmultiinstances, String proxyuser,
-                   Integer waittimeout, Integer executiontimeout, Boolean isautoretry, Integer retrytimes, String command,
-                   Integer poolid, String hostname, String type, String description) {
-        super();
-        this.taskid = taskid;
-        this.name = name;
-        this.creator = creator;
-        this.dependencyexpr = dependencyexpr;
-        this.addtime = addtime;
-        this.lastscheduletime = lastscheduletime;
-        this.updatetime = updatetime;
-        this.crontab = crontab;
-        this.status = status;
-        this.allowmultiinstances = allowmultiinstances;
-        this.proxyuser = proxyuser;
-        this.waittimeout = waittimeout;
-        this.executiontimeout = executiontimeout;
-        this.isautoretry = isautoretry;
-        this.retrytimes = retrytimes;
-        this.command = command;
-        this.poolid = poolid;
-        this.hostname = hostname;
-        this.type = type;
-        this.description = description;
+    private boolean hassms;
+
+    private boolean hasmail;
+
+    private String userid;
+
+    private String groupid;
+
+    private String conditions;
+
+    public Task getTask() {
+        Task task = new Task();
+        task.setAddtime(addtime);
+        task.setAllowmultiinstances(allowmultiinstances);
+        task.setCommand(command);
+        task.setCreator(creator);
+        task.setCrontab(crontab);
+        task.setDependencyexpr(dependencyexpr);
+        task.setDescription(description);
+        task.setExecutiontimeout(executiontimeout);
+        task.setFilename(filename);
+        task.setHostname(hostname);
+        task.setIsautoretry(isautoretry);
+        task.setName(name);
+        task.setLastscheduletime(lastscheduletime);
+        task.setPoolid(poolid);
+        task.setProxyuser(proxyuser);
+        task.setRetrytimes(retrytimes);
+        task.setStatus(TaskStatus.getTaskRunState(status));
+        task.setTaskid(taskid);
+        task.setType(type);
+        task.setUpdatetime(updatetime);
+        task.setWaittimeout(waittimeout);
+        return task;
+    }
+
+    public AlertRule getAlertRule() {
+        AlertRule rule = new AlertRule();
+        rule.setConditions(conditions);
+        rule.setGroupid(groupid);
+        rule.setHasmail(hasmail);
+        rule.setHassms(hassms);
+        rule.setId(ruleID);
+        rule.setJobid(taskid);
+        rule.setUserid(userid);
+        return rule;
+    }
+
+
+    public String getStatus() {
+        return status;
     }
 
     public String getTaskid() {
@@ -116,10 +141,6 @@ public class TaskDTO implements Serializable {
 
     public String getCrontab() {
         return crontab;
-    }
-
-    public String getStatus() {
-        return status;
     }
 
     public Integer getAllowmultiinstances() {
@@ -246,14 +267,60 @@ public class TaskDTO implements Serializable {
         this.description = description;
     }
 
-    @Override
-    public String toString() {
-        return "TaskDTO [taskid=" + taskid + ", name=" + name + ", creator=" + creator + ", dependencyexpr=" + dependencyexpr
-                + ", addtime=" + addtime + ", lastscheduletime=" + lastscheduletime + ", updatetime=" + updatetime + ", crontab="
-                + crontab + ", status=" + status + ", allowmultiinstances=" + allowmultiinstances + ", proxyuser=" + proxyuser
-                + ", waittimeout=" + waittimeout + ", executiontimeout=" + executiontimeout + ", isautoretry=" + isautoretry
-                + ", retrytimes=" + retrytimes + ", command=" + command + ", poolid=" + poolid + ", hostname=" + hostname
-                + ", type=" + type + ", description=" + description + "]";
+    public int getRuleID() {
+        return ruleID;
+    }
+
+    public boolean isHassms() {
+        return hassms;
+    }
+
+    public boolean isHasmail() {
+        return hasmail;
+    }
+
+    public String getUserid() {
+        return userid;
+    }
+
+    public String getGroupid() {
+        return groupid;
+    }
+
+    public String getConditions() {
+        return conditions;
+    }
+
+    public void setRuleID(int ruleID) {
+        this.ruleID = ruleID;
+    }
+
+    public void setHassms(boolean hassms) {
+        this.hassms = hassms;
+    }
+
+    public void setHasmail(boolean hasmail) {
+        this.hasmail = hasmail;
+    }
+
+    public void setUserid(String userid) {
+        this.userid = userid;
+    }
+
+    public void setGroupid(String groupid) {
+        this.groupid = groupid;
+    }
+
+    public void setConditions(String conditions) {
+        this.conditions = conditions;
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
     }
 
 }

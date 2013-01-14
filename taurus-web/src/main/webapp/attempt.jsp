@@ -16,8 +16,13 @@
 	<div class="container" style="margin-top: 10px">
         <div id="alertContainer" class="container">
         </div>
+        <ul class="breadcrumb">
+            <li><a href="./index.jsp">首页</a> <span class="divider">/</span></li>
+            <li><a href="./schedule.jsp">调度中心</a> <span class="divider">/</span></li>
+            <li><a href="#" class="active">任务历史</a> <span class="divider">/</span></li>
+		</ul>
 		<table cellpadding="0" cellspacing="0" border="0"
-			class="table table-striped table-format" id="example">
+			class="table table-striped table-format table-hover" id="example">
 			<thead>
 				<tr>
 					<th>ID</th>

@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.dp.bigdata</groupId>
 		<artifactId>taurus-parent</artifactId>
-		<version>0.2</version>
+		<version>0.3</version>
 	</parent>
 	<artifactId>taurus-restlet</artifactId>
 	<name>taurus-restlet</name>
@@ -27,7 +27,7 @@
 		<dependency>
 			<groupId>com.dp.bigdata</groupId>
 			<artifactId>taurus-core</artifactId>
-			<version>0.2</version>
+			<version>0.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.hadoop</groupId>

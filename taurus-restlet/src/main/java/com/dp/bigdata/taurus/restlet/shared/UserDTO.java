@@ -1,0 +1,57 @@
+package com.dp.bigdata.taurus.restlet.shared;
+
+import java.io.Serializable;
+
+/**
+ * UserDTO
+ * 
+ * @author damon.zhu
+ */
+public class UserDTO implements Serializable {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -271557894670140723L;
+    private final int id;
+    private String name;
+    private String mail;
+    private String tel;
+
+    public UserDTO(int id, String name, String mail, String tel) {
+        super();
+        this.id = id;
+        this.name = name;
+        this.mail = mail;
+        this.tel = tel;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getMail() {
+        return mail;
+    }
+
+    public String getTel() {
+        return tel;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setMail(String mail) {
+        this.mail = mail;
+    }
+
+    public void setTel(String tel) {
+        this.tel = tel;
+    }
+
+}

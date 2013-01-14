@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.dp.bigdata.taurus.core.ScheduleException;
 import com.dp.bigdata.taurus.core.Scheduler;
 import com.dp.bigdata.taurus.core.TaskStatus;
+import com.dp.bigdata.taurus.generated.mapper.AlertRuleMapper;
 import com.dp.bigdata.taurus.generated.mapper.TaskMapper;
 import com.dp.bigdata.taurus.generated.module.Task;
 import com.dp.bigdata.taurus.generated.module.TaskExample;
@@ -38,8 +39,11 @@ public class TasksResource extends ServerResource implements ITasksResource {
 
 	private static final Log LOG = LogFactory.getLog(TasksResource.class);
 
-	@Autowired
-	private TaskMapper taskMapper;
+    @Autowired
+    private TaskMapper taskMapper;
+
+    @Autowired
+    private AlertRuleMapper alertRuleMapper;
 
 	@Autowired
 	private Scheduler scheduler;
@@ -51,7 +55,7 @@ public class TasksResource extends ServerResource implements ITasksResource {
 	private AgentDeploymentUtils agentDeployUtils;
 
 	@Autowired
-	private RequestExtrator<Task> requestExtractor;
+    private RequestExtrator<TaskDTO> requestExtractor;
 
 	@Autowired
 	private FilePathManager filePathManager;
@@ -63,7 +67,7 @@ public class TasksResource extends ServerResource implements ITasksResource {
         example.or().andStatusEqualTo(TaskStatus.RUNNING);
         example.or().andStatusEqualTo(TaskStatus.SUSPEND);
 		example.or();
-		List<Task> tasks = taskMapper.selectByExample(example);
+        List<Task> tasks = taskMapper.selectByExampleWithBLOBs(example);
 		List<TaskDTO> result = new ArrayList<TaskDTO>();
 		for (Task task : tasks) {
 			TaskDTO dto = TaskConverter.toDto(task);
@@ -80,7 +84,7 @@ public class TasksResource extends ServerResource implements ITasksResource {
 			return;
 		}
 
-		final Task task;
+        final TaskDTO task;
 		Request req = getRequest();
 		try {
 			task = requestExtractor.extractTask(req, false);
@@ -95,7 +99,7 @@ public class TasksResource extends ServerResource implements ITasksResource {
 			final String destPath = filePathManager.getRemotePath(task.getTaskid(), task.getFilename());
 			try {
 				hdfsUtils.writeFile(srcPath, destPath);
-				agentDeployUtils.notifyAllAgent(task, DeployOptions.DEPLOY);
+                agentDeployUtils.notifyAllAgent(task.getTask(), DeployOptions.DEPLOY);
 			} catch (Exception e) {
 				LOG.error(e.getMessage(), e);
                 setStatus(Status.SERVER_ERROR_INTERNAL);
@@ -103,7 +107,8 @@ public class TasksResource extends ServerResource implements ITasksResource {
 			}
 		}
 		try {
-			scheduler.registerTask(task);
+            scheduler.registerTask(task.getTask());
+            alertRuleMapper.insertSelective(task.getAlertRule());
             setStatus(Status.SUCCESS_CREATED);
 		} catch (ScheduleException e) {
 			LOG.error(e.getMessage(), e);

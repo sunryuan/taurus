@@ -93,7 +93,6 @@ function action_update(id) {
 	            success: function(data)
 	            {
 	    			//window.location.reload();
-	            	alert("成功！");
 	            	$("#alertContainer").html('<div id="alertContainer" class="alert alert-success"><button type="button" class="close" data-dismiss="alert">&times;</button> <strong>'
 	    					+ '修改成功</strong></div>');
 	    			$(".alert").alert();

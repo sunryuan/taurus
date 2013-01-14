@@ -84,6 +84,7 @@ public class DependencyTriggle implements Triggle {
                     LOG.info("Attempt " + attempt.getAttemptid() + " has dependency waiting timeout ");
                     //I do think dependency_fail status is unnecessary.
                     attempt.setStatus(AttemptStatus.DEPENDENCY_TIMEOUT);
+                    attempt.setEndtime(new Date());
                     taskAttemptMapper.updateByPrimaryKeySelective(attempt);
                 }
             }

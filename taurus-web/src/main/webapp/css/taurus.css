@@ -76,3 +76,13 @@ a.CLICKABLE {
 .autocomplete-suggestion .selected { background: #c9e6ed; }
 .autocomplete-suggestions div { padding: 5px 10px; white-space: nowrap; overflow: hidden; }
 .autocomplete-suggestion strong { font-weight: normal; color: #3399FF; }
+
+.selector-form .control-group { padding-top: 9px; margin-bottom: 9px; }
+.selector-form .control-label { width: 55px; }
+.selector-form .controls { margin-left: 70px; }
+.selector-form .form-actions { padding-left: 65px; }
+.selector-form select { width: 150px; }
+.selector-form input { width: 140px; }
+.basic-form .control-group { margin-bottom: 6px; }
+.breadcrumb .active { color: #999; }
+

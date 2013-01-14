@@ -2,13 +2,13 @@
 <%@ include file="jsp/common-nav.jsp"%>
 <%@ include file="jsp/common-api.jsp"%>
 
+<%@page import="java.util.ArrayList"%>
 <%@page import="org.restlet.resource.ClientResource"%>
 <%@page import="org.restlet.data.MediaType"%>
 <%@page import="com.dp.bigdata.taurus.restlet.resource.ITasksResource"%>
 <%@page import="com.dp.bigdata.taurus.restlet.shared.TaskDTO"%>
 <%@page import="com.dp.bigdata.taurus.restlet.resource.IPoolsResource"%>
 <%@page import="com.dp.bigdata.taurus.restlet.shared.PoolDTO"%>
-<%@page import="java.util.ArrayList"%>
 
 <% 
 	String []types={"hadoop","wormhole","其他"};
