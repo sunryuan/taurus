@@ -62,8 +62,7 @@ public class TaskRequestExtractor implements RequestExtrator<TaskDTO> {
             task.setLastscheduletime(current);
             String id = idFactory.newTaskID();
             task.setTaskid(id);
-            task.setJobid(id);
-            task.setStatus(TaskStatus.RUNNING);
+            task.setStatus(TaskStatus.getTaskRunState(TaskStatus.RUNNING));
         }
         task.setUpdatetime(current);
         Map<String, String> formMap;

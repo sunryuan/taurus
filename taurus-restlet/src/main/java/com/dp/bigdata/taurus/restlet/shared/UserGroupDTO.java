@@ -1,12 +1,18 @@
 package com.dp.bigdata.taurus.restlet.shared;
 
+import java.io.Serializable;
+
 /**
  * UserGroupDTO
  * 
  * @author damon.zhu
  */
-public class UserGroupDTO {
+public class UserGroupDTO implements Serializable {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 3264461236839609486L;
     private int id;
     private String name;
 

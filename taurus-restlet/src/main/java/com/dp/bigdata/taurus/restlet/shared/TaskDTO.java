@@ -14,250 +14,313 @@ public class TaskDTO implements Serializable {
      */
     private static final long serialVersionUID = 482732054965365244L;
 
-    private final Task task;
-    private final AlertRule rule;
+    private String taskid;
 
-    public TaskDTO() {
-        task = new Task();
-        rule = new AlertRule();
-    }
+    private String name;
+
+    private String creator;
+
+    private String dependencyexpr;
+
+    private Date addtime;
+
+    private Date lastscheduletime;
+
+    private Date updatetime;
+
+    private String crontab;
+
+    private String status;
+
+    private Integer allowmultiinstances;
+
+    private String proxyuser;
+
+    private Integer waittimeout;
+
+    private Integer executiontimeout;
+
+    private Boolean isautoretry;
+
+    private String filename;
+
+    private Integer retrytimes;
+
+    private String command;
+
+    private Integer poolid;
+
+    private String hostname;
+
+    private String type;
+
+    private String description;
+
+    private int ruleID;
+
+    private boolean hassms;
+
+    private boolean hasmail;
+
+    private String userid;
+
+    private String groupid;
+
+    private String conditions;
 
     public Task getTask() {
+        Task task = new Task();
+        task.setAddtime(addtime);
+        task.setAllowmultiinstances(allowmultiinstances);
+        task.setCommand(command);
+        task.setCreator(creator);
+        task.setCrontab(crontab);
+        task.setDependencyexpr(dependencyexpr);
+        task.setDescription(description);
+        task.setExecutiontimeout(executiontimeout);
+        task.setFilename(filename);
+        task.setHostname(hostname);
+        task.setIsautoretry(isautoretry);
+        task.setName(name);
+        task.setLastscheduletime(lastscheduletime);
+        task.setPoolid(poolid);
+        task.setProxyuser(proxyuser);
+        task.setRetrytimes(retrytimes);
+        task.setStatus(TaskStatus.getTaskRunState(status));
+        task.setTaskid(taskid);
+        task.setType(type);
+        task.setUpdatetime(updatetime);
+        task.setWaittimeout(waittimeout);
         return task;
     }
 
     public AlertRule getAlertRule() {
+        AlertRule rule = new AlertRule();
+        rule.setConditions(conditions);
+        rule.setGroupid(groupid);
+        rule.setHasmail(hasmail);
+        rule.setHassms(hassms);
+        rule.setId(ruleID);
+        rule.setJobid(taskid);
+        rule.setUserid(userid);
         return rule;
     }
 
-    public String getTaskid() {
-        return task.getTaskid();
+
+    public String getStatus() {
+        return status;
     }
 
-    public void setTaskid(String taskid) {
-        task.setTaskid(taskid);
+    public String getTaskid() {
+        return taskid;
     }
 
     public String getName() {
-        return task.getName();
-    }
-
-    public void setName(String name) {
-        task.setName(name);
+        return name;
     }
 
     public String getCreator() {
-        return task.getCreator();
-    }
-
-    public void setCreator(String creator) {
-        task.setCreator(creator);
+        return creator;
     }
 
     public String getDependencyexpr() {
-        return task.getDependencyexpr();
-    }
-
-    public void setDependencyexpr(String dependencyexpr) {
-        task.setDependencyexpr(dependencyexpr);
+        return dependencyexpr;
     }
 
     public Date getAddtime() {
-        return task.getAddtime();
-    }
-
-    public void setAddtime(Date addtime) {
-        task.setAddtime(addtime);
+        return addtime;
     }
 
     public Date getLastscheduletime() {
-        return task.getLastscheduletime();
-    }
-
-    public void setLastscheduletime(Date lastscheduletime) {
-        task.setLastscheduletime(lastscheduletime);
+        return lastscheduletime;
     }
 
     public Date getUpdatetime() {
-        return task.getUpdatetime();
-    }
-
-    public void setUpdatetime(Date updatetime) {
-        task.setUpdatetime(updatetime);
+        return updatetime;
     }
 
     public String getCrontab() {
-        return task.getCrontab();
-    }
-
-    public void setCrontab(String crontab) {
-        task.setCrontab(crontab);
-    }
-
-    public String getStatus() {
-        if(task.getStatus() == TaskStatus.RUNNING){
-            return "RUNNING";
-        }else if(task.getStatus() == TaskStatus.SUSPEND){
-            return "SUSPEND";
-        }else{
-            return "UNKNOW";
-        }
-    }
-
-    public void setStatus(Integer status) {
-        task.setStatus(status);
+        return crontab;
     }
 
     public Integer getAllowmultiinstances() {
-        return task.getAllowmultiinstances();
-    }
-
-    public void setAllowmultiinstances(Integer allowmultiinstances) {
-        task.setAllowmultiinstances(allowmultiinstances);
+        return allowmultiinstances;
     }
 
     public String getProxyuser() {
-        return task.getProxyuser();
-    }
-
-    public void setProxyuser(String proxyuser) {
-        task.setProxyuser(proxyuser);
+        return proxyuser;
     }
 
     public Integer getWaittimeout() {
-        return task.getWaittimeout();
-    }
-
-    public void setWaittimeout(Integer waittimeout) {
-        task.setWaittimeout(waittimeout);
+        return waittimeout;
     }
 
     public Integer getExecutiontimeout() {
-        return task.getExecutiontimeout();
-    }
-
-    public void setExecutiontimeout(Integer executiontimeout) {
-        task.setExecutiontimeout(executiontimeout);
+        return executiontimeout;
     }
 
     public Boolean getIsautoretry() {
-        return task.getIsautoretry();
-    }
-
-    public void setIsautoretry(Boolean isautoretry) {
-        task.setIsautoretry(isautoretry);
+        return isautoretry;
     }
 
     public Integer getRetrytimes() {
-        return task.getRetrytimes();
-    }
-
-    public void setRetrytimes(Integer retrytimes) {
-        task.setRetrytimes(retrytimes);
+        return retrytimes;
     }
 
     public String getCommand() {
-        return task.getCommand();
-    }
-
-    public void setCommand(String command) {
-        task.setCommand(command);
-    }
-
-    public String getHostname() {
-        return task.getHostname();
-    }
-
-    public void setHostname(String hostname) {
-        task.setHostname(hostname);
+        return command;
     }
 
     public Integer getPoolid() {
-        return task.getPoolid();
+        return poolid;
     }
 
-    public void setPoolid(Integer poolid) {
-        task.setPoolid(poolid);
+    public String getHostname() {
+        return hostname;
     }
 
     public String getType() {
-        return task.getType();
-    }
-
-    public void setType(String type) {
-        task.setType(type);
-    }
-
-    public String getFilename() {
-        return task.getFilename();
-    }
-
-    public void setFilename(String filename) {
-        task.setFilename(filename);
+        return type;
     }
 
     public String getDescription() {
-        return task.getDescription();
+        return description;
+    }
+
+    public void setTaskid(String taskid) {
+        this.taskid = taskid;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setCreator(String creator) {
+        this.creator = creator;
+    }
+
+    public void setDependencyexpr(String dependencyexpr) {
+        this.dependencyexpr = dependencyexpr;
+    }
+
+    public void setAddtime(Date addtime) {
+        this.addtime = addtime;
+    }
+
+    public void setLastscheduletime(Date lastscheduletime) {
+        this.lastscheduletime = lastscheduletime;
+    }
+
+    public void setUpdatetime(Date updatetime) {
+        this.updatetime = updatetime;
+    }
+
+    public void setCrontab(String crontab) {
+        this.crontab = crontab;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public void setAllowmultiinstances(Integer allowmultiinstances) {
+        this.allowmultiinstances = allowmultiinstances;
+    }
+
+    public void setProxyuser(String proxyuser) {
+        this.proxyuser = proxyuser;
+    }
+
+    public void setWaittimeout(Integer waittimeout) {
+        this.waittimeout = waittimeout;
+    }
+
+    public void setExecutiontimeout(Integer executiontimeout) {
+        this.executiontimeout = executiontimeout;
+    }
+
+    public void setIsautoretry(Boolean isautoretry) {
+        this.isautoretry = isautoretry;
+    }
+
+    public void setRetrytimes(Integer retrytimes) {
+        this.retrytimes = retrytimes;
+    }
+
+    public void setCommand(String command) {
+        this.command = command;
+    }
+
+    public void setPoolid(Integer poolid) {
+        this.poolid = poolid;
+    }
+
+    public void setHostname(String hostname) {
+        this.hostname = hostname;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public void setDescription(String description) {
-        task.setDescription(description);
+        this.description = description;
     }
 
-    public Integer getId() {
-        return rule.getId();
+    public int getRuleID() {
+        return ruleID;
     }
 
-    public void setId(Integer id) {
-        rule.setId(id);
+    public boolean isHassms() {
+        return hassms;
     }
 
-    public String getJobid() {
-        return rule.getJobid();
-    }
-
-    public void setJobid(String jobid) {
-        rule.setJobid(jobid);
-    }
-
-    public Boolean getHassms() {
-        return rule.getHassms();
-    }
-
-    public void setHassms(Boolean hassms) {
-        rule.setHassms(hassms);
-    }
-
-    public Boolean getHasmail() {
-        return rule.getHasmail();
-    }
-
-    public void setHasmail(Boolean hasmail) {
-        rule.setHasmail(hasmail);
+    public boolean isHasmail() {
+        return hasmail;
     }
 
     public String getUserid() {
-        return rule.getUserid();
-    }
-
-    public void setUserid(String userid) {
-        rule.setUserid(userid);
+        return userid;
     }
 
     public String getGroupid() {
-        return rule.getGroupid();
-    }
-
-    public void setGroupid(String groupid) {
-        rule.setGroupid(groupid);
+        return groupid;
     }
 
     public String getConditions() {
-        return rule.getConditions();
+        return conditions;
+    }
+
+    public void setRuleID(int ruleID) {
+        this.ruleID = ruleID;
+    }
+
+    public void setHassms(boolean hassms) {
+        this.hassms = hassms;
+    }
+
+    public void setHasmail(boolean hasmail) {
+        this.hasmail = hasmail;
+    }
+
+    public void setUserid(String userid) {
+        this.userid = userid;
+    }
+
+    public void setGroupid(String groupid) {
+        this.groupid = groupid;
     }
 
     public void setConditions(String conditions) {
-        rule.setConditions(conditions);
+        this.conditions = conditions;
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
     }
 
 }
