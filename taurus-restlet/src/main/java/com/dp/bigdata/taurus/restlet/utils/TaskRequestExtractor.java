@@ -24,18 +24,22 @@ import com.dp.bigdata.taurus.core.CronExpression;
 import com.dp.bigdata.taurus.core.IDFactory;
 import com.dp.bigdata.taurus.core.TaskStatus;
 import com.dp.bigdata.taurus.core.parser.DependencyParser;
-import com.dp.bigdata.taurus.generated.module.Task;
 import com.dp.bigdata.taurus.restlet.exception.DuplicatedNameException;
 import com.dp.bigdata.taurus.restlet.exception.InvalidArgumentException;
 import com.dp.bigdata.taurus.restlet.resource.impl.NameResource;
 import com.dp.bigdata.taurus.restlet.shared.GWTTaskDetailControlName;
+import com.dp.bigdata.taurus.restlet.shared.TaskDTO;
 
 /**
  * TaskRequestExtractor
  * 
  * @author damon.zhu
  */
-public class TaskRequestExtractor implements RequestExtrator<Task> {
+public class TaskRequestExtractor implements RequestExtrator<TaskDTO> {
+
+    private static final String MAIL_ONLY = "1";
+    private static final String SMS_ONLY = "2";
+    private static final String MAIL_AND_SMS = "3";
 
     @Autowired
     private IDFactory idFactory;
@@ -50,15 +54,15 @@ public class TaskRequestExtractor implements RequestExtrator<Task> {
     private NameResource nameResource;
 
     @Override
-    public Task extractTask(Request request, boolean isUpdateAction) throws Exception {
-        Task task = new Task();
+    public TaskDTO extractTask(Request request, boolean isUpdateAction) throws Exception {
+        TaskDTO task = new TaskDTO();
         Date current = new Date();
         if (!isUpdateAction) {
             task.setAddtime(current);
             task.setLastscheduletime(current);
             String id = idFactory.newTaskID();
             task.setTaskid(id);
-            task.setStatus(TaskStatus.RUNNING);
+            task.setStatus(TaskStatus.getTaskRunState(TaskStatus.RUNNING));
         }
         task.setUpdatetime(current);
         Map<String, String> formMap;
@@ -129,6 +133,23 @@ public class TaskRequestExtractor implements RequestExtrator<Task> {
                 } else {
                     task.setIsautoretry(false);
                 }
+            } else if (key.equals(GWTTaskDetailControlName.ALERTCONDITION.getName())) {
+                task.setConditions(value.trim());
+            } else if (key.equals(GWTTaskDetailControlName.ALERTGROUP.getName())) {
+                task.setGroupid(value.trim());
+            } else if (key.equals(GWTTaskDetailControlName.ALERTTYPE.getName())) {
+                if (StringUtils.isNotBlank(value)) {
+                    if (value.equalsIgnoreCase(MAIL_ONLY)) {
+                        task.setHasmail(true);
+                    } else if (value.equalsIgnoreCase(SMS_ONLY)) {
+                        task.setHassms(true);
+                    } else if (value.equalsIgnoreCase(MAIL_AND_SMS)) {
+                        task.setHasmail(true);
+                        task.setHassms(true);
+                    }
+                }
+            } else if (key.equals(GWTTaskDetailControlName.ALERTUSER.getName())) {
+                task.setUserid(value);
             }
         }
         validate(task, isUpdateAction);
@@ -143,7 +164,7 @@ public class TaskRequestExtractor implements RequestExtrator<Task> {
         return items;
     }
 
-    private void validate(Task task, boolean isUpdateAction) throws Exception {
+    private void validate(TaskDTO task, boolean isUpdateAction) throws Exception {
         if (StringUtils.isBlank(task.getCreator())) {
             throw new InvalidArgumentException("Cannot get creator name from request");
         }

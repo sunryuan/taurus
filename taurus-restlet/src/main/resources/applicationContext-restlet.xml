@@ -32,6 +32,9 @@
 	<bean name="/api/attempt/{attempt_id}" id="attemptResource"
 		autowire="byName" scope="prototype"
 		class="com.dp.bigdata.taurus.restlet.resource.impl.AttemptResource" />
+	<bean name="/api/status" id="attemptStatusResource"
+		autowire="byName" scope="prototype"
+		class="com.dp.bigdata.taurus.restlet.resource.impl.AttemptStatusResource" />
 	<bean name="/api/attempt" id="attemptsResource" autowire="byName"
 		scope="prototype" class="com.dp.bigdata.taurus.restlet.resource.impl.AttemptsResource" />
 	<bean name="/api/host/{hostname}" id="hostResource" autowire="byName"
