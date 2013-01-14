@@ -81,26 +81,26 @@ public class CreateTaskServlet extends HttpServlet{
         HttpClient httpclient = new DefaultHttpClient();
         // Determine final URL
         StringBuffer uri = new StringBuffer();
-        Enumeration keys = req.getParameterNames();
-        while (keys.hasMoreElements())
-        {
-           String key = (String)keys.nextElement();
-
-           //To retrieve a single value
-           String value = req.getParameter(key);
-
-           System.out.println(key+":"+value);
-        }   
-        keys = req.getAttributeNames();
-        while (keys.hasMoreElements() )
-        {
-           String key = (String)keys.nextElement();
-
-           //To retrieve a single value
-           String value = (String) req.getAttribute(key);
-
-           System.out.println(key+"/"+value);
-        }
+//        Enumeration keys = req.getParameterNames();
+//        while (keys.hasMoreElements())
+//        {
+//           String key = (String)keys.nextElement();
+//
+//           //To retrieve a single value
+//           String value = req.getParameter(key);
+//
+//           System.out.println(key+":"+value);
+//        }   
+//        keys = req.getAttributeNames();
+//        while (keys.hasMoreElements() )
+//        {
+//           String key = (String)keys.nextElement();
+//
+//           //To retrieve a single value
+//           String value = (String) req.getAttribute(key);
+//
+//           System.out.println(key+"/"+value);
+//        }
         if(req.getParameter("update")==null){
             uri.append(targetUri);
         } else {
