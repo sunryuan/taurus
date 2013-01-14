@@ -28,7 +28,7 @@ public final class ZooKeeperProvider implements Provider<ZooKeeper>{
 			String connectString = props.getProperty(KEY_CONNECT_STRING);
 			int sessionTimeout = Integer.parseInt(props.getProperty(KEY_SESSION_TIMEOUT));
 			ZooKeeper zk = new ZooKeeper(connectString, sessionTimeout, null);
-			Thread.sleep(5*1000);
+			Thread.sleep(10*1000);
 			return zk ;
 		} catch (Exception e) {
 		    LOG.error(e.getMessage(),e);
