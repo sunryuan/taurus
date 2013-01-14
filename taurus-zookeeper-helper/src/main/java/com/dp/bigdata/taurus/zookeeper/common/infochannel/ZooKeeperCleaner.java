@@ -60,8 +60,8 @@ public class ZooKeeperCleaner {
 	
 	public static void main(String []args) {
 		ZooKeeperCleaner cleaner = new ZooKeeperCleaner();
-		cleaner.run(args);
-//		cleaner.read("taurus/schedules/192.168.7.80/attempt_201209241101_0001_0175_0001/status");
+		//cleaner.run(args);
+		cleaner.read("taurus/schedules/10.1.1.161/attempt_201212281411_0001_0043_0001/status");
 //		cleaner.read("taurus/schedules/192.168.7.80/attempt_201209241101_0009_1439_0001/status");
 //		cleaner.read("taurus/schedules/192.168.7.80/attempt_201209241101_0009_1440_0001/status");
 

@@ -29,12 +29,12 @@ import com.google.inject.Injector;
  */
 public class DefaultExecutorManager implements ExecutorManager{
 	
-	private static final Log s_logger = LogFactory.getLog(DefaultExecutorManager.class);
+	private static final Log LOGGER = LogFactory.getLog(DefaultExecutorManager.class);
 	private static final int DEFAULT_TIME_OUT_IN_SECONDS = 10;
 	private static Map<String, Lock> attemptIDToLockMap = new HashMap<String, Lock>();
 
-	private final ScheduleInfoChannel dic;
-	private final int opTimeout = DEFAULT_TIME_OUT_IN_SECONDS;
+	private ScheduleInfoChannel dic;
+	private int opTimeout = DEFAULT_TIME_OUT_IN_SECONDS;
 	
 	public DefaultExecutorManager(){
 		Injector injector = Guice.createInjector(new ScheduleInfoChanelModule());
@@ -52,7 +52,6 @@ public class DefaultExecutorManager implements ExecutorManager{
 		}
 	}
 	
-    @Override
     public void execute(ExecuteContext context) throws ExecuteException {
     	
     	String agentIP = context.getAgentIP();
@@ -65,6 +64,7 @@ public class DefaultExecutorManager implements ExecutorManager{
     	if(!dic.exists(MachineType.AGENT,agentIP)){
 			ScheduleStatus status = new ScheduleStatus();
 			status.setStatus(ScheduleStatus.AGENT_UNAVAILABLE);
+			LOGGER.error("Agent unavailable");
 			throw new ExecuteException("Agent unavailable");
 		}else{
 			ScheduleStatus status = (ScheduleStatus) dic.getStatus(agentIP, attemptID, null);
@@ -82,6 +82,7 @@ public class DefaultExecutorManager implements ExecutorManager{
 					lock.lock();
 					dic.execute(agentIP, attemptID, conf, status);
 				} catch (RuntimeException e) {
+	                LOGGER.error("Attempt "+attemptID + " schedule failed",e);
 					status.setStatus(ScheduleStatus.SCHEDULE_FAILED);
 					throw new ExecuteException(e);
 				}	
@@ -90,12 +91,12 @@ public class DefaultExecutorManager implements ExecutorManager{
 				}
 			}
 			else{
+			    LOGGER.error("Attempt "+attemptID + " has already scheduled");
 				throw new ExecuteException("Attempt "+attemptID + " has already scheduled");
 			}
 		}
     }
 
-    @Override
     public void kill(ExecuteContext context) throws ExecuteException {
     	String agentIP = context.getAgentIP();
     	String attemptID = context.getAttemptID();
@@ -103,13 +104,13 @@ public class DefaultExecutorManager implements ExecutorManager{
     	
     	ScheduleStatus status = new ScheduleStatus();
 		if(!dic.exists(MachineType.AGENT, agentIP)){
+	        LOGGER.error("Agent unavailable");
 			throw new ExecuteException("Agent unavailable");
 		}else{
 			status = (ScheduleStatus) dic.getStatus(agentIP, attemptID, null);
-            if (status == null || status.getStatus() == ScheduleStatus.DELETE_SUCCESS
-                    || status.getStatus() == ScheduleStatus.DELETE_FAILED
+			if(status == null||status.getStatus() == ScheduleStatus.DELETE_SUCCESS
 					||status.getStatus() == ScheduleStatus.EXECUTE_SUCCESS||status.getStatus() == ScheduleStatus.EXECUTE_FAILED){
-				s_logger.error("Job Instance:" + attemptID + " cannot be killed!");
+				LOGGER.error("Job Instance:" + attemptID + " cannot be killed!");
 				throw new ExecuteException("Job Instance:" + attemptID + " cannot be killed!");
 			}else{
 				status.setStatus(ScheduleStatus.DELETE_SUBMITTED);
@@ -123,6 +124,7 @@ public class DefaultExecutorManager implements ExecutorManager{
 						status = (ScheduleStatus) dic.getStatus(agentIP, attemptID, null);
 						if(status != null && status.getStatus() == ScheduleStatus.DELETE_SUBMITTED){
 							status.setStatus(ScheduleStatus.DELETE_TIMEOUT);
+			                LOGGER.error("Delete " + attemptID + " timeout");
 							throw new ExecuteException("Delete " + attemptID + " timeout");
 						}
 					}else{
@@ -131,28 +133,31 @@ public class DefaultExecutorManager implements ExecutorManager{
 					
 					dic.completeKill(agentIP, attemptID);
 				} catch(InterruptedException e){
+	                LOGGER.error("Delete " + attemptID + " failed" ,e);
 					throw new ExecuteException("Delete " + attemptID + " failed");
 				}
 				finally{
 					lock.unlock();
 				}
 				if(status.getStatus()!=ScheduleStatus.DELETE_SUCCESS) {
+                    LOGGER.error("Delete " + attemptID + " failed");
 					throw new ExecuteException("Delete " + attemptID + " failed");
 				}
 			}
 		}
     }
 
-    @Override
     public ExecuteStatus getStatus(ExecuteContext context) throws ExecuteException {
     	String agentIP = context.getAgentIP();
     	String attemptID = context.getAttemptID();
 
     	if(!dic.exists(MachineType.AGENT, agentIP)){
+            LOGGER.error("Agent unavailable");
 			throw new ExecuteException("Agent unavailable");
 		} else{
 			ScheduleStatus status = (ScheduleStatus) dic.getStatus(agentIP, attemptID, null);
 			if(status == null) {
+		        LOGGER.error("Fail to get status");
 				throw new ExecuteException("Fail to get status");
 			}
 			ExecuteStatus result = null;
@@ -163,10 +168,6 @@ public class DefaultExecutorManager implements ExecutorManager{
 				result = new ExecuteStatus(ExecuteStatus.SUCCEEDED);
 			} else if(statusCode == ScheduleStatus.DELETE_SUCCESS) {
 				result = new ExecuteStatus(ExecuteStatus.KILLED);
-			} else if(statusCode == ScheduleStatus.SCHEDULE_FAILED) {
-				result = new ExecuteStatus(ExecuteStatus.SUBMIT_FAIL);
-			} else if(statusCode == ScheduleStatus.SCHEDULE_SUCCESS) {
-				result = new ExecuteStatus(ExecuteStatus.SUBMIT_SUCCESS);
 			} else {
 				result = new ExecuteStatus(ExecuteStatus.RUNNING);
 			}
@@ -175,19 +176,18 @@ public class DefaultExecutorManager implements ExecutorManager{
 		}
     }
 
-    @Override
     public List<String> registerNewHost() {
         // TODO Auto-generated method stub
         return null;
     }
     private static final class ScheduleStatusWatcher implements Watcher{
 
-		private final Condition scheduleFinish;
-		private final Lock lock;
+		private Condition scheduleFinish;
+		private Lock lock;
 		private ScheduleStatus status;
-		private final ScheduleInfoChannel dic;
-		private final String agentIp;
-		private final String attemptID;
+		private ScheduleInfoChannel dic;
+		private String agentIp;
+		private String attemptID;
 
 		ScheduleStatusWatcher(Lock lock, Condition scheduleFinish, ScheduleInfoChannel cs, String agentIp,
 				String attemptID){
@@ -215,3 +215,4 @@ public class DefaultExecutorManager implements ExecutorManager{
 	}
 
 }
+

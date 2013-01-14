@@ -13,7 +13,7 @@
     <%@page import="com.dp.bigdata.taurus.restlet.shared.PoolDTO"%>
     <%@page import="java.util.ArrayList"%>
     <%@page import="org.restlet.data.MediaType"%>
-    <%@page import="java.text.SimpleDateFormat"%>
+
    	<% ClientResource cr = new ClientResource(host + "pool");
    		IPoolsResource resource = cr.wrap(IPoolsResource.class);
     	cr.accept(MediaType.APPLICATION_XML);
@@ -42,7 +42,7 @@
                     <div id="host"  class="control-group">
                     	<label class="control-label"  for="host">部署的机器*</label>
                     	<div class="controls">
-    						<input type="text" id="host" name="hostname" class="input-big field"  placeholder="10.0.0.1">
+    						<input type="text" id="hostname" name="hostname" class="input-big field"  placeholder="10.0.0.1">
     					</div>
 					</div>
                     
@@ -104,7 +104,7 @@
             		</div>
           		</div>
                 <div class="control-group">
-            		<label class="control-label" for="proxyUser">以该用户身份运行（默认nobody）</label>
+            		<label class="control-label" for="proxyUser">以该用户身份运行（默认nobody,且不可为root）</label>
             		<div class="controls">
               			<input type="text" class="input-xxlarge field" id="proxyUser" name="proxyUser"  placeholder="userName">
             		</div>
@@ -118,7 +118,7 @@
                 <div class="control-group">
             		<label class="control-label" for="description">描述*</label>
             		<div class="controls">
-              			<input type="text" class="input-xxlarge field" id="description" name="description" value="" placeholder="description of task">
+              			<input type="text" class="input-xxlarge field" id="description" name="description" placeholder="description of task">
             		</div>
           		</div>
                 <input type="text" class="field" style="display:none" id="creator" name="creator" value="<%=(String)session.getAttribute(com.dp.bigdata.taurus.web.servlet.LoginServlet.USER_NAME)%>">
@@ -130,34 +130,68 @@
 				<fieldset>
 					<legend>可选设置</legend>
 					<div class="control-group">
-            			<label class="control-label">最长执行时间（分钟）*</label>
+            			<label class="control-label" for="maxExecutionTime">最长执行时间（分钟）*</label>
             			<div class="controls">
               				<input type="number" class="input-small field" id="maxExecutionTime" name="maxExecutionTime" style="text-align:right" value=60>
             			</div>
           			</div>
           			<div class="control-group">
-            			<label class="control-label">依赖</label>
+            			<label class="control-label" for="dependency" >依赖</label>
             			<div class="controls">
               				<input type="text" class="input-small field" id="dependency" name="dependency" placeholder="dependency expression"  value="">
             			</div>
           			</div>
           			<div class="control-group">
-            			<label class="control-label">最长等待时间（分钟）*</label>
+            			<label class="control-label" for="maxWaitTime">最长等待时间（分钟）*</label>
             			<div class="controls">
               				<input type="number" class="input-small field" id="maxWaitTime" name="maxWaitTime" style="text-align:right" value=60>
             			</div>
           			</div>
           			
           			<div class="control-group">
-            			<label class="control-label">重试次数*</label>
+            			<label class="control-label" for="retryTimes">重试次数*</label>
             			<div class="controls">
               				<input type="number" class="input-small field" id="retryTimes" name="retryTimes" style="text-align:right" value=0>
             			</div>
           			</div>
           			<div class="control-group">
-            			<label class="control-label">允许同时执行实例个数*</label>
+            			<label class="control-label" for="multiInstance">允许同时执行实例个数*</label>
             			<div class="controls">
               				<input type="number" class="input-small field" id="multiInstance" name="multiInstance" style="text-align:right" value=1>
+            			</div>
+          			</div>
+          			<div class="control-group">
+            			<label class="control-label">选择何时收到报警*</label>
+            			<div class="controls">
+              				<input type="checkbox" class="input-large field" id="when" name="multiInstance" checked="checked">失败
+              				<input type="checkbox" class="input-small field" id="when" name="multiInstance">超时
+            			</div>
+          			</div>
+          			
+          			<div class="control-group">
+            			<label class="control-label">选择报警方式*</label>
+            			<div class="controls">
+              				<select class="input-small field" id="how" name="multiInstance">
+              					<option>邮件</option>
+               					<option>短信</option>
+               					<option>邮件和短信</option>
+               					<option>无</option>           				
+              				</select>				
+            			</div>
+          			</div>
+          			
+          			<div class="control-group">
+            			<label class="control-label">选择报警接收人</label>
+            			<div class="controls">
+              				<input type="text" class="input-large field" id="query" name="who">
+              				
+            			</div>
+          			</div>
+          			
+          			<div class="control-group">
+            			<label class="control-label">选择报警接收组</label>
+            			<div class="controls">
+              				<input type="text" class="input-large field" id="query" name="which">
             			</div>
           			</div>
   				</fieldset>
@@ -181,6 +215,7 @@
 	<script src="js/bwizard.js" type="text/javascript"></script>
     <script src="js/jquery.validate.min.js" type="text/javascript"></script>
     <script src="js/taurus_validate.js" type="text/javascript"></script>
+    <script src="js/jquery.autocomplete.min.js" type="text/javascript"></script>
 	<script src="js/task.js" type="text/javascript"></script>
 </body> 
 </html>

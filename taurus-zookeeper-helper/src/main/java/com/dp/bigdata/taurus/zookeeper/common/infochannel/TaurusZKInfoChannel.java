@@ -18,10 +18,10 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.KeeperException.Code;
+import org.apache.zookeeper.KeeperException.SessionExpiredException;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.ZooKeeper;
-import org.apache.zookeeper.ZooKeeper.States;
 import org.apache.zookeeper.data.Stat;
 
 import com.dp.bigdata.taurus.zookeeper.common.MachineType;
@@ -47,7 +47,7 @@ abstract class TaurusZKInfoChannel implements ClusterInfoChannel{
 	protected ZooKeeper zk;
 	protected MachineType mt;
 	protected String ip;
-	
+	protected Watcher watcher ;
 
 	@Inject
 	TaurusZKInfoChannel(ZooKeeper zk){
@@ -61,11 +61,7 @@ abstract class TaurusZKInfoChannel implements ClusterInfoChannel{
 	        Injector injector = Guice.createInjector(new ZooKeeperModule());
 	        zk = injector.getInstance(ZooKeeper.class);
 	        zk.register(watcher);
-	        for(int i=0; i<10; i++){
-	            if(zk.getState()!=States.CONNECTED){
-	                Thread.sleep(1000);
-	            }
-	        }
+	        Thread.sleep(20*1000);
 	        mkPath(CreateMode.EPHEMERAL, BASE, HEARTBEATS, mt.getName(), REALTIME, ip);
         } catch(Exception e){
             throw new TaurusZKException(e);
@@ -159,17 +155,30 @@ abstract class TaurusZKInfoChannel implements ClusterInfoChannel{
 
 	protected List<String> getChildrenNodeName(Watcher watcher, String ... path) 
 	throws KeeperException, InterruptedException{
-		return zk.getChildren(getFullPath(path), watcher);
+	    try {
+	        return zk.getChildren(getFullPath(path), watcher);
+	    } catch (SessionExpiredException e) {
+            this.reconnectToCluster(watcher);
+            return zk.getChildren(getFullPath(path), watcher);
+        }
 	}
 
 	protected void addChildrenWatcher(Watcher watcher, String... path) 
 	throws KeeperException, InterruptedException{
-		zk.getChildren(getFullPath(path), watcher);
+	    try {
+		    zk.getChildren(getFullPath(path), watcher);
+	    } catch (SessionExpiredException e) {
+	        this.reconnectToCluster(watcher);
+	    }
 	}
 
 	protected void addDataWatcher(Watcher watcher, String... path) 
 	throws KeeperException, InterruptedException{
-		zk.getData(getFullPath(path), watcher, null);
+	    try {
+	        zk.getData(getFullPath(path), watcher, null);
+	    } catch (SessionExpiredException e) {
+            this.reconnectToCluster(watcher);
+        }
 	}
 
 	private String getFullPath(String... node){
@@ -189,7 +198,11 @@ abstract class TaurusZKInfoChannel implements ClusterInfoChannel{
 	throws KeeperException, InterruptedException, IOException{
 		try{
 			zk.create(getFullPath(node), changeObjectToByteArray(data), Ids.OPEN_ACL_UNSAFE, mode);
-		} catch(KeeperException e){
+		} catch (SessionExpiredException e) {
+		    this.reconnectToCluster(watcher);
+		    zk.create(getFullPath(node), changeObjectToByteArray(data), Ids.OPEN_ACL_UNSAFE, mode);
+		}
+		catch(KeeperException e){
 			if(e.code() != Code.NODEEXISTS){
 				throw e;
 			}
@@ -203,8 +216,14 @@ abstract class TaurusZKInfoChannel implements ClusterInfoChannel{
 
 	protected boolean existPath(String... node) 
 	throws KeeperException, InterruptedException{
-		Stat s = zk.exists(getFullPath(node), null);
-		return (s != null);
+	    try {
+	        Stat s = zk.exists(getFullPath(node), null);
+	        return (s != null);
+	    } catch (SessionExpiredException e) {
+	        reconnectToCluster(watcher);
+	        Stat s = zk.exists(getFullPath(node), null);
+	        return (s != null);
+	    }
 	}
 
 	protected void rmPath(String... node) 
@@ -214,7 +233,14 @@ abstract class TaurusZKInfoChannel implements ClusterInfoChannel{
 			if(stat != null){
 				zk.delete(getFullPath(node), stat.getVersion());
 			}
-		} catch(KeeperException e){
+		}catch (SessionExpiredException e) {
+            reconnectToCluster(watcher);
+            Stat stat = zk.exists(getFullPath(node), null);
+            if(stat != null){
+                zk.delete(getFullPath(node), stat.getVersion());
+            }
+        }
+		catch(KeeperException e){
 			if(e.code() != Code.NONODE){
 				throw e;
 			}
@@ -227,13 +253,24 @@ abstract class TaurusZKInfoChannel implements ClusterInfoChannel{
 		if(stat == null){
 			throw KeeperException.create(Code.NONODE, getFullPath(node));	
 		}
-		zk.setData(getFullPath(node), changeObjectToByteArray(data), stat.getVersion());
+		try {
+		    zk.setData(getFullPath(node), changeObjectToByteArray(data), stat.getVersion());
+		} catch (SessionExpiredException e) {
+	        reconnectToCluster(watcher);
+	        zk.setData(getFullPath(node), changeObjectToByteArray(data), stat.getVersion());
+	    }
 	}
 
 	protected Object getData(Watcher watcher, String... node) 
 	throws KeeperException, InterruptedException, IOException, ClassNotFoundException{
-		byte[] bytes = zk.getData(getFullPath(node), watcher, null);
-		return changeByteArrayToObject(bytes);
+	    try {
+	        byte[] bytes = zk.getData(getFullPath(node), watcher, null);
+	        return changeByteArrayToObject(bytes);
+	    } catch (SessionExpiredException e) {
+            reconnectToCluster(watcher);
+            byte[] bytes = zk.getData(getFullPath(node), watcher, null);
+            return changeByteArrayToObject(bytes);
+	    }
 	}
 
 	protected Object getData(String... node) 
@@ -282,6 +319,8 @@ abstract class TaurusZKInfoChannel implements ClusterInfoChannel{
      */
     @Override
     public void registerWatcher(Watcher w) {
+        watcher = w;
         zk.register(w);   
     }
+    
 }
