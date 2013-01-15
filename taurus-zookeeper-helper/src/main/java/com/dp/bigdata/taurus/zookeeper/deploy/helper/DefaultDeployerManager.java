@@ -23,7 +23,7 @@ import com.google.inject.Injector;
 public class DefaultDeployerManager implements Deployer{
 
 
-	private static final Log s_logger = LogFactory.getLog(DefaultDeployerManager.class);
+	private static final Log LOGGER = LogFactory.getLog(DefaultDeployerManager.class);
 	private static final int DEFAULT_TIME_OUT_IN_SECONDS = 60;
 	private static Map<String, Lock> taskIDToLockMap = new HashMap<String, Lock>();
 
@@ -51,6 +51,7 @@ public class DefaultDeployerManager implements Deployer{
     	String hdfsPath = context.getHdfsPath();
     	
     	if(!dic.exists(MachineType.AGENT,agentIp)){
+    	    LOGGER.error("Agent unavailable");
 			throw new DeploymentException("Agent unavailable");
 		}else{
 			DeploymentStatus status = (DeploymentStatus) dic.getStatus(agentIp, taskId, null);
@@ -71,6 +72,7 @@ public class DefaultDeployerManager implements Deployer{
 						if(status != null && status.getStatus() == DeploymentStatus.DEPLOY_SUBMITTED){
 							status.setStatus(DeploymentStatus.DEPLOY_TIMEOUT);
 							dic.updateStatus(agentIp, taskId, status);
+					        LOGGER.error("Task " + taskId + "deploy time out");
 							throw new DeploymentException("Task " + taskId + "deploy time out");
 						}
 					}else{
@@ -81,17 +83,20 @@ public class DefaultDeployerManager implements Deployer{
 						dic.completeDeploy(agentIp, taskId);
 					}
 				} catch (InterruptedException e){
+                    LOGGER.error("Task " + taskId + " deploy failed",e);
 					throw new DeploymentException(e);
 				}
 				finally{
 					lock.unlock();
 				}
 				if(status.getStatus() != DeploymentStatus.DEPLOY_SUCCESS) {
+                    LOGGER.error("Task " + taskId + " deploy failed");
                     throw new DeploymentException("Task " + taskId + " deploy failed");
 				}
 				
 			}
 			else{
+                LOGGER.error("Task " + taskId + " deploy failed");
 				throw new DeploymentException("Task " + taskId + " is already deployed!");
 			}
 		}
@@ -101,14 +106,16 @@ public class DefaultDeployerManager implements Deployer{
     @Override
     public void undeploy(String agentIp, DeploymentContext context) throws DeploymentException {
     	String taskId = context.getTaskID();
-    	String hdfsPath = context.getHdfsPath();
+//    	String hdfsPath = context.getHdfsPath();
     	
     	DeploymentStatus status = new DeploymentStatus();
 		if(!dic.exists(MachineType.AGENT, agentIp)){
+		    LOGGER.error("Agent unavailable");
 			throw new DeploymentException("Agent unavailable");
 		}else{
 			status = (DeploymentStatus) dic.getStatus(agentIp, taskId, null);
 			if(status == null){
+		        LOGGER.error("Task " + taskId + " is already deleted!");
 				throw new DeploymentException("Task " + taskId + " is already deleted!");
 			}else{
 				status.setStatus(DeploymentStatus.DELETE_SUBMITTED);
@@ -131,11 +138,13 @@ public class DefaultDeployerManager implements Deployer{
 						dic.completeUndeploy(agentIp, taskId);
 					}
 				} catch (InterruptedException e){
+				    LOGGER.error("Task " + taskId + "delete failed",e);
 					throw new DeploymentException(e);
 				} finally{
 					lock.unlock();
 				}
 				if(status.getStatus() != DeploymentStatus.DELETE_SUCCESS) {
+                    LOGGER.error("Task " + taskId + "delete failed");
 					throw new DeploymentException("Task " + taskId + "delete failed");
 				}
 			}

@@ -1,16 +1,166 @@
-<a href="#myModal" role="button" class="btn" data-toggle="modal">Launch demo modal</a>
- 
-<!-- Modal -->
-<div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<%@ page contentType="text/html;charset=utf-8" %>
+<%@ include file="jsp/common-nav.jsp"%>
+<%@ include file="jsp/common-api.jsp"%>
+
+<%@page import="java.util.ArrayList"%>
+<%@page import="org.restlet.resource.ClientResource"%>
+<%@page import="org.restlet.data.MediaType"%>
+<%@page import="com.dp.bigdata.taurus.restlet.resource.ITasksResource"%>
+<%@page import="com.dp.bigdata.taurus.restlet.shared.TaskDTO"%>
+<%@page import="com.dp.bigdata.taurus.restlet.resource.IPoolsResource"%>
+<%@page import="com.dp.bigdata.taurus.restlet.shared.PoolDTO"%>
+
+<% 
+	String []types={"hadoop","wormhole","其他"};
+	ClientResource crp = new ClientResource(host + "pool");
+	IPoolsResource poolResource = crp.wrap(IPoolsResource.class);
+	crp.accept(MediaType.APPLICATION_XML);
+	ArrayList<PoolDTO> pools = poolResource.retrieve();
+	int UNALLOCATED = 1;
+	ClientResource cr = new ClientResource(host + "task");
+	ITasksResource resource = cr.wrap(ITasksResource.class);
+	cr.accept(MediaType.APPLICATION_XML);
+	ArrayList<TaskDTO> tasks = resource.retrieve();
+	for(TaskDTO dto : tasks){
+		String hostName = dto.getHostname();
+		boolean poolDeploy = (hostName==null || hostName.equals(""));
+%>
+<div id="detail_<%=dto.getTaskid()%>" class="modal hide fade " style="width:600px">
   <div class="modal-header">
-    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <button type="button" class="close" data-dismiss="modal">x</button>
     <h3 id="myModalLabel">Task详细信息</h3>
   </div>
   <div class="modal-body">
-    <p>One fine body…</p>
+  	<form id="form_<%=dto.getTaskid()%>" class="form-horizontal task-form">
+  	
+  		<fieldset>
+		<% if(!poolDeploy) {%>
+                    <div id="host"  class="control-group">
+                    	<label class="control-label"  for="host">部署的机器*</label>
+                    	<div class="controls">
+    						<input type="text" id="hostname" name="hostname" class="input-big field"  value="<%=hostName%>" disabled>
+    					</div>
+					</div>
+		<% } else {%>         
+        			<div class="control-group">
+                   		<label   class="control-label"  for="poolId">部署的Pool*</label>
+                        <div class="controls">
+    						<select id="poolId" name="poolId"  class="input-big" disabled>
+                        		<% for(PoolDTO pool : pools){
+                        	    	if(pool.getId()!=UNALLOCATED){
+                        	    		if(dto.getPoolid() == pool.getId()) {%>
+                        	    			<option selected="selected"><%=pool.getName()%></option>
+                        	    		<%} else {%>
+                            				<option><%=pool.getName()%></option>
+                            			<%} %>
+								<%}}%>
+							</select>
+							<% for(PoolDTO pool : pools){
+							    if(dto.getPoolid() == pool.getId()) {%>
+            	    				<input id="poolId" name="poolId" style="display:none" value="<%=pool.getName()%>">
+            	    			<%}%>
+							<%}%>
+											
+                        </div>
+                    </div>
+                    <div class="control-group">
+							<label  class="control-label"  for="taskType">选择作业类型*</label>
+							<div class="controls">
+    						<select  id="taskType" name="taskType"  class="input-big  field " disabled>	
+    							<% for(String type : types){	
+                        	    		if(dto.getType() == type) {%>
+                        	    			<option selected="selected"><%=type%></option>
+                        	    		<%} else {%>
+                            				<option><%=type%></option>
+                            			<%} %>
+								<%}%>
+							</select>
+                       		</div>
+                    </div>
+						
+                    <div class="control-group">
+						<label class="control-label"  for="uploadFile">上传作业（不改变请不要填写该选项）*</label>
+                        <div id="fileDiv"  class="controls">
+							<input type="file" id="uploadFile" name="uploadFile" class="input-big  field " disabled>
+                        </div>
+                    </div>
+                    	
+
+		<%} %>
+				<div class="control-group">
+            		<label class="control-label"  for="taskName">名称*</label>
+            		<div class="controls">
+              			<input type="text" class="input-xxlarge"  id="taskName" name="taskName" value="<%=dto.getName()%>" readonly>
+            		</div>
+          		</div>
+                <div class="control-group">
+            		<label class="control-label" for="crontab">Crontab*</label>
+            		<div class="controls">
+              			<input type="text" class="input-xxlarge field " id="crontab" name="crontab"  value="<%=dto.getCrontab()%>" disabled>
+            		</div>
+          		</div>
+                <div class="control-group">
+            		<label class="control-label" for="taskCommand">命令*</label>
+            		<div class="controls">
+              			<input type="text" class="input-xxlarge field " id="taskCommand" name="taskCommand"  value="<%=dto.getCommand()%>" disabled>
+            		</div>
+          		</div>
+                <div class="control-group">
+            		<label class="control-label" for="proxyUser">以该用户身份运行（默认nobody,且不可为root）</label>
+            		<div class="controls">
+              			<input type="text" class="input-xxlarge field " id="proxyUser" name="proxyUser"  value="<%=dto.getProxyuser()%>" disabled>
+            		</div>
+          		</div>
+                <div class="control-group">
+            		<label class="control-label" for="taskMail">报警人邮件(逗号分隔)*</label>
+            		<div class="controls">
+              			<input type="text" class="input-xxlarge field " id="taskMail" name="taskMail" placeholder="example1,example2(default add @dianping)" disabled>
+            		</div>
+          		</div>
+                <div class="control-group">
+            		<label class="control-label" for="description">描述*</label>
+            		<div class="controls">
+              			<input type="text" class="input-xxlarge field " id="description" name="description" value="<%=dto.getDescription()%>" disabled>
+            		</div>
+          		</div>
+					<div class="control-group">
+            			<label class="control-label">最长执行时间（分钟）*</label>
+            			<div class="controls">
+              				<input type="number" class="input-small field " id="maxExecutionTime" name="maxExecutionTime" style="text-align:right"  value=<%=dto.getExecutiontimeout()%> disabled>
+            			</div>
+          			</div>
+          			<div class="control-group">
+            			<label class="control-label">依赖</label>
+            			<div class="controls">
+              				<input type="text" class="input-small field " id="dependency" name="dependency" placeholder="dependency expression"  value="<%=dto.getDependencyexpr()%>" disabled>
+            			</div>
+          			</div>
+          			<div class="control-group">
+            			<label class="control-label">最长等待时间（分钟）*</label>
+            			<div class="controls">
+              				<input type="number" class="input-small field " id="maxWaitTime" name="maxWaitTime" style="text-align:right" value=<%=dto.getWaittimeout()%> disabled>
+            			</div>
+          			</div>
+          			
+          			<div class="control-group">
+            			<label class="control-label">重试次数*</label>
+            			<div class="controls">
+              				<input type="number" class="input-small field " id="retryTimes" name="retryTimes" style="text-align:right" value=<%=dto.getRetrytimes()%> disabled>
+            			</div>
+          			</div>
+          			<div class="control-group">
+            			<label class="control-label">允许同时执行实例个数*</label>
+            			<div class="controls">
+              				<input type="number" class="input-small field " id="multiInstance" name="multiInstance" style="text-align:right" value=<%=dto.getAllowmultiinstances()%> disabled>
+            			</div>
+          			</div>
+          			<input type="text" class="field" style="display:none" id="creator" name="creator" value="<%=(String)session.getAttribute(com.dp.bigdata.taurus.web.servlet.LoginServlet.USER_NAME)%>">          					
+		</fieldset>
+	</form>
   </div>
   <div class="modal-footer">
-    <button class="btn btn-primary">修改</button>
-    <button class="btn" data-dismiss="modal" aria-hidden="true">关闭</button>
+    <button id="updateBtn" class="btn btn-primary"  onClick="action_update('<%=dto.getTaskid()%>')" data-loading-text='正在保存..'>修改</button>
+    <button class="btn" data-dismiss="modal">关闭</button>
   </div>
 </div>
+<%}%>

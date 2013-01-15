@@ -318,7 +318,7 @@ $.widget("bootstrap.bwizard", {
 						return false;
 					}
 				}).attr("role", "button");
-			this.submitBtn=$("<li class='midSubmit' id='submitButton'><a href='#'>" +
+			this.submitBtn=$("<li class='midSubmit' ><a class='CLICKABLE' id='submitButton' data-loading-text='提交中'>" +
 					"提交" + "</a>")
 					.appendTo(this.buttons);
 			this.nextBtn =

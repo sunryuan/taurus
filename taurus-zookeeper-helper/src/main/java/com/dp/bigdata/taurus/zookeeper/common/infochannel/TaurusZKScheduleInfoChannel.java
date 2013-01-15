@@ -42,7 +42,7 @@ public class TaurusZKScheduleInfoChannel extends TaurusZKInfoChannel implements 
 			}
 		} catch(Exception e){
 			LOGGER.error("Connect To cluster failed. ",e);
-			//TODO throw Exception
+			throw new TaurusZKException(e);
 		}
 	}
 
