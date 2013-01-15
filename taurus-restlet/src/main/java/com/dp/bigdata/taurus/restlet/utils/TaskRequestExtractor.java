@@ -25,9 +25,12 @@ import com.dp.bigdata.taurus.core.CronExpression;
 import com.dp.bigdata.taurus.core.IDFactory;
 import com.dp.bigdata.taurus.core.TaskStatus;
 import com.dp.bigdata.taurus.core.parser.DependencyParser;
+import com.dp.bigdata.taurus.generated.mapper.UserGroupMapper;
 import com.dp.bigdata.taurus.generated.mapper.UserMapper;
 import com.dp.bigdata.taurus.generated.module.User;
 import com.dp.bigdata.taurus.generated.module.UserExample;
+import com.dp.bigdata.taurus.generated.module.UserGroup;
+import com.dp.bigdata.taurus.generated.module.UserGroupExample;
 import com.dp.bigdata.taurus.restlet.exception.DuplicatedNameException;
 import com.dp.bigdata.taurus.restlet.exception.InvalidArgumentException;
 import com.dp.bigdata.taurus.restlet.resource.impl.NameResource;
@@ -59,6 +62,9 @@ public class TaskRequestExtractor implements RequestExtrator<TaskDTO> {
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private UserGroupMapper userGroupMapper;
 
     @Override
     public TaskDTO extractTask(Request request, boolean isUpdateAction) throws Exception {
@@ -99,7 +105,7 @@ public class TaskRequestExtractor implements RequestExtrator<TaskDTO> {
 
         for (Entry<String, String> entry : formMap.entrySet()) {
             String key = entry.getKey();
-            String value = entry.getValue() == null ? "" : entry.getValue();
+            String value = entry.getValue() == null ? "" : entry.getValue().trim();
 
             if (key.equals(GWTTaskDetailControlName.TASKNAME.getName())) {
                 task.setName(value);
@@ -117,8 +123,8 @@ public class TaskRequestExtractor implements RequestExtrator<TaskDTO> {
             } else if (key.equals(GWTTaskDetailControlName.MULTIINSTANCE.getName())) {
                 task.setAllowmultiinstances(Integer.parseInt(value));
             } else if (key.equals(GWTTaskDetailControlName.CRONTAB.getName())) {
-                if (!StringUtils.isBlank(value.trim())) {
-                    task.setCrontab("0 " + value.trim());
+                if (!StringUtils.isBlank(value)) {
+                    task.setCrontab("0 " + value);
                 }
             } else if (key.equals(GWTTaskDetailControlName.DEPENDENCY.getName())) {
                 task.setDependencyexpr(value);
@@ -141,14 +147,47 @@ public class TaskRequestExtractor implements RequestExtrator<TaskDTO> {
                     task.setIsautoretry(false);
                 }
             } else if (key.equals(GWTTaskDetailControlName.ALERTCONDITION.getName())) {
-                if (StringUtils.isBlank(value.trim())) {
+                if (StringUtils.isBlank(value)) {
                     task.setConditions(AttemptStatus.getInstanceRunState(AttemptStatus.FAILED));
                 } else {
-                    task.setConditions(value.trim());
+                    task.setConditions(value);
                 }
             } else if (key.equals(GWTTaskDetailControlName.ALERTGROUP.getName())) {
-                task.setGroupid(value.trim());
-            } else if (key.equals(GWTTaskDetailControlName.ALERTTYPE.getName())) {
+                if (StringUtils.isNotBlank(value)) {
+                    String[] groups = value.split(";");
+                    StringBuilder groupId = new StringBuilder();
+                    for (int i = 0; i < groups.length; i++) {
+                        String group = groups[i];
+                        UserGroupExample example = new UserGroupExample();
+                        example.or().andGroupnameEqualTo(group);
+                        List<UserGroup> userGroups = userGroupMapper.selectByExample(example);
+                        if (userGroups != null && userGroups.size() == 1) {
+                            groupId.append(userGroups.get(0).getId());
+                        }
+                        if (i < groups.length - 1) {
+                            groupId.append(";");
+                        }
+                    }
+                }
+            } else if (key.equals(GWTTaskDetailControlName.ALERTUSER.getName())) {
+                if (StringUtils.isNotBlank(value)) {
+                    String[] users = value.split(";");
+                    StringBuilder userId = new StringBuilder();
+                    for (int i = 0; i < users.length; i++) {
+                        String user = users[i];
+                        UserExample example = new UserExample();
+                        example.or().andNameEqualTo(user);
+                        List<User> userList = userMapper.selectByExample(example);
+                        if (userList != null && userList.size() == 1) {
+                            userId.append(userList.get(0).getId());
+                        }
+                        if (i < users.length - 1) {
+                            userId.append(";");
+                        }
+                    }
+                }
+            } 
+            else if (key.equals(GWTTaskDetailControlName.ALERTTYPE.getName())) {
                 if (StringUtils.isNotBlank(value)) {
                     if (value.equalsIgnoreCase(MAIL_ONLY)) {
                         task.setHasmail(true);
@@ -161,8 +200,6 @@ public class TaskRequestExtractor implements RequestExtrator<TaskDTO> {
                         task.setHasmail(true);
                     }
                 }
-            } else if (key.equals(GWTTaskDetailControlName.ALERTUSER.getName())) {
-                task.setUserid(value);
             }
         }
         validate(task, isUpdateAction);
