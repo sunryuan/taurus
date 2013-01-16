@@ -9,7 +9,7 @@
 	<!-- Datasource -->
 	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
 		<property name="driverClass" value="com.mysql.jdbc.Driver" />
-		<property name="jdbcUrl" value="jdbc:mysql://10.1.77.84:3306/TaurusCopy" />
+		<property name="jdbcUrl" value="jdbc:mysql://10.1.77.85:3306/TaurusCopy" />
 		<property name="user" value="root" />
 		<property name="password" value="123456" />
 		<property name="minPoolSize" value="5" />

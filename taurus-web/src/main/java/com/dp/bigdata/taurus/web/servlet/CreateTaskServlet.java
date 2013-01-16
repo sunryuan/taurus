@@ -21,8 +21,6 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
-import java.util.List;
-import java.util.Set;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -31,10 +29,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.Header;
@@ -46,8 +40,9 @@ import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.restlet.Request;
-import org.restlet.ext.fileupload.RestletFileUpload;
+import org.restlet.resource.ClientResource;
+
+import com.dp.bigdata.taurus.restlet.resource.INameResource;
 
 //
 //import com.google.gson.Gson;
@@ -60,7 +55,7 @@ import org.restlet.ext.fileupload.RestletFileUpload;
 public class CreateTaskServlet extends HttpServlet{
     private static final long serialVersionUID = 2348545179764589572L;
     private static String targetUri = "task";
-
+    private static String nameUri = "name?task_name=";
     private static final Log LOG = LogFactory.getLog(HttpServlet.class);
 
     private String RESTLET_URL_BASE;
@@ -71,13 +66,13 @@ public class CreateTaskServlet extends HttpServlet{
         ServletContext context = getServletContext();
         RESTLET_URL_BASE = context.getInitParameter("RESTLET_SERVER");
         targetUri = RESTLET_URL_BASE + targetUri;
+        nameUri =  RESTLET_URL_BASE + nameUri;
     }
 
     
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp)
     throws ServletException, IOException{
-        System.out.println("start");
         HttpClient httpclient = new DefaultHttpClient();
         // Determine final URL
         StringBuffer uri = new StringBuffer();
@@ -101,10 +96,11 @@ public class CreateTaskServlet extends HttpServlet{
 //
 //           System.out.println(key+"/"+value);
 //        }
-        if(req.getParameter("update")==null){
-            uri.append(targetUri);
-        } else {
+        
+        if(req.getParameter("update") != null){
             uri.append(targetUri).append("/").append(req.getParameter("update"));
+        } else {
+            uri.append(targetUri);
         }
         LOG.info("Access URI : " + uri.toString());
         // Get HTTP method
@@ -196,4 +192,22 @@ public class CreateTaskServlet extends HttpServlet{
         output.close();
         httpclient.getConnectionManager().shutdown();
     }
+
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        StringBuffer uri = new StringBuffer();
+        if (req.getParameter("name") != null){
+            uri.append(nameUri).append(req.getParameter("name"));
+            ClientResource cr = new ClientResource(uri.toString());
+            INameResource nameResource = cr.wrap(INameResource.class);
+            if(nameResource.hasName()) {
+                resp.getWriter().write("1");
+            } else {
+                resp.getWriter().write("0");
+            }
+        }
+    }
+    
+    
 }

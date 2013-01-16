@@ -2,7 +2,7 @@
 <%@ page contentType="text/html;charset=utf-8" %>
 <title>Taurus作业调度平台</title>
 <!-- JavaScript -->
-<script src="http://code.jquery.com/jquery-latest.js" ></script>
+<script src="http://code.jquery.com/jquery-1.8.0.min.js" ></script>
 <script src="js/bootstrap.min.js"></script>
 <script src="js/login.js"></script>
 

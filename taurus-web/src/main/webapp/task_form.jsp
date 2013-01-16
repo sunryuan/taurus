@@ -2,25 +2,51 @@
 <%@ include file="jsp/common-nav.jsp"%>
 <%@ include file="jsp/common-api.jsp"%>
 
-<%@page import="java.util.ArrayList"%>
 <%@page import="org.restlet.resource.ClientResource"%>
 <%@page import="org.restlet.data.MediaType"%>
 <%@page import="com.dp.bigdata.taurus.restlet.resource.ITasksResource"%>
-<%@page import="com.dp.bigdata.taurus.restlet.shared.TaskDTO"%>
+
 <%@page import="com.dp.bigdata.taurus.restlet.resource.IPoolsResource"%>
-<%@page import="com.dp.bigdata.taurus.restlet.shared.PoolDTO"%>
+<%@page import="com.dp.bigdata.taurus.restlet.resource.IAttemptStatusResource"%>
+<%@page import="com.dp.bigdata.taurus.restlet.resource.IUersResource"%>
+<%@page import="com.dp.bigdata.taurus.restlet.resource.IUserGroupsResource"%>
+	
+<%@page import="com.dp.bigdata.taurus.restlet.shared.TaskDTO"%>
+<%@page import="com.dp.bigdata.taurus.restlet.shared.PoolDTO"%> 
+<%@page import="com.dp.bigdata.taurus.restlet.shared.StatusDTO"%> 
+<%@page import="com.dp.bigdata.taurus.restlet.shared.UserDTO"%>
+<%@page import="com.dp.bigdata.taurus.restlet.shared.UserGroupDTO"%>
+
+<%@page import="java.util.ArrayList"%>
 
 <% 
 	String []types={"hadoop","wormhole","其他"};
-	ClientResource crp = new ClientResource(host + "pool");
-	IPoolsResource poolResource = crp.wrap(IPoolsResource.class);
-	crp.accept(MediaType.APPLICATION_XML);
+	ClientResource cr = new ClientResource(host + "pool");
+	IPoolsResource poolResource = cr.wrap(IPoolsResource.class);
+	cr.accept(MediaType.APPLICATION_XML);
 	ArrayList<PoolDTO> pools = poolResource.retrieve();
 	int UNALLOCATED = 1;
-	ClientResource cr = new ClientResource(host + "task");
-	ITasksResource resource = cr.wrap(ITasksResource.class);
+	
+	cr = new ClientResource(host + "task");
+	ITasksResource taskResource = cr.wrap(ITasksResource.class);
 	cr.accept(MediaType.APPLICATION_XML);
-	ArrayList<TaskDTO> tasks = resource.retrieve();
+	ArrayList<TaskDTO> tasks = taskResource.retrieve();
+	
+	cr = new ClientResource(host + "status");
+	IAttemptStatusResource attemptResource = cr.wrap(IAttemptStatusResource.class);
+	cr.accept(MediaType.APPLICATION_XML);
+	ArrayList<StatusDTO> statuses = attemptResource.retrieve();
+	
+	cr = new ClientResource(host + "user");
+	IUersResource userResource = cr.wrap(IUersResource.class);
+	cr.accept(MediaType.APPLICATION_XML);
+	ArrayList<UserDTO> users = userResource.retrieve();
+	
+	cr = new ClientResource(host + "group");
+	IUserGroupsResource groupResource = cr.wrap(IUserGroupsResource.class);
+	cr.accept(MediaType.APPLICATION_XML);
+	ArrayList<UserGroupDTO> groups = groupResource.retrieve();
+	
 	for(TaskDTO dto : tasks){
 		String hostName = dto.getHostname();
 		boolean poolDeploy = (hostName==null || hostName.equals(""));
@@ -106,15 +132,9 @@
             		</div>
           		</div>
                 <div class="control-group">
-            		<label class="control-label" for="proxyUser">以该用户身份运行（默认nobody,且不可为root）</label>
+            		<label class="control-label" for="proxyUser">以该用户身份运行（不可为root）*</label>
             		<div class="controls">
               			<input type="text" class="input-xxlarge field " id="proxyUser" name="proxyUser"  value="<%=dto.getProxyuser()%>" disabled>
-            		</div>
-          		</div>
-                <div class="control-group">
-            		<label class="control-label" for="taskMail">报警人邮件(逗号分隔)*</label>
-            		<div class="controls">
-              			<input type="text" class="input-xxlarge field " id="taskMail" name="taskMail" placeholder="example1,example2(default add @dianping)" disabled>
             		</div>
           		</div>
                 <div class="control-group">
@@ -152,6 +172,54 @@
             			<label class="control-label">允许同时执行实例个数*</label>
             			<div class="controls">
               				<input type="number" class="input-small field " id="multiInstance" name="multiInstance" style="text-align:right" value=<%=dto.getAllowmultiinstances()%> disabled>
+            			</div>
+          			</div>
+          			<div class="control-group">
+            			<label class="control-label">选择何时收到报警</label>
+            			<div class="controls">
+            					<%String conditionStr = dto.getAlertRule().getConditions();
+            					System.out.println(conditionStr);
+            					for(StatusDTO status:statuses) {
+   								    if(conditionStr != null && conditionStr.contains(status.getStatus())) {%>
+    									<input type="checkbox" class="input-large field alertCondition" id="alertCondition" name="<%=status.getStatus()%>" checked="checked"> <%=status.getCh_status()%>
+    								<%} else {%>
+    									<input type="checkbox" class="input-large field alertCondition" id="alertCondition" name="<%=status.getStatus()%>"> <%=status.getCh_status()%>
+    							<%}}%>
+            			</div>
+          			</div>
+          			
+          			<div class="control-group">
+            			<label class="control-label"  for="alertType">选择报警方式</label>
+            			<div class="controls">
+              				<select class="input-small field" id="alertType" name="alertType">
+              					<% if(dto.getAlertRule().getHasmail() && dto.getAlertRule().getHassms()) {%>
+              						<option id="1">邮件</option>
+              						<option id="2">短信</option>
+               						<option id="3"  selected="selected">邮件和短信</option>
+              					<% } else if(!dto.getAlertRule().getHasmail() && dto.getAlertRule().getHassms()) {%> 
+              						<option id="1">邮件</option>
+              						<option id="2"  selected="selected">短信</option>
+               						<option id="3">邮件和短信</option>
+               					<%} else {%>
+               						<option id="1" selected="selected">邮件</option>
+              						<option id="2">短信</option>
+               						<option id="3">邮件和短信</option>
+               					<%}%>
+              				</select>				
+            			</div>
+          			</div>
+          			
+          			<div class="control-group">
+            			<label class="control-label">选择报警接收人(分号分隔)</label>
+            			<div class="controls">
+              				<input type="text" class="input-large field" id="alertUser" name="alertUser" placeholder="user name split with ;">
+            			</div>
+          			</div>
+          			
+          			<div class="control-group">
+            			<label class="control-label">选择报警接收组(分号分隔)</label>
+            			<div class="controls">
+              				<input type="text" class="input-large field" id="alertGroup" name="alertGroup" placeholder="group name split with ;">
             			</div>
           			</div>
           			<input type="text" class="field" style="display:none" id="creator" name="creator" value="<%=(String)session.getAttribute(com.dp.bigdata.taurus.web.servlet.LoginServlet.USER_NAME)%>">          					

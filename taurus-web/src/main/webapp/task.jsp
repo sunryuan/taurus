@@ -10,15 +10,38 @@
     <%@ include file="jsp/common-api.jsp"%>
     <%@page import="org.restlet.resource.ClientResource"%>
 	<%@page import="com.dp.bigdata.taurus.restlet.resource.IPoolsResource"%>
-    <%@page import="com.dp.bigdata.taurus.restlet.shared.PoolDTO"%>
+	<%@page import="com.dp.bigdata.taurus.restlet.resource.IAttemptStatusResource"%>
+	<%@page import="com.dp.bigdata.taurus.restlet.resource.IUersResource"%>
+	<%@page import="com.dp.bigdata.taurus.restlet.resource.IUserGroupsResource"%>
+	
+    <%@page import="com.dp.bigdata.taurus.restlet.shared.PoolDTO"%> 
+    <%@page import="com.dp.bigdata.taurus.restlet.shared.StatusDTO"%> 
+    <%@page import="com.dp.bigdata.taurus.restlet.shared.UserDTO"%>
+    <%@page import="com.dp.bigdata.taurus.restlet.shared.UserGroupDTO"%>
+    
     <%@page import="java.util.ArrayList"%>
     <%@page import="org.restlet.data.MediaType"%>
 
    	<% ClientResource cr = new ClientResource(host + "pool");
-   		IPoolsResource resource = cr.wrap(IPoolsResource.class);
+   		IPoolsResource poolResource = cr.wrap(IPoolsResource.class);
     	cr.accept(MediaType.APPLICATION_XML);
-   		ArrayList<PoolDTO> pools = resource.retrieve();
+   		ArrayList<PoolDTO> pools = poolResource.retrieve();
    		int UNALLOCATED = 1;
+   		
+   		cr = new ClientResource(host + "status");
+		IAttemptStatusResource attemptResource = cr.wrap(IAttemptStatusResource.class);
+		cr.accept(MediaType.APPLICATION_XML);
+		ArrayList<StatusDTO> statuses = attemptResource.retrieve();
+		
+		cr = new ClientResource(host + "user");
+		IUersResource userResource = cr.wrap(IUersResource.class);
+		cr.accept(MediaType.APPLICATION_XML);
+		ArrayList<UserDTO> users = userResource.retrieve();
+		
+		cr = new ClientResource(host + "group");
+		IUserGroupsResource groupResource = cr.wrap(IUserGroupsResource.class);
+		cr.accept(MediaType.APPLICATION_XML);
+		ArrayList<UserGroupDTO> groups = groupResource.retrieve();
     %>
 	<div class="container">
 		<div id="wizard">
@@ -40,7 +63,7 @@
       				</div>
 
                     <div id="host"  class="control-group">
-                    	<label class="control-label"  for="host">部署的机器*</label>
+                    	<label class="control-label"  for="hostname">部署的机器*</label>
                     	<div class="controls">
     						<input type="text" id="hostname" name="hostname" class="input-big field"  placeholder="10.0.0.1">
     					</div>
@@ -104,15 +127,9 @@
             		</div>
           		</div>
                 <div class="control-group">
-            		<label class="control-label" for="proxyUser">以该用户身份运行（默认nobody,且不可为root）</label>
+            		<label class="control-label" for="proxyUser">以该用户身份运行（不可为root）*</label>
             		<div class="controls">
               			<input type="text" class="input-xxlarge field" id="proxyUser" name="proxyUser"  placeholder="userName">
-            		</div>
-          		</div>
-                <div class="control-group">
-            		<label class="control-label" for="taskMail">报警收件人邮件（逗号分隔）*</label>
-            		<div class="controls">
-              			<input type="text" class="input-xxlarge field" id="taskMail" name="taskMail" placeholder="example1,example2(default add @dianping)">
             		</div>
           		</div>
                 <div class="control-group">
@@ -161,37 +178,39 @@
             			</div>
           			</div>
           			<div class="control-group">
-            			<label class="control-label">选择何时收到报警*</label>
+            			<label class="control-label">选择何时收到报警</label>
             			<div class="controls">
-              				<input type="checkbox" class="input-large field" id="when" name="multiInstance" checked="checked">失败
-              				<input type="checkbox" class="input-small field" id="when" name="multiInstance">超时
+            					<% for(StatusDTO status:statuses) {
+   								    if(status.getStatus().equals("FAILED")) {%>
+    									<input type="checkbox" class="input-large field alertCondition" id="alertCondition" name="<%=status.getStatus()%>" checked="checked"> <%=status.getCh_status()%>
+    								<%} else {%>
+    									<input type="checkbox" class="input-large field alertCondition" id="alertCondition" name="<%=status.getStatus()%>"> <%=status.getCh_status()%>
+    							<%}}%>
             			</div>
           			</div>
           			
           			<div class="control-group">
-            			<label class="control-label">选择报警方式*</label>
+            			<label class="control-label"  for="alertType">选择报警方式</label>
             			<div class="controls">
-              				<select class="input-small field" id="how" name="multiInstance">
-              					<option>邮件</option>
-               					<option>短信</option>
-               					<option>邮件和短信</option>
-               					<option>无</option>           				
+              				<select class="input-small field" id="alertType" name="alertType">
+              					<option id="1">邮件</option>
+               					<option id="2">短信</option>
+               					<option id="3">邮件和短信</option>
               				</select>				
             			</div>
           			</div>
           			
           			<div class="control-group">
-            			<label class="control-label">选择报警接收人</label>
+            			<label class="control-label">选择报警接收人(分号分隔)</label>
             			<div class="controls">
-              				<input type="text" class="input-large field" id="query" name="who">
-              				
+              				<input type="text" class="input-large field" id="alertUser" name="alertUser"  value="<%=(String)session.getAttribute(com.dp.bigdata.taurus.web.servlet.LoginServlet.USER_NAME)%>;">
             			</div>
           			</div>
           			
           			<div class="control-group">
-            			<label class="control-label">选择报警接收组</label>
+            			<label class="control-label">选择报警接收组(分号分隔)</label>
             			<div class="controls">
-              				<input type="text" class="input-large field" id="query" name="which">
+              				<input type="text" class="input-large field" id="alertGroup" name="alertGroup" placeholder="group name split with ;">
             			</div>
           			</div>
   				</fieldset>
@@ -211,7 +230,18 @@
       </div>
     </div>
    
-    
+    <script type="text/javascript">  
+      	var userList="",groupList="";
+      	<% for(UserDTO user:users) {%>
+      		userList=userList+",<%=user.getName()%>";
+      	<%}%>
+      	<% for(UserGroupDTO group:groups) {%>
+      		groupList=groupList+",<%=group.getName()%>";
+  		<%}%>
+      	userList = userList.substr(1);
+      	groupList = groupList.substr(1);
+		
+    </script> 
 	<script src="js/bwizard.js" type="text/javascript"></script>
     <script src="js/jquery.validate.min.js" type="text/javascript"></script>
     <script src="js/taurus_validate.js" type="text/javascript"></script>
