@@ -201,7 +201,9 @@ final public class Engine implements Scheduler {
     @Override
     public synchronized void updateTask(Task task) throws ScheduleException {
         if (registedTasks.containsKey(task.getTaskid())) {
+            Task origin = registedTasks.get(task.getTaskid());
             task.setUpdatetime(new Date());
+            task.setStatus(origin.getStatus());
             taskMapper.updateByPrimaryKeySelective(task);
             registedTasks.remove(task.getTaskid());
             Task tmp = taskMapper.selectByPrimaryKey(task.getTaskid());

@@ -15,7 +15,7 @@
 
 	<properties>
 		<webappDirectory>${project.build.directory}/${project.build.finalName}</webappDirectory>
-		<restletVersion>2.1-SNAPSHOT</restletVersion>
+		<restletVersion>2.1.1</restletVersion>
 	</properties>
 	
 	<repositories>
@@ -57,6 +57,11 @@
 					<artifactId>*</artifactId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.dp.bigdata</groupId>
+			<artifactId>taurus-core</artifactId>
+			<version>0.3</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
