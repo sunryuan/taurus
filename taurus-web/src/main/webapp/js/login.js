@@ -2,8 +2,8 @@ function login(){
 	$.ajax({
 		url: 'login.do',
 		data: {
-			username : $('#username').attr("value"),
-			password:  $('#password').attr("value")
+			username : $('#username').val(),
+			password:  $('#password').val()
 		},
 		type:"POST",
 		statusCode:{

@@ -2,7 +2,6 @@
 .settings
 src/*
 
-/*/target/*
 /*/.*/*
 /*/.*
 
@@ -21,12 +20,6 @@ taurus-core/derby.log
 /*/build/*
 .*
 /*/.*
-/*/gwt-unitCache/*
-
-taurus-frontend/src/main/gwt-unitCache/*
-taurus-frontend/src/main/webapp/taurus/*
-taurus-frontend/src/main/webapp/WEB-INF/deploy/*
-taurus-frontend/src/main/webapp/WEB-INF/lib/*
 
 taurus-web/src/main/webapp/WEB-INF/lib/*
 

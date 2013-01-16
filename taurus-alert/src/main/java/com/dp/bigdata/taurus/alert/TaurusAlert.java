@@ -177,8 +177,8 @@ public class TaurusAlert {
 
         private void ruleHandler(TaskAttempt attempt, AlertRule rule) {
             String[] whens = rule.getConditions() == null ? null : rule.getConditions().split(";");
-            String userId = rule.getUserid() == null ? "" : rule.getUserid();
-            String groupId = rule.getGroupid() == null ? "" : rule.getUserid();
+            String[] userId = rule.getUserid() == null ? null : rule.getUserid().split(";");
+            String[] groupId = rule.getGroupid() == null ? null : rule.getUserid().split(";");
             if (whens == null) {
                 return;
             }
@@ -187,16 +187,14 @@ public class TaurusAlert {
             for (String when : whens) {
                 if (when.equalsIgnoreCase(AttemptStatus.getInstanceRunState(attempt.getStatus()))) {
                     LOG.info("Condition matched : " + when);
-                    if (StringUtils.isNotBlank(userId)) {
-                        String[] iDs = userId.split(";");
-                        for (String id : iDs) {
+                    if (userId != null) {
+                        for (String id : userId) {
                             ids.add(Integer.parseInt(id));
                         }
                     }
 
-                    if (StringUtils.isNotBlank(groupId)) {
-                        String[] groupIds = groupId.split(";");
-                        for (String id : groupIds) {
+                    if (groupId != null) {
+                        for (String id : groupId) {
                             UserGroupMappingExample ugm_example = new UserGroupMappingExample();
                             ugm_example.or().andGroupidEqualTo(Integer.parseInt(id));
                             List<UserGroupMapping> userGroupMappings = userGroupMappingMapper.selectByExample(ugm_example);
