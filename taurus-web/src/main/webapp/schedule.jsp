@@ -80,7 +80,7 @@
 			<tbody>
 				<% ClientResource cr = new ClientResource(host + "task");
                     ITasksResource resource = cr.wrap(ITasksResource.class);
-                     cr.accept(MediaType.APPLICATION_XML);
+                    cr.accept(MediaType.APPLICATION_XML);
                     ArrayList<TaskDTO> tasks = resource.retrieve();
 					SimpleDateFormat formatter =  new SimpleDateFormat("yyyy-MM-dd HH:mm");
                     for(TaskDTO dto : tasks){

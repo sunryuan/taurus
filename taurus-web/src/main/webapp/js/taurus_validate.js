@@ -2,12 +2,18 @@
 //	jQuery Validate for task.jsp
 //
 
-$.validator.addMethod("panduan",function(value,element,params){
+$.validator.addMethod("fileNameTest",function(value,element,params){
 	 var p = /\s/;
 	 var q = /(.*)[\u4E00-\u9FA5]+(.*)/; 
 	 if(q.test(value) || p.test(value)) return false; 
 	 return true; 
 },"文件名必须没有中文,且不包含空格");
+
+$.validator.addMethod("alertWho",function(value,element,params){
+	 var p = /^[0-9a-zA-Z|_|;|\.|\-]*$/;
+	 if(p.test(value)) return true; 
+	 return false; 
+},"不能包含空格、逗号和其他非法字符");
   
 $.validator.addMethod("notRoot",function(value,element,params){
 	 if(value=="root")
@@ -15,6 +21,44 @@ $.validator.addMethod("notRoot",function(value,element,params){
 	 else 
 		 return true;
 },"ProxyUser不能使root");	 
+
+$.validator.addMethod("validIP",function(value,element,params){
+	var p = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/;
+	if(p.test(value)) return true; 
+	return false; 
+},"Invalid IP");	 
+
+
+$.validator.addMethod("validName",function(value,element,params){
+	
+	
+	var result = false;
+	$.ajaxSetup({
+        async: false
+    });
+	$.ajax({
+	    url: 'create_task?name='+$("#taskName").val(),  //server script to process data
+	    type: 'get',
+	    //Ajax events
+	    success:function(data){
+	    	if(data == "0" ) {
+	    		result = true;
+	    	}
+	    	else if(data == "1" ){
+		    	result = false;
+	    	}
+		},
+		
+	    enctype: 'application/x-www-form-urlencoded',
+	    cache: false,
+	    contentType: false,
+	    processData: false
+	});
+	$.ajaxSetup({
+        async: true
+    });
+	return result;
+},"该名字已经存在！");	 
 
 
 $(document).ready(function(){
@@ -25,13 +69,14 @@ $(document).ready(function(){
     		hostname: {
         		required: function(element) {
                 	return ($("#autodeploy").attr("checked") != "checked" );
-        		}
+        		},
+        		validIP: true
     		}, 
     		uploadFile: {
     			required: function(element) {
                 	return ($("#autodeploy").attr("checked") == "checked" );
         		},
-    			panduan: function(element) {
+    			fileNameTest: function(element) {
                 	return ($("#autodeploy").attr("checked") == "checked" );
         		}
     		}    
@@ -48,7 +93,8 @@ $(document).ready(function(){
 	    rules: {
 	    	taskName: {
 	    		minlength: 2,
-	    		required: true
+	    		required: true,
+	    		validName: true
 	    	},
 	    	crontab: {
 	    		required: true,
@@ -58,11 +104,9 @@ $(document).ready(function(){
 	    		required: true
 	    	},
 			proxyUser: {
+				required: true,
 				notRoot: true
 			},
-	    	taskMail: {
-	    		required: true,
-	    	},
 	    	description: {
 	    		required: true,
 	    	}
@@ -90,6 +134,12 @@ $(document).ready(function(){
 	    	},
 	    	multiInstance: {
 	    		required: true,
+	    	},
+	    	alertUser:{
+	    		alertWho:true
+	    	},
+	    	alertGroup:{
+	    		alertWho:true
 	    	}
 	    },
 	    highlight: function(label) {
@@ -106,10 +156,12 @@ $(document).ready(function(){
 		  forms.eq(i).validate({
 			  rules: {
 				  	hostname: {
-				  		required: true
+			    		validName:true,
+				  		required: true,
+				  		validIP: true
 		    		},
 		    		uploadFile: {
-		    			panduan: true
+		    			fileNameTest: true
 		    		},
 			    	crontab: {
 			    		required: true,
@@ -119,11 +171,9 @@ $(document).ready(function(){
 			    		required: true
 			    	},
 					proxyUser: {
+						required: true,
 						notRoot: true
 					},
-			    	taskMail: {
-			    		required: true,
-			    	},
 			    	description: {
 			    		required: true,
 			    	},
@@ -140,6 +190,12 @@ $(document).ready(function(){
 			    	},
 			    	multiInstance: {
 			    		required: true,
+			    	},
+			    	alertUser:{
+			    		alertWho:true
+			    	},
+			    	alertGroup:{
+			    		alertWho:true
 			    	}
 			    },
 			    highlight: function(label) {
