@@ -48,7 +48,6 @@ public class TaurusAlert {
     private static final Log LOG = LogFactory.getLog(TaurusAlert.class);
 
     private static final int META_INTERVAL = 60 * 1000;
-    private static final int ALERT_INTERVAL = 5 * 1000;
 
     private Map<Integer, User> userMap;
     private Map<String, AlertRule> ruleMap;
@@ -153,12 +152,9 @@ public class TaurusAlert {
                     }
                 }
 
-                Date now = new Date();
                 TaskAttemptExample example = new TaskAttemptExample();
                 example.or().andEndtimeGreaterThanOrEqualTo(previous);
-                example.or().andEndtimeLessThan(now);
                 List<TaskAttempt> attempts = taskAttemptMapper.selectByExample(example);
-                previous = now;
 
                 if (attempts != null && attempts.size() == 0) {
                     continue;
@@ -168,10 +164,12 @@ public class TaurusAlert {
                 }
 
                 try {
-                    Thread.sleep(ALERT_INTERVAL);
+                    Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     LOG.error("InterruptedException ", e);
                 }
+
+                previous = new Date();
 
             }
         }
