@@ -136,7 +136,7 @@ $(document).ready(function() {
 		var condition = $('.alertCondition').map(function() {
 			if($(this).prop("checked"))
 				return this.name;
-		    }).get().join();
+		    }).get().join(";");
 		var type = $('#alertType').children().map(function() {
 			if($(this).prop("selected"))
 				return this.id;
