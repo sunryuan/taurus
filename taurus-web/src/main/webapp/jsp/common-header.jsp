@@ -1,4 +1,4 @@
-﻿
+﻿<!DOCTYPE html>
 <%@ page contentType="text/html;charset=utf-8" %>
 <title>Taurus作业调度平台</title>
 <!-- JavaScript -->
