@@ -168,6 +168,7 @@ public class TaskRequestExtractor implements RequestExtrator<TaskDTO> {
                             groupId.append(";");
                         }
                     }
+                    task.setGroupid(groupId.toString());
                 }
             } else if (key.equals(GWTTaskDetailControlName.ALERTUSER.getName())) {
                 if (StringUtils.isNotBlank(value)) {
@@ -185,6 +186,7 @@ public class TaskRequestExtractor implements RequestExtrator<TaskDTO> {
                             userId.append(";");
                         }
                     }
+                    task.setUserid(userId.toString());
                 }
             } 
             else if (key.equals(GWTTaskDetailControlName.ALERTTYPE.getName())) {
