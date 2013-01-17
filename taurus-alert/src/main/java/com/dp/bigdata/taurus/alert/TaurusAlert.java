@@ -179,9 +179,9 @@ public class TaurusAlert {
         }
 
         private void ruleHandler(TaskAttempt attempt, AlertRule rule) {
-            String[] whens = rule.getConditions() == null ? null : rule.getConditions().split(";");
-            String[] userId = rule.getUserid() == null ? null : rule.getUserid().split(";");
-            String[] groupId = rule.getGroupid() == null ? null : rule.getGroupid().split(";");
+            String[] whens = StringUtils.isBlank(rule.getConditions()) ? null : rule.getConditions().split(";");
+            String[] userId = StringUtils.isBlank(rule.getUserid()) ? null : rule.getUserid().split(";");
+            String[] groupId = StringUtils.isBlank(rule.getGroupid()) ? null : rule.getGroupid().split(";");
             if (whens == null) {
                 return;
             }
