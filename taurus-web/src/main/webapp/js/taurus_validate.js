@@ -68,16 +68,16 @@ $(document).ready(function(){
 		rules: {
     		hostname: {
         		required: function(element) {
-                	return ($("#autodeploy").attr("checked") != "checked" );
+                	return (!$("#autodeploy").prop("checked") );
         		},
         		validIP: true
     		}, 
     		uploadFile: {
     			required: function(element) {
-                	return ($("#autodeploy").attr("checked") == "checked" );
+                	return ($("#autodeploy").prop("checked") );
         		},
     			fileNameTest: function(element) {
-                	return ($("#autodeploy").attr("checked") == "checked" );
+                	return ($("#autodeploy").prop("checked"));
         		}
     		}    
 		}, 
