@@ -1,6 +1,7 @@
 package com.dp.bigdata.taurus.alert;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -99,12 +100,19 @@ public class TaurusAlert {
         }
     }
 
-    public void start() {
+    public void start(int interval) {
         Thread updated = new Thread(new MetaDataUpdatedThread());
         updated.setName("MetaDataThread");
         updated.start();
 
-        Thread alert = new Thread(new AlertThread(new Date()));
+        Date now = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(now);
+        calendar.set(Calendar.MILLISECOND, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.add(Calendar.MINUTE, interval);
+
+        Thread alert = new Thread(new AlertThread(calendar.getTime()));
         alert.setName("AlertThread");
         alert.start();
     }
@@ -263,7 +271,11 @@ public class TaurusAlert {
         ApplicationContext context = new FileSystemXmlApplicationContext("classpath:applicationContext.xml");
         TaurusAlert alert = (TaurusAlert) context.getBean("alert");
         try {
-            alert.start();
+            if (args.length == 0) {
+                alert.start(-1);
+            } else if (args.length == 1) {
+                alert.start(Integer.parseInt(args[0]));
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
