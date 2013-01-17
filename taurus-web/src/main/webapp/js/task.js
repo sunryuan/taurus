@@ -1,7 +1,7 @@
 $(document).ready(function() {
 	$("#wizard").bwizard();
 	$("#autodeploy").change(function(e) {
-        if($("#autodeploy").attr("checked")=="checked"){
+        if($("#autodeploy").prop("checked")){
 			$("#poolDeployDiv").show();
 			$("#host").hide();
 		} else {
@@ -108,7 +108,7 @@ $(document).ready(function() {
 		var params={};
 		var len=$(".field").length;
 		var file = $('#uploadFile').get(0);
-		var autodeploy = ($("#autodeploy").attr("checked")=="checked");
+		var autodeploy = ($("#autodeploy").prop("checked"));
 		var form = document.createElement('form');
 		for(var i = 0; i < len; i++)
  		{
@@ -134,14 +134,14 @@ $(document).ready(function() {
 			}
 		}
 		var condition = $('.alertCondition').map(function() {
-			if($(this).attr("checked") == "checked")
+			if($(this).prop("checked"))
 				return this.name;
 		    }).get().join();
 		var type = $('#alertType').children().map(function() {
-			if($(this).attr("selected") == "selected")
+			if($(this).prop("selected"))
 				return this.id;
 		    }).get().join();
-		$('#alertUser').val().split(',').map(function() {
+		$('#alertUser').val().split(';').map(function() {
 				return 1;
 		    }).join();
 		params["alertCondition"] = condition;

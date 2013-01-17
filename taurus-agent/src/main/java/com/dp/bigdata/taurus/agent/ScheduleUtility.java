@@ -50,7 +50,8 @@ public class ScheduleUtility {
 //	private static final String WORMHOLE_JOB = "wormhole";
 //  private static final String HIVE_JOB = "hive";
 //	private static final String SHELL_JOB = "shell script";
-	private static final String COMMAND_PATTERN = "sudo -u %s -i \"echo $$ >>%s; [ -f %s ] && cd %s; source %s && %s\"";
+	private static final String COMMAND_PATTERN = "echo $$ >>%s; [ -f %s ] && cd %s; source %s && %s";
+	private static final String SUDO_COMMAND_PATTERN = "sudo -u %s -i \"echo $$ >>%s; [ -f %s ] && cd %s; source %s && %s\"";
 	private static final String KILL_COMMAND = "%s %s %s";
 	private static final String REMOVE_COMMAND = "rm -f %s";
 
@@ -251,7 +252,7 @@ public class ScheduleUtility {
 				    cmdLine = new CommandLine("bash");
 				    cmdLine.addArgument("-c");
 				    String pidFile = running + FILE_SEPRATOR + '.' + attemptID;
-                    cmdLine.addArgument(String.format(COMMAND_PATTERN,  userName, pidFile, path, path, env, escapedCmd), false);
+                    cmdLine.addArgument(String.format(SUDO_COMMAND_PATTERN,  userName, pidFile, path, path, env, escapedCmd), false);
 					s_logger.debug(taskAttempt + " start execute");
 					returnCode = executor.execute(attemptID, 0, null, cmdLine, logFileStream, errorFileStream);
 					executor.execute(null, logFileStream, errorFileStream, logFileUpload,logFilePath,errorFilePath,htmlFilePath,htmlFileName);
