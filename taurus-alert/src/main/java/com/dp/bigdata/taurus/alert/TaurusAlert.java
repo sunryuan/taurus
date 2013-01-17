@@ -145,10 +145,13 @@ public class TaurusAlert {
                     }
                 }
 
+                Date now = new Date();
                 TaskAttemptExample example = new TaskAttemptExample();
                 example.or().andEndtimeGreaterThanOrEqualTo(previous);
+                example.or().andEndtimeLessThan(now);
                 List<TaskAttempt> attempts = taskAttemptMapper.selectByExample(example);
-                previous = new Date();
+                previous = now;
+
                 if (attempts != null && attempts.size() == 0) {
                     continue;
                 }
@@ -178,7 +181,7 @@ public class TaurusAlert {
         private void ruleHandler(TaskAttempt attempt, AlertRule rule) {
             String[] whens = rule.getConditions() == null ? null : rule.getConditions().split(";");
             String[] userId = rule.getUserid() == null ? null : rule.getUserid().split(";");
-            String[] groupId = rule.getGroupid() == null ? null : rule.getUserid().split(";");
+            String[] groupId = rule.getGroupid() == null ? null : rule.getGroupid().split(";");
             if (whens == null) {
                 return;
             }
