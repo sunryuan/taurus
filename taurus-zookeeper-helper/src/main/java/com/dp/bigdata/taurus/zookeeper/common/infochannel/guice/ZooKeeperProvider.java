@@ -36,13 +36,13 @@ public final class ZooKeeperProvider implements Provider<ZooKeeper>{
 
 			while(zk.getState() != ZooKeeper.States.CONNECTED){
 			    Thread.sleep(1000);
-			    LOG.debug("CONNECTING..");
+			    //LOG.debug("connecting..");
 			    count++;
 			    if(count > RETRY_TIME){
 			        throw new Exception("Fail to connect to " + connectString);
 			    }
 			}
-			LOG.info("Connected");
+			LOG.info("Connected to "+connectString);
 			return zk ;
 		} catch (Exception e) {
 		    LOG.error(e.getMessage(),e);
@@ -56,9 +56,7 @@ public final class ZooKeeperProvider implements Provider<ZooKeeper>{
          */
         @Override
         public void process(WatchedEvent event) {
-            System.out.println(event.getType());
-            System.out.println(event.getState());
-
+         
         }
 	    
 	}
