@@ -18,6 +18,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
+import org.apache.zookeeper.Watcher.Event.EventType;
+import org.apache.zookeeper.Watcher.Event.KeeperState;
 
 import com.dp.bigdata.taurus.agent.exec.Executor;
 import com.dp.bigdata.taurus.agent.utils.AgentEnvValue;
@@ -38,8 +40,9 @@ public class ScheduleUtility {
     private static String logFileUpload = "/script/log-upload.sh";
     private static String killJob = "/script/kill-tree.sh";
     private static String env = "/script/agent-env.sh";
-    public static String running = "/running";
+    private static String running = "/running";
     private static boolean needHadoopAuthority;
+    private static boolean needSudoAuthority;
 
 	private static ExecutorService killThreadPool;
 	private static ExecutorService executeThreadPool;
@@ -50,8 +53,9 @@ public class ScheduleUtility {
 //	private static final String WORMHOLE_JOB = "wormhole";
 //  private static final String HIVE_JOB = "hive";
 //	private static final String SHELL_JOB = "shell script";
-	private static final String COMMAND_PATTERN = "echo $$ >>%s; [ -f %s ] && cd %s; source %s && %s";
-	private static final String SUDO_COMMAND_PATTERN = "sudo -u %s -i \"echo $$ >>%s; [ -f %s ] && cd %s; source %s && %s\"";
+	private static final String COMMAND_PATTERN_WITHOUT_SUDO = "echo $$ >>%s; [ -f %s ] && cd %s; source %s && %s";
+	private static final String COMMAND_PATTERN_WITH_SUDO = "sudo -u %s -i \"echo $$ >>%s; [ -f %s ] && cd %s; source %s && %s\"";
+	private static String command_pattern;
 	private static final String KILL_COMMAND = "%s %s %s";
 	private static final String REMOVE_COMMAND = "rm -f %s";
 
@@ -67,6 +71,12 @@ public class ScheduleUtility {
 		running = jobPath + running;
 	    env = agentRoot + env;
 		needHadoopAuthority = new Boolean(AgentEnvValue.getValue(AgentEnvValue.NEED_HADOOP_AUTHORITY, "false"));
+		needSudoAuthority = new Boolean(AgentEnvValue.getValue(AgentEnvValue.NEED_SUDO_AUTHORITY, "true"));
+		if(needSudoAuthority) {
+		    command_pattern = COMMAND_PATTERN_WITH_SUDO;
+		} else {
+		    command_pattern = COMMAND_PATTERN_WITH_SUDO;
+		} 
 	}
 
 	private static Lock getLock(String jobInstanceId){
@@ -102,7 +112,6 @@ public class ScheduleUtility {
 		} 
 		Set<String> currentNew = cs.getNewExecutionJobInstanceIds(localIp, watcher);
 		for(String attemptID: currentNew){
-			System.out.println(attemptID);
 			submitTask(executor, localIp, cs, attemptID);
 		}
 		s_logger.debug("End checkAndRunTasks");
@@ -252,7 +261,7 @@ public class ScheduleUtility {
 				    cmdLine = new CommandLine("bash");
 				    cmdLine.addArgument("-c");
 				    String pidFile = running + FILE_SEPRATOR + '.' + attemptID;
-                    cmdLine.addArgument(String.format(SUDO_COMMAND_PATTERN,  userName, pidFile, path, path, env, escapedCmd), false);
+                    cmdLine.addArgument(String.format(command_pattern,  userName, pidFile, path, path, env, escapedCmd), false);
 					s_logger.debug(taskAttempt + " start execute");
 					returnCode = executor.execute(attemptID, 0, null, cmdLine, logFileStream, errorFileStream);
 					executor.execute(null, logFileStream, errorFileStream, logFileUpload,logFilePath,errorFilePath,htmlFilePath,htmlFileName);
@@ -357,7 +366,9 @@ public class ScheduleUtility {
 
 		@Override
 		public void process(WatchedEvent event) {
+		    if(event.getState() != KeeperState.Expired ) {
 				checkAndRunTasks(executor, localIp, cs, true);
+		    }
 		}
 	}
 
@@ -368,7 +379,9 @@ public class ScheduleUtility {
 
 		@Override
 		public void process(WatchedEvent event) {
-			checkAndKillTasks(executor, localIp, cs, true);
+		    if(event.getState() != KeeperState.Expired ) {
+		        checkAndKillTasks(executor, localIp, cs, true);
+		    }
 		}
 	}
 }

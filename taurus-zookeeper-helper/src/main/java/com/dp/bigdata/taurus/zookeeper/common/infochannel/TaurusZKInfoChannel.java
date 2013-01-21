@@ -48,6 +48,7 @@ abstract class TaurusZKInfoChannel implements ClusterInfoChannel{
 	protected MachineType mt;
 	protected String ip;
 	protected Watcher watcher ;
+	private boolean connecting = false;
 
 	@Inject
 	TaurusZKInfoChannel(ZooKeeper zk){
@@ -55,19 +56,21 @@ abstract class TaurusZKInfoChannel implements ClusterInfoChannel{
 	}
 	
 	@Override
-	public void reconnectToCluster(Watcher watcher) {
+	public synchronized void reconnectToCluster(Watcher watcher) {
 	    try{
-	        zk.close();
-	        Injector injector = Guice.createInjector(new ZooKeeperModule());
-	        zk = injector.getInstance(ZooKeeper.class);
-	        zk.register(watcher);
-	        Thread.sleep(20*1000);
-	        mkPath(CreateMode.EPHEMERAL, BASE, HEARTBEATS, mt.getName(), REALTIME, ip);
+            
+            LOG.info("Start to reconnect..");
+            zk.close();
+            Injector injector = Guice.createInjector(new ZooKeeperModule());
+            zk = injector.getInstance(ZooKeeper.class);
+            zk.register(watcher);
+            mkPath(CreateMode.EPHEMERAL, BASE, HEARTBEATS, mt.getName(), REALTIME, ip);
         } catch(Exception e){
             throw new TaurusZKException(e);
         }
 	}
-
+	
+	
 	@Override
 	public void connectToCluster(MachineType mt, String ip) {
 	    this.mt = mt;
