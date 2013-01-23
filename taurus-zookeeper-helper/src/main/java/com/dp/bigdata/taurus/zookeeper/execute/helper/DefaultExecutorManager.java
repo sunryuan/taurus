@@ -14,6 +14,7 @@ import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 
 import com.dp.bigdata.taurus.zookeeper.common.MachineType;
+import com.dp.bigdata.taurus.zookeeper.common.infochannel.DefaultZKWatcher;
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.bean.ScheduleConf;
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.bean.ScheduleStatus;
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.guice.ScheduleInfoChanelModule;
@@ -39,6 +40,8 @@ public class DefaultExecutorManager implements ExecutorManager{
 	public DefaultExecutorManager(){
 		Injector injector = Guice.createInjector(new ScheduleInfoChanelModule());
 		dic = injector.getInstance(ScheduleInfoChannel.class);
+		Watcher zkWatcher = new DefaultZKWatcher(dic);
+		dic.registerWatcher(zkWatcher);
 	}
 	
 	private static Lock getLock(String attemptID){

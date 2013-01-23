@@ -19,8 +19,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.Watcher.Event.EventType;
-import org.apache.zookeeper.Watcher.Event.KeeperState;
-
 import com.dp.bigdata.taurus.agent.exec.Executor;
 import com.dp.bigdata.taurus.agent.utils.AgentEnvValue;
 import com.dp.bigdata.taurus.agent.utils.AgentServerHelper;
@@ -53,7 +51,7 @@ public class ScheduleUtility {
 //	private static final String WORMHOLE_JOB = "wormhole";
 //  private static final String HIVE_JOB = "hive";
 //	private static final String SHELL_JOB = "shell script";
-	private static final String COMMAND_PATTERN_WITHOUT_SUDO = "echo $$ >>%s; [ -f %s ] && cd %s; source %s && %s";
+	private static final String COMMAND_PATTERN_WITHOUT_SUDO = "echo %s;echo $$ >>%s; [ -f %s ] && cd %s; source %s && %s";
 	private static final String COMMAND_PATTERN_WITH_SUDO = "sudo -u %s -i \"echo $$ >>%s; [ -f %s ] && cd %s; source %s && %s\"";
 	private static String command_pattern;
 	private static final String KILL_COMMAND = "%s %s %s";
@@ -75,7 +73,7 @@ public class ScheduleUtility {
 		if(needSudoAuthority) {
 		    command_pattern = COMMAND_PATTERN_WITH_SUDO;
 		} else {
-		    command_pattern = COMMAND_PATTERN_WITH_SUDO;
+		    command_pattern = COMMAND_PATTERN_WITHOUT_SUDO;
 		} 
 	}
 
@@ -366,7 +364,8 @@ public class ScheduleUtility {
 
 		@Override
 		public void process(WatchedEvent event) {
-		    if(event.getState() != KeeperState.Expired ) {
+		    
+		    if(event.getType() == EventType.NodeChildrenChanged ) {
 				checkAndRunTasks(executor, localIp, cs, true);
 		    }
 		}
@@ -379,7 +378,7 @@ public class ScheduleUtility {
 
 		@Override
 		public void process(WatchedEvent event) {
-		    if(event.getState() != KeeperState.Expired ) {
+		    if(event.getType() == EventType.NodeChildrenChanged ) {
 		        checkAndKillTasks(executor, localIp, cs, true);
 		    }
 		}
