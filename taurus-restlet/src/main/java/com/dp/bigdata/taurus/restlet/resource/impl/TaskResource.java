@@ -103,7 +103,7 @@ public class TaskResource extends ServerResource implements ITaskResource {
                         userExample.or().andIdEqualTo(Integer.parseInt(user));
                         List<User> userList = userMapper.selectByExample(userExample);
                         if (userList != null && userList.size() == 1) {
-                            userName.append(userList.get(0).getId());
+                            userName.append(userList.get(0).getName());
                         }
                         if (i < users.length - 1) {
                             userName.append(";");
