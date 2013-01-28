@@ -20,6 +20,7 @@ public final class AgentEnvValue {
 	public static final String JOB_PATH = "taurusJobPath";
 	public static final String LOG_PATH = "taurusLogPath";
 	public static final String NEED_HADOOP_AUTHORITY = "needHadoopAuthority";
+	public static final String NEED_SUDO_AUTHORITY = "needSudoAuthority";
 	
 	public static String getValue(String key){
 		return getValue(key,"");

@@ -13,9 +13,9 @@ public class AgentServerTest {
 
 	@Test
 	public void test() throws IOException{
-//		Injector injector = Guice.createInjector(new AgentServerModule());
-//		AgentServer as = injector.getInstance(AgentServer.class);
-//		as.start();
+		Injector injector = Guice.createInjector(new AgentServerModule());
+		AgentServer as = injector.getInstance(AgentServer.class);
+		as.start();
 	}
 
 //	private static final class AgentServerThread implements Runnable{

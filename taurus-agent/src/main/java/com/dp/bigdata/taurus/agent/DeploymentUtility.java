@@ -12,6 +12,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
+import org.apache.zookeeper.Watcher.Event.EventType;
+import org.apache.zookeeper.Watcher.Event.KeeperState;
 
 import com.dp.bigdata.taurus.agent.exec.Executor;
 import com.dp.bigdata.taurus.agent.utils.AgentEnvValue;
@@ -244,7 +246,9 @@ public class DeploymentUtility {
 
 		@Override
 		public void process(WatchedEvent event) {
-			checkAndDeployTasks(executor, localIp, cs, true);
+		    if(event.getType() == EventType.NodeChildrenChanged ) {
+		        checkAndDeployTasks(executor, localIp, cs, true);
+		    }
 		}
 	}
 
@@ -256,7 +260,9 @@ public class DeploymentUtility {
 
 		@Override
 		public void process(WatchedEvent event) {
-			checkAndUndeployTasks(executor, localIp, cs, true);
+		    if(event.getType() == EventType.NodeChildrenChanged ) {
+		        checkAndUndeployTasks(executor, localIp, cs, true);
+		    }
 		}
 	}
 

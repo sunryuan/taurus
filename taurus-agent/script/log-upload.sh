@@ -9,11 +9,14 @@ if [ $? != 0 ] ; then
         exit 1
 fi
 kinit -R;
-echo "<html><body><h1>sysout</h1>" >>$3
-tail -c 1000000 $1 >>$3
-echo "<h1>syserror</h1>" >>$3
-tail -c 100000 $2 >>$3
-echo "</body></html>" >>$3
+echo '<html><head>    <meta http-equiv="content-type" content="text/html; charset=UTF-8">    <title>log</title>  
+	<style type="text/css"></style><style>.stderr {background-color: #f5ebeb;}.stdout {background-color: #f5ebeb;}
+	body, table td, select {font-family: Arial Unicode MS, Arial, sans-serif;font-size: medium;}</style></head>
+	<body><div><div> <h1>StdErr</h1> </div> <div class="stderr">' >>$3
+tail -c 1000000 $2 |  sed -e "s/$/&<br\/>/g" >>$3
+echo '</div> <div> <h1>StdOut</h1> </div> <div class="stdout">' >>$3
+tail -c 100000 $1 |  sed -e "s/$/&<br\/>/g" >>$3
+echo '</div></div></body></html>' >>$3
 hadoop fs -moveFromLocal $3 $taurusLog$4
 exit $?
 # end

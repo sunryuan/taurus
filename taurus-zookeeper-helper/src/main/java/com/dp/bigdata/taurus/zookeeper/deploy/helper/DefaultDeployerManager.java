@@ -13,6 +13,7 @@ import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 
 import com.dp.bigdata.taurus.zookeeper.common.MachineType;
+import com.dp.bigdata.taurus.zookeeper.common.infochannel.DefaultZKWatcher;
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.bean.DeploymentConf;
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.bean.DeploymentStatus;
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.guice.DeploymentInfoChannelModule;
@@ -33,6 +34,8 @@ public class DefaultDeployerManager implements Deployer{
 	public DefaultDeployerManager(){
 		Injector injector = Guice.createInjector(new DeploymentInfoChannelModule());
 		dic = injector.getInstance(DeploymentInfoChannel.class);
+		Watcher zkWatcher = new DefaultZKWatcher(dic);
+        dic.registerWatcher(zkWatcher);
 	}
 	
 	private static Lock getLock(String taskID){

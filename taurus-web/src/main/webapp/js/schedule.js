@@ -24,23 +24,77 @@ function action(id, index) {
 	}
 }
 
+
+
+
 function action_update(id) {
 	var btn = $('#updateBtn',$('#detail_'+id));
 	var form =  $("#form_"+id);
 	if(btn.text() == "修改"){
 		btn.html("保存");
-		$('.field',$('#detail_'+id)).removeAttr("disabled", "disabled");
+		$('.field',form).removeAttr("disabled", "disabled");
+		$('#alertUser',form).autocomplete({
+	        width: 448,
+	        delimiter: /(,|;)\s*/,
+	        zIndex: 9999,
+	        lookup: userList.split(',')});
+		$('#alertGroup',form).autocomplete({
+	        width: 448,
+	        delimiter: /(,|;)\s*/,
+	        zIndex: 9999,
+	        lookup: groupList.split(',')});
 	} else {
 		if(!(form.validate().form())){
 			return false;
 		}
 		btn.button('loading');
+		var params={};
+		var file = $('#uploadFile',form).get(0);
+		var newForm = document.createElement('form');
+		var len=$(".field",form).length;
+		for(var i = 0; i < len; i++)
+ 		{
+      		var element = $(".field",form).get(i);
+			if(element.id=="uploadFile" || element.id=="alertCondition"  || element.id=="alertType"){
+				//do nothing
+			}else if(element.id=="alertUser" || element.id=="alertGroup") {
+				var result = element.value;
+				if(result[result.length-1]==';')
+					params[element.id] = result.substr(0,result.length-1);
+				else
+					params[element.id] = element.value;
+			} else {
+				params[element.id] = element.value;
+			}
+		}
+		params["taskName"]=$("#taskName",form).get(0).value;
+		var condition = $('.alertCondition',form).map(function() {
+			if($(this).prop("checked"))
+				return this.name;
+		    }).get().join(";");
+		var type = $('#alertType',form).children().map(function() {
+			if($(this).prop("selected"))
+				return this.id;
+		    }).get().join();
+		
+		params["alertCondition"] = condition;
+		params["alertType"] = type;
+		
+		for(var key in params) {
+    		if(params.hasOwnProperty(key)) {
+        		var hiddenField = document.createElement("input");
+        		hiddenField.setAttribute("type", "hidden");
+    			hiddenField.setAttribute("name", key);
+        		hiddenField.setAttribute("value", params[key]);
+				newForm.appendChild(hiddenField);
+     		}
+		}		
 		if($('#uploadFile',form).val() == null || $('#uploadFile',form).val() == '') {
-			form.attr('enctype','application/x-www-form-urlencoded');
+			newForm.setAttribute("enctype","application/x-www-form-urlencoded");
 			$.ajax({
 				type: "POST",
 	            url: 'create_task?update='+id, 
-	            data: $("#form_"+id).serialize(), // serializes the form's elements.
+	            data: $(newForm).serialize(), // serializes the form's elements.
 	            enctype: 'application/x-www-form-urlencoded',
 
 	            error: function(data)
@@ -53,11 +107,8 @@ function action_update(id) {
 	            },
 	            success: function(data)
 	            {
-	    			window.location.reload();
-	            	$("#alertContainer").html('<div id="alertContainer" class="alert alert-success"><button type="button" class="close" data-dismiss="alert">&times;</button> <strong>'
-	    					+ '修改成功</strong></div>');
-	    			$(".alert").alert();
-	    			$("#detail_"+id).modal("hide");
+	            	$("#detail_"+id).modal("hide");
+	            	$('#modal-confirm').modal('toggle');
 	            },
 	            cache: false,
 		        contentType: false,
@@ -69,11 +120,12 @@ function action_update(id) {
 			        $('progress').attr({value:e.loaded,max:e.total});
 			    }
 			}
-			form.attr('enctype','multipart/form-data');
+			newForm.setAttribute('enctype','multipart/form-data');
+			newForm.appendChild(file);
 			$.ajax({
 				type: "POST",
 	           	url: 'create_task?update='+id, 
-	           	data: new FormData(form[0]),
+	           	data: new FormData(newForm),
 	           	enctype: 'multipart/form-data',
 	           	xhr: function() {  // custom xhr
 		            myXhr = $.ajaxSettings.xhr();
@@ -92,18 +144,16 @@ function action_update(id) {
 	            },
 	            success: function(data)
 	            {
-	    			//window.location.reload();
-	            	$("#alertContainer").html('<div id="alertContainer" class="alert alert-success"><button type="button" class="close" data-dismiss="alert">&times;</button> <strong>'
-	    					+ '修改成功</strong></div>');
-	    			$(".alert").alert();
-	    			$("#detail_"+id).modal("hide");
+	            	$("#detail_"+id).modal("hide");
+	            	$('#modal-confirm').modal('toggle');
 	            },
 	            cache: false,
 		        contentType: false,
 		        processData: false
 		    });
+			
 		}
-
+		$('#fileDiv',form).append(file);
 	    return false; // avoid to execute the actual submit of the form.
 
 	}

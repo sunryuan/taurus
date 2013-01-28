@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.zookeeper.Watcher;
+import org.apache.zookeeper.ZooKeeper;
 
 import com.dp.bigdata.taurus.zookeeper.common.MachineType;
 

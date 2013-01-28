@@ -1,6 +1,7 @@
 package com.dp.bigdata.taurus.alert;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -99,12 +100,19 @@ public class TaurusAlert {
         }
     }
 
-    public void start() {
+    public void start(int interval) {
         Thread updated = new Thread(new MetaDataUpdatedThread());
         updated.setName("MetaDataThread");
         updated.start();
 
-        Thread alert = new Thread(new AlertThread(new Date()));
+        Date now = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(now);
+        calendar.set(Calendar.MILLISECOND, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.add(Calendar.MINUTE, interval);
+
+        Thread alert = new Thread(new AlertThread(calendar.getTime()));
         alert.setName("AlertThread");
         alert.start();
     }
@@ -145,10 +153,12 @@ public class TaurusAlert {
                     }
                 }
 
+                Date now = new Date();
                 TaskAttemptExample example = new TaskAttemptExample();
-                example.or().andEndtimeGreaterThanOrEqualTo(previous);
+                example.or().andEndtimeGreaterThanOrEqualTo(previous).andEndtimeLessThan(now);
                 List<TaskAttempt> attempts = taskAttemptMapper.selectByExample(example);
-                previous = new Date();
+                previous = now;
+
                 if (attempts != null && attempts.size() == 0) {
                     continue;
                 }
@@ -176,9 +186,9 @@ public class TaurusAlert {
         }
 
         private void ruleHandler(TaskAttempt attempt, AlertRule rule) {
-            String[] whens = rule.getConditions() == null ? null : rule.getConditions().split(";");
-            String[] userId = rule.getUserid() == null ? null : rule.getUserid().split(";");
-            String[] groupId = rule.getGroupid() == null ? null : rule.getUserid().split(";");
+            String[] whens = StringUtils.isBlank(rule.getConditions()) ? null : rule.getConditions().split(";");
+            String[] userId = StringUtils.isBlank(rule.getUserid()) ? null : rule.getUserid().split(";");
+            String[] groupId = StringUtils.isBlank(rule.getGroupid()) ? null : rule.getGroupid().split(";");
             if (whens == null) {
                 return;
             }
@@ -260,7 +270,11 @@ public class TaurusAlert {
         ApplicationContext context = new FileSystemXmlApplicationContext("classpath:applicationContext.xml");
         TaurusAlert alert = (TaurusAlert) context.getBean("alert");
         try {
-            alert.start();
+            if (args.length == 0) {
+                alert.start(-1);
+            } else if (args.length == 1) {
+                alert.start(Integer.parseInt(args[0]));
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
