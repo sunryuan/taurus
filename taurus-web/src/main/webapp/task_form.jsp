@@ -16,7 +16,6 @@
 <%@page import="com.dp.bigdata.taurus.restlet.shared.StatusDTO"%> 
 <%@page import="com.dp.bigdata.taurus.restlet.shared.UserDTO"%>
 <%@page import="com.dp.bigdata.taurus.restlet.shared.UserGroupDTO"%>
-
 <%@page import="java.util.ArrayList"%>
 
 <% 
@@ -178,12 +177,11 @@
             			<label class="control-label">选择何时收到报警</label>
             			<div class="controls">
             					<%String conditionStr = dto.getAlertRule().getConditions();
-            					System.out.println(conditionStr);
             					for(StatusDTO status:statuses) {
    								    if(conditionStr != null && conditionStr.contains(status.getStatus())) {%>
-    									<input type="checkbox" class="input-large field alertCondition" id="alertCondition" name="<%=status.getStatus()%>" checked="checked"> <%=status.getCh_status()%>
+    									<input type="checkbox" class="input-large field alertCondition" id="alertCondition" name="<%=status.getStatus()%>" checked="checked" disabled> <%=status.getCh_status()%>
     								<%} else {%>
-    									<input type="checkbox" class="input-large field alertCondition" id="alertCondition" name="<%=status.getStatus()%>"> <%=status.getCh_status()%>
+    									<input type="checkbox" class="input-large field alertCondition" id="alertCondition" name="<%=status.getStatus()%>" disabled> <%=status.getCh_status()%>
     							<%}}%>
             			</div>
           			</div>
@@ -191,7 +189,7 @@
           			<div class="control-group">
             			<label class="control-label"  for="alertType">选择报警方式</label>
             			<div class="controls">
-              				<select class="input-small field" id="alertType" name="alertType">
+              				<select class="input-small field" id="alertType" name="alertType" disabled>
               					<% if(dto.getAlertRule().getHasmail() && dto.getAlertRule().getHassms()) {%>
               						<option id="1">邮件</option>
               						<option id="2">短信</option>
@@ -209,17 +207,18 @@
             			</div>
           			</div>
           			
+          			
           			<div class="control-group">
-            			<label class="control-label">选择报警接收人(分号分隔)</label>
+            			<label class="control-label" for="alertUser">选择报警接收人(分号分隔)</label>
             			<div class="controls">
-              				<input type="text" class="input-large field" id="alertUser" name="alertUser" placeholder="user name split with ;">
+              				<input type="text" class="input-large field" id="alertUser" name="alertUser" <% if(dto.getAlertRule().getUserid() != null){%> value="<%=dto.getAlertRule().getUserid()%>"<%}%> disabled>
             			</div>
           			</div>
           			
           			<div class="control-group">
-            			<label class="control-label">选择报警接收组(分号分隔)</label>
+            			<label class="control-label" for="alertGroup">选择报警接收组(分号分隔)</label>
             			<div class="controls">
-              				<input type="text" class="input-large field" id="alertGroup" name="alertGroup" placeholder="group name split with ;">
+              				<input type="text" class="input-large field" id="alertGroup" name="alertGroup" <% if(dto.getAlertRule().getGroupid() != null){%> value="<%=dto.getAlertRule().getGroupid()%>" <%}%> disabled>
             			</div>
           			</div>
           			<input type="text" class="field" style="display:none" id="creator" name="creator" value="<%=(String)session.getAttribute(com.dp.bigdata.taurus.web.servlet.LoginServlet.USER_NAME)%>">          					
@@ -231,4 +230,31 @@
     <button class="btn" data-dismiss="modal">关闭</button>
   </div>
 </div>
+
 <%}%>
+
+<div id="modal-confirm" class="modal hide fade">
+    <div class="modal-header">
+      <a href="#" class="close">&times;</a>
+      <h3>修改成功</h3>
+    </div>
+    <div class="modal-body">
+      <p>您的修改已经生效！</p>
+    </div>
+    <div class="modal-footer">
+     <button id="confirmBtn" class="btn btn-primary"  onClick="window.location.reload();">确定</button>
+    </div>
+</div>
+<script type="text/javascript">  
+      	var userList="",groupList="";
+      	<% for(UserDTO user:users) {%>
+      		userList=userList+",<%=user.getName()%>";
+      	<%}%>
+      	<% for(UserGroupDTO group:groups) {%>
+      		groupList=groupList+",<%=group.getName()%>";
+  		<%}%>
+      	userList = userList.substr(1);
+      	groupList = groupList.substr(1);
+</script> 
+<script src="js/jquery.autocomplete.min.js" type="text/javascript"></script>
+

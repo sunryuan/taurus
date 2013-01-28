@@ -171,13 +171,8 @@ public class TaskResource extends ServerResource implements ITaskResource {
             scheduler.updateTask(task.getTask());
             AlertRuleExample example = new AlertRuleExample();
             example.or().andJobidEqualTo(task.getTaskid());
-            List<AlertRule> rules = alertRuleMapper.selectByExample(example);
-            if (rules != null && rules.size() == 1) {
-                AlertRule updatedRule = task.getAlertRule();
-                AlertRule originRule = rules.get(0);
-                updatedRule.setId(originRule.getId());
-                alertRuleMapper.updateByPrimaryKeySelective(updatedRule);
-            }
+            AlertRule updatedRule = task.getAlertRule();
+            alertRuleMapper.updateByExampleSelective(updatedRule, example);
             setStatus(Status.SUCCESS_CREATED);
         } catch (ScheduleException e) {
             LOG.error(e.getMessage(), e);

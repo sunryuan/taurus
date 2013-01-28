@@ -27,7 +27,7 @@ public class TaurusAgentServer implements AgentServer{
 	
 	@Inject
 	public TaurusAgentServer(DeploymentInfoChannel deployer,ScheduleInfoChannel schedule, Executor executor, int interval){
-		
+	    LOG.info("Starting..");
 	    this.deployer = deployer;
 		this.schedule = schedule;
 		this.executor = executor;
@@ -36,7 +36,6 @@ public class TaurusAgentServer implements AgentServer{
 	    Watcher scheduleWatcher = new DefaultZKWatcher(schedule);
 	    schedule.registerWatcher(scheduleWatcher);
 
-
 		localIp = AgentServerHelper.getLocalIp();
 		if(interval > 0){
 			this.interval = interval;
@@ -44,7 +43,6 @@ public class TaurusAgentServer implements AgentServer{
 	}
 
 	public void start(){
-	    LOG.info("Starting..");
 		deployer.connectToCluster(MachineType.AGENT, localIp);
 		schedule.connectToCluster(MachineType.AGENT, localIp);
 	    LOG.info("Taurus agent starts.");

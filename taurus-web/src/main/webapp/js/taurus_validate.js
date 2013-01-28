@@ -28,6 +28,12 @@ $.validator.addMethod("validIP",function(value,element,params){
 	return false; 
 },"Invalid IP");	 
 
+$.validator.addMethod("taskNameTest",function(value,element,params){
+	 var p = /^[0-9a-zA-Z|_|;|\.|\-|(|)]*$/;
+	 if(p.test(value)) return true; 
+	 return false; 
+},"名称中可使用的字符包括：数字、字母、下划线、横线、点和括号");
+
 
 $.validator.addMethod("validName",function(value,element,params){
 	
@@ -94,6 +100,7 @@ $(document).ready(function(){
 	    	taskName: {
 	    		minlength: 2,
 	    		required: true,
+	    		taskNameTest:true,
 	    		validName: true
 	    	},
 	    	crontab: {
@@ -156,7 +163,6 @@ $(document).ready(function(){
 		  forms.eq(i).validate({
 			  rules: {
 				  	hostname: {
-			    		validName:true,
 				  		required: true,
 				  		validIP: true
 		    		},

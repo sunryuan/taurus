@@ -31,20 +31,12 @@ public class DefaultZKWatcher implements Watcher{
     @Override
 	public void process(WatchedEvent event) {
 	    if (event.getState() == KeeperState.Expired) {
-	        LOGGER.info("Session Expried init");
-	        while(true) {  
-                try{  
-                    zkCluster.reconnectToCluster(this);
-                    break;  
-                }catch(RuntimeException e) {  
-                    LOGGER.error(e.getMessage(), e);
-                    try {
-                        Thread.sleep(5* 1000);
-                    } catch (InterruptedException e1) {
-                        LOGGER.error(e1.getMessage(),e1);
-                    }  
-                }  
-            }  
+	        LOGGER.info("Session Expried init");  
+	        try{  
+                zkCluster.reconnectToCluster(this);
+            }catch(RuntimeException e) {  
+                LOGGER.error(e.getMessage(), e);
+            }
         }   
 	}
 	
