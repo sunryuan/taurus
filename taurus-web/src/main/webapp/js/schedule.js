@@ -54,7 +54,7 @@ function action_update(id) {
 		var len=$(".field",form).length;
 		for(var i = 0; i < len; i++)
  		{
-      		var element = $(".field").get(i);
+      		var element = $(".field",form).get(i);
 			if(element.id=="uploadFile" || element.id=="alertCondition"  || element.id=="alertType"){
 				//do nothing
 			}else if(element.id=="alertUser" || element.id=="alertGroup") {
@@ -67,6 +67,7 @@ function action_update(id) {
 				params[element.id] = element.value;
 			}
 		}
+		params["taskName"]=$("#taskName",form).get(0).value;
 		var condition = $('.alertCondition',form).map(function() {
 			if($(this).prop("checked"))
 				return this.name;
@@ -93,7 +94,7 @@ function action_update(id) {
 			$.ajax({
 				type: "POST",
 	            url: 'create_task?update='+id, 
-	            data: $("#form_"+id).serialize(), // serializes the form's elements.
+	            data: $(newForm).serialize(), // serializes the form's elements.
 	            enctype: 'application/x-www-form-urlencoded',
 
 	            error: function(data)
@@ -106,11 +107,8 @@ function action_update(id) {
 	            },
 	            success: function(data)
 	            {
-	    			window.location.reload();
-	            	$("#alertContainer").html('<div id="alertContainer" class="alert alert-success"><button type="button" class="close" data-dismiss="alert">&times;</button> <strong>'
-	    					+ '修改成功</strong></div>');
-	    			$(".alert").alert();
-	    			$("#detail_"+id).modal("hide");
+	            	$("#detail_"+id).modal("hide");
+	            	$('#modal-confirm').modal('toggle');
 	            },
 	            cache: false,
 		        contentType: false,
@@ -146,11 +144,8 @@ function action_update(id) {
 	            },
 	            success: function(data)
 	            {
-	    			//window.location.reload();
-	            	$("#alertContainer").html('<div id="alertContainer" class="alert alert-success"><button type="button" class="close" data-dismiss="alert">&times;</button> <strong>'
-	    					+ '修改成功</strong></div>');
-	    			$(".alert").alert();
-	    			$("#detail_"+id).modal("hide");
+	            	$("#detail_"+id).modal("hide");
+	            	$('#modal-confirm').modal('toggle');
 	            },
 	            cache: false,
 		        contentType: false,
