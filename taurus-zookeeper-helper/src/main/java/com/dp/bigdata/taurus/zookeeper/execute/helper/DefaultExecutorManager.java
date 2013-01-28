@@ -32,6 +32,7 @@ public class DefaultExecutorManager implements ExecutorManager{
 	
 	private static final Log LOGGER = LogFactory.getLog(DefaultExecutorManager.class);
 	private static final int DEFAULT_TIME_OUT_IN_SECONDS = 10;
+	private static final int RETRY_SLEEP_TIME = 20*1000;           //20s
 	private static Map<String, Lock> attemptIDToLockMap = new HashMap<String, Lock>();
 
 	private ScheduleInfoChannel dic;
@@ -55,49 +56,68 @@ public class DefaultExecutorManager implements ExecutorManager{
 		}
 	}
 	
+	private void executeInternal(ExecuteContext context)  throws ExecuteException {
+	    String agentIP = context.getAgentIP();
+        String taskID = context.getTaskID();
+        String attemptID = context.getAttemptID();
+        String cmd = context.getCommand();
+        String taskType = context.getType();
+        String proxyUser = context.getProxyUser();
+        
+        if(!dic.exists(MachineType.AGENT,agentIP)){
+            ScheduleStatus status = new ScheduleStatus();
+            status.setStatus(ScheduleStatus.AGENT_UNAVAILABLE);
+            LOGGER.error("Agent unavailable");
+            throw new ExecuteException("Agent unavailable");
+        }else{
+            ScheduleStatus status = (ScheduleStatus) dic.getStatus(agentIP, attemptID, null);
+            if(status == null){
+                ScheduleConf conf = new ScheduleConf();
+                conf.setTaskID(taskID);
+                conf.setAttemptID(attemptID);
+                conf.setCommand(cmd);
+                conf.setTaskType(taskType);
+                conf.setUserName(proxyUser);
+                status = new ScheduleStatus();
+                status.setStatus(ScheduleStatus.SCHEDULE_SUCCESS);
+                Lock lock = getLock(attemptID);
+                try{
+                    lock.lock();
+                    dic.execute(agentIP, attemptID, conf, status);
+                } catch (RuntimeException e) {
+                    LOGGER.error("Attempt "+attemptID + " schedule failed",e);
+                    status.setStatus(ScheduleStatus.SCHEDULE_FAILED);
+                    throw new ExecuteException(e);
+                }   
+                finally{
+                    lock.unlock();
+                }
+            }
+            else{
+                LOGGER.error("Attempt "+attemptID + " has already scheduled");
+                throw new ExecuteException("Attempt "+attemptID + " has already scheduled");
+            }
+        }
+	}
+	
     public void execute(ExecuteContext context) throws ExecuteException {
+    	try{
+    	    this.executeInternal(context);
+    	} catch(ExecuteException e){
+    	    //if get Agent unavailable exception, wait 20s and retry;
+    	    if(e.getMessage().equals("Agent unavailable")) {
+    	        try {
+                    Thread.sleep(RETRY_SLEEP_TIME);
+                } catch (InterruptedException e1) {
+                    LOGGER.error(e1,e1);
+                    throw e;
+                }
+                this.executeInternal(context);
+    	    } else {
+    	        throw e;
+    	    }
+    	}
     	
-    	String agentIP = context.getAgentIP();
-    	String taskID = context.getTaskID();
-    	String attemptID = context.getAttemptID();
-    	String cmd = context.getCommand();
-    	String taskType = context.getType();
-    	String proxyUser = context.getProxyUser();
-    	
-    	if(!dic.exists(MachineType.AGENT,agentIP)){
-			ScheduleStatus status = new ScheduleStatus();
-			status.setStatus(ScheduleStatus.AGENT_UNAVAILABLE);
-			LOGGER.error("Agent unavailable");
-			throw new ExecuteException("Agent unavailable");
-		}else{
-			ScheduleStatus status = (ScheduleStatus) dic.getStatus(agentIP, attemptID, null);
-			if(status == null){
-				ScheduleConf conf = new ScheduleConf();
-				conf.setTaskID(taskID);
-				conf.setAttemptID(attemptID);
-				conf.setCommand(cmd);
-				conf.setTaskType(taskType);
-				conf.setUserName(proxyUser);
-				status = new ScheduleStatus();
-				status.setStatus(ScheduleStatus.SCHEDULE_SUCCESS);
-				Lock lock = getLock(attemptID);
-				try{
-					lock.lock();
-					dic.execute(agentIP, attemptID, conf, status);
-				} catch (RuntimeException e) {
-	                LOGGER.error("Attempt "+attemptID + " schedule failed",e);
-					status.setStatus(ScheduleStatus.SCHEDULE_FAILED);
-					throw new ExecuteException(e);
-				}	
-				finally{
-					lock.unlock();
-				}
-			}
-			else{
-			    LOGGER.error("Attempt "+attemptID + " has already scheduled");
-				throw new ExecuteException("Attempt "+attemptID + " has already scheduled");
-			}
-		}
     }
 
     public void kill(ExecuteContext context) throws ExecuteException {
