@@ -1,3 +1,5 @@
+
+source /etc/profile
 #keytab file path set
 export homeDir='/home/'
 

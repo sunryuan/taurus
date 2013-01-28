@@ -86,12 +86,12 @@ $(document).ready(function() {
 	$('#alertUser').autocomplete({
         width: 448,
         delimiter: /(,|;)\s*/,
-        zIndex: 0,
+        zIndex: 9999,
         lookup: userList.split(',')});
 	$('#alertGroup').autocomplete({
         width: 448,
         delimiter: /(,|;)\s*/,
-        zIndex: 0,
+        zIndex: 9999,
         lookup: groupList.split(',')});
         	
 	$("#submitButton").click(function(e) {
@@ -141,9 +141,7 @@ $(document).ready(function() {
 			if($(this).prop("selected"))
 				return this.id;
 		    }).get().join();
-		$('#alertUser').val().split(';').map(function() {
-				return 1;
-		    }).join();
+		
 		params["alertCondition"] = condition;
 		params["alertType"] = type;
 		
