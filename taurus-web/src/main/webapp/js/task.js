@@ -32,10 +32,9 @@ $(document).ready(function() {
 				$("#submitButton").button('reset');
 	    	},
 	        enctype: 'application/x-www-form-urlencoded',
-	        // Form data
 	        data: jForm.serialize(),
 	        cache: false,
-	        contentType: 'application/xml;charset="utf-8"',
+	        contentType: 'application/xml',
 	        processData: false
 	    });
 	}
@@ -74,9 +73,7 @@ $(document).ready(function() {
 				$("#submitButton").button('reset');
 	    	},
 	        enctype: 'multipart/form-data',
-	        // Form data
 	        data: formData,
-	        //Options to tell JQuery not to process data or worry about content-type
 	        cache: false,
 	        contentType: false,
 	        processData: false

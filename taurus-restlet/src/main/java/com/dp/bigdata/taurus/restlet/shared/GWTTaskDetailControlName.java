@@ -28,7 +28,7 @@ public enum GWTTaskDetailControlName {
     DESCRIPTION("description"),
     ALERTCONDITION("alertCondition"),
     ALERTTYPE("alertType"),
-    ALERTGROUP("alertGrup"),
+    ALERTGROUP("alertGroup"),
     ALERTUSER("alertUser");
     
     private String name;

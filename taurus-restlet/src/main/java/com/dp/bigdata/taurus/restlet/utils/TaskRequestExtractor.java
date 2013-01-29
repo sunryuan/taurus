@@ -86,7 +86,7 @@ public class TaskRequestExtractor implements RequestExtrator<TaskDTO> {
             for (final Iterator<FileItem> it = items.iterator(); it.hasNext();) {
                 FileItem fi = it.next();
                 if (fi.isFormField()) {
-                    formMap.put(fi.getFieldName(), fi.getString());
+                    formMap.put(fi.getFieldName(), fi.getString("UTF-8"));
                 } else {
                     if (StringUtils.isNotEmpty(fi.getName()) && StringUtils.isNotBlank(fi.getName())) {
                         String filePath = filePathManager.getLocalPath(fi.getName());
@@ -213,7 +213,16 @@ public class TaskRequestExtractor implements RequestExtrator<TaskDTO> {
         List<FileItem> items = upload.parseRequest(request);
         return items;
     }
+    public static void printHexString( byte[] b) { 
+        for (int i = 0; i < b.length; i++) { 
+        String hex = Integer.toHexString(b[i] & 0xFF); 
+        if (hex.length() == 1) { 
+        hex = '0' + hex; 
+        } 
+        System.out.print(hex.toUpperCase() ); 
+        } 
 
+        } 
     private void validate(TaskDTO task, boolean isUpdateAction) throws Exception {
         if (StringUtils.isBlank(task.getCreator())) {
             throw new InvalidArgumentException("Cannot get creator name from request");

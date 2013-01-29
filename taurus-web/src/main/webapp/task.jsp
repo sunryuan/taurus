@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=utf-8" %>
+<%@ page contentType="text/html;charset=utf-8"  pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -155,7 +155,7 @@
           			<div class="control-group">
             			<label class="control-label" for="dependency" >依赖</label>
             			<div class="controls">
-              				<input type="text" class="input-small field" id="dependency" name="dependency" placeholder="dependency expression"  value="">
+              				<input type="text" class="input-large field" id="dependency" name="dependency" placeholder="dependency expression"  value="">
             			</div>
           			</div>
           			<div class="control-group">

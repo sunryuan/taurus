@@ -82,7 +82,7 @@
 							</select>
 							<% for(PoolDTO pool : pools){
 							    if(dto.getPoolid() == pool.getId()) {%>
-            	    				<input id="poolId" name="poolId" style="display:none" value="<%=pool.getName()%>">
+            	    				<input id="poolIdReal" name="poolId" style="display:none" value="<%=pool.getName()%>">
             	    			<%}%>
 							<%}%>
 											
