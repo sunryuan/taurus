@@ -59,10 +59,10 @@ public class DependencyParserTest {
 	@Test
 	public void testPrefixExpression3() throws ParseException {
 
-		String dependencyExpr = "[wordcount][10][0]";
+        String dependencyExpr = "[rtable-(daily)][1][0]";
 		ParserNode current = DependencyParser.postExpression(dependencyExpr);
 		
-		assertEquals("wordcount",current.getOperation().getName());
+        assertEquals("rtable-(daily)", current.getOperation().getName());
 		current = current.getNext();
 		assertEquals(null,current);
 	}

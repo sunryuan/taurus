@@ -15,8 +15,8 @@ import com.dp.bigdata.taurus.core.AttemptStatusCheck;
  */
 public class DependencyParser {
 
-    public static final String SPLIT_PATTERN = "\\[(\\w+)\\]\\[(\\d+)\\]\\[(\\d+)\\]";
-    private static final String SPLIT_PART = "(\\[\\w+\\]\\[\\d+\\]\\[\\d+\\])";
+    public static final String SPLIT_PATTERN = "\\[([A-Za-z0-9_\\-\\(\\)]+)\\]\\[(\\d+)\\]\\[(\\d+)\\]";
+    private static final String SPLIT_PART = "(\\[[A-Za-z0-9_\\-\\(\\)]+\\]\\[\\d+\\]\\[\\d+\\])";
     public static final String DEPENDENCY_PATTERN = SPLIT_PART + "(" + "([&|\\|])" + SPLIT_PART + ")*";
     private static final Pattern SPLIT_CHECKER = Pattern.compile(SPLIT_PATTERN);
     private static final Pattern DEPENDENCY_CHECKER = Pattern.compile(DEPENDENCY_PATTERN);
