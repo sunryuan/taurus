@@ -100,5 +100,6 @@ org.eclipse.jdt.core.compiler.compliance=1.6
 		<module>taurus-restlet</module>
     	<module>taurus-web</module>
     	<module>taurus-alert</module>
+    	<module>taurus-framework</module>
 	</modules>
 </project>

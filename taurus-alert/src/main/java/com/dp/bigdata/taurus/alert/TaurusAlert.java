@@ -158,7 +158,6 @@ public class TaurusAlert {
                 example.or().andEndtimeGreaterThanOrEqualTo(previous).andEndtimeLessThan(now);
                 List<TaskAttempt> attempts = taskAttemptMapper.selectByExample(example);
                 previous = now;
-
                 if (attempts != null && attempts.size() == 0) {
                     continue;
                 }
@@ -171,6 +170,8 @@ public class TaurusAlert {
                 } catch (InterruptedException e) {
                     LOG.error("InterruptedException ", e);
                 }
+
+                previous = new Date();
 
             }
         }
