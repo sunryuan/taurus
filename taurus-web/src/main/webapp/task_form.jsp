@@ -151,7 +151,7 @@
           			<div class="control-group">
             			<label class="control-label">依赖</label>
             			<div class="controls">
-              				<input type="text" class="input-small field " id="dependency" name="dependency" placeholder="dependency expression"  value="<%=dto.getDependencyexpr()%>" disabled>
+              				<input type="text" class="input-large field " id="dependency" name="dependency" placeholder="dependency expression"  value="<%=dto.getDependencyexpr()%>" disabled>
             			</div>
           			</div>
           			<div class="control-group">

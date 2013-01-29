@@ -219,16 +219,7 @@ public class TaskRequestExtractor implements RequestExtrator<TaskDTO> {
         List<FileItem> items = upload.parseRequest(request);
         return items;
     }
-    public static void printHexString( byte[] b) { 
-        for (int i = 0; i < b.length; i++) { 
-        String hex = Integer.toHexString(b[i] & 0xFF); 
-        if (hex.length() == 1) { 
-        hex = '0' + hex; 
-        } 
-        System.out.print(hex.toUpperCase() ); 
-        } 
-
-        } 
+    
     private void validate(TaskDTO task, boolean isUpdateAction) throws Exception {
         if (StringUtils.isBlank(task.getCreator())) {
             throw new InvalidArgumentException("Cannot get creator name from request");
