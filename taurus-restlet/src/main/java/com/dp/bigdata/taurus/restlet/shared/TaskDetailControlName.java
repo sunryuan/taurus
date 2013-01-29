@@ -6,7 +6,7 @@ package com.dp.bigdata.taurus.restlet.shared;
  * @author damon.zhu
  *
  */
-public enum GWTTaskDetailControlName {
+public enum TaskDetailControlName {
 
     TASKNAME("taskName"),
     TASKTYPE("taskType"),
@@ -28,12 +28,12 @@ public enum GWTTaskDetailControlName {
     DESCRIPTION("description"),
     ALERTCONDITION("alertCondition"),
     ALERTTYPE("alertType"),
-    ALERTGROUP("alertGrup"),
+    ALERTGROUP("alertGroup"),
     ALERTUSER("alertUser");
     
     private String name;
     
-    GWTTaskDetailControlName(String name){
+    TaskDetailControlName(String name){
         this.name = name;
     }
     

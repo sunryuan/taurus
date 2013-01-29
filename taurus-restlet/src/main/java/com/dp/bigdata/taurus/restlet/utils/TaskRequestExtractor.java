@@ -34,8 +34,8 @@ import com.dp.bigdata.taurus.generated.module.UserGroupExample;
 import com.dp.bigdata.taurus.restlet.exception.DuplicatedNameException;
 import com.dp.bigdata.taurus.restlet.exception.InvalidArgumentException;
 import com.dp.bigdata.taurus.restlet.resource.impl.NameResource;
-import com.dp.bigdata.taurus.restlet.shared.GWTTaskDetailControlName;
 import com.dp.bigdata.taurus.restlet.shared.TaskDTO;
+import com.dp.bigdata.taurus.restlet.shared.TaskDetailControlName;
 
 /**
  * TaskRequestExtractor
@@ -107,38 +107,38 @@ public class TaskRequestExtractor implements RequestExtrator<TaskDTO> {
             String key = entry.getKey();
             String value = entry.getValue() == null ? "" : entry.getValue().trim();
 
-            if (key.equals(GWTTaskDetailControlName.TASKNAME.getName())) {
+            if (key.equals(TaskDetailControlName.TASKNAME.getName())) {
                 task.setName(value);
-            } else if (key.equals(GWTTaskDetailControlName.TASKTYPE.getName())) {
+            } else if (key.equals(TaskDetailControlName.TASKTYPE.getName())) {
                 task.setType(value);
-            } else if (key.equals(GWTTaskDetailControlName.TASKPOOL.getName())) {
+            } else if (key.equals(TaskDetailControlName.TASKPOOL.getName())) {
                 int pid = poolManager.getID(value);
                 task.setPoolid(pid);
-            } else if (key.equals(GWTTaskDetailControlName.TASKHOSTNAME.getName())) {
-                if (StringUtils.isNotEmpty(value)) {
+            } else if (key.equals(TaskDetailControlName.TASKHOSTNAME.getName())) {
+                if (StringUtils.isNotBlank(value)) {
                     task.setHostname(value);
                 }
-            } else if (key.equals(GWTTaskDetailControlName.TASKCOMMAND.getName())) {
+            } else if (key.equals(TaskDetailControlName.TASKCOMMAND.getName())) {
                 task.setCommand(value);
-            } else if (key.equals(GWTTaskDetailControlName.MULTIINSTANCE.getName())) {
+            } else if (key.equals(TaskDetailControlName.MULTIINSTANCE.getName())) {
                 task.setAllowmultiinstances(Integer.parseInt(value));
-            } else if (key.equals(GWTTaskDetailControlName.CRONTAB.getName())) {
-                if (!StringUtils.isBlank(value)) {
+            } else if (key.equals(TaskDetailControlName.CRONTAB.getName())) {
+                if (StringUtils.isNotBlank(value)) {
                     task.setCrontab("0 " + value);
                 }
-            } else if (key.equals(GWTTaskDetailControlName.DEPENDENCY.getName())) {
+            } else if (key.equals(TaskDetailControlName.DEPENDENCY.getName())) {
                 task.setDependencyexpr(value);
-            } else if (key.equals(GWTTaskDetailControlName.PROXYUSER.getName())) {
+            } else if (key.equals(TaskDetailControlName.PROXYUSER.getName())) {
                 task.setProxyuser(value);
-            } else if (key.equals(GWTTaskDetailControlName.MAXEXECUTIONTIME.getName())) {
+            } else if (key.equals(TaskDetailControlName.MAXEXECUTIONTIME.getName())) {
                 task.setExecutiontimeout(Integer.parseInt(value));
-            } else if (key.equals(GWTTaskDetailControlName.MAXWAITTIME.getName())) {
+            } else if (key.equals(TaskDetailControlName.MAXWAITTIME.getName())) {
                 task.setWaittimeout(Integer.parseInt(value));
-            } else if (key.equals(GWTTaskDetailControlName.CREATOR.getName())) {
+            } else if (key.equals(TaskDetailControlName.CREATOR.getName())) {
                 task.setCreator(value);
-            } else if (key.equals(GWTTaskDetailControlName.DESCRIPTION.getName())) {
+            } else if (key.equals(TaskDetailControlName.DESCRIPTION.getName())) {
                 task.setDescription(value);
-            } else if (key.equals(GWTTaskDetailControlName.RETRYTIMES.getName())) {
+            } else if (key.equals(TaskDetailControlName.RETRYTIMES.getName())) {
                 int retryNum = Integer.parseInt(value);
                 task.setRetrytimes(retryNum);
                 if (retryNum > 0) {
@@ -146,13 +146,13 @@ public class TaskRequestExtractor implements RequestExtrator<TaskDTO> {
                 } else {
                     task.setIsautoretry(false);
                 }
-            } else if (key.equals(GWTTaskDetailControlName.ALERTCONDITION.getName())) {
+            } else if (key.equals(TaskDetailControlName.ALERTCONDITION.getName())) {
                 if (StringUtils.isBlank(value)) {
                     task.setConditions(AttemptStatus.getInstanceRunState(AttemptStatus.FAILED));
                 } else {
                     task.setConditions(value);
                 }
-            } else if (key.equals(GWTTaskDetailControlName.ALERTGROUP.getName())) {
+            } else if (key.equals(TaskDetailControlName.ALERTGROUP.getName())) {
                 if (StringUtils.isNotBlank(value)) {
                     String[] groups = value.split(";");
                     StringBuilder groupId = new StringBuilder();
@@ -168,8 +168,11 @@ public class TaskRequestExtractor implements RequestExtrator<TaskDTO> {
                             groupId.append(";");
                         }
                     }
+                    task.setGroupid(groupId.toString());
+                } else {
+                    task.setGroupid("");
                 }
-            } else if (key.equals(GWTTaskDetailControlName.ALERTUSER.getName())) {
+            } else if (key.equals(TaskDetailControlName.ALERTUSER.getName())) {
                 if (StringUtils.isNotBlank(value)) {
                     String[] users = value.split(";");
                     StringBuilder userId = new StringBuilder();
@@ -185,9 +188,12 @@ public class TaskRequestExtractor implements RequestExtrator<TaskDTO> {
                             userId.append(";");
                         }
                     }
+                    task.setUserid(userId.toString());
+                } else {
+                    task.setUserid("");
                 }
             } 
-            else if (key.equals(GWTTaskDetailControlName.ALERTTYPE.getName())) {
+            else if (key.equals(TaskDetailControlName.ALERTTYPE.getName())) {
                 if (StringUtils.isNotBlank(value)) {
                     if (value.equalsIgnoreCase(MAIL_ONLY)) {
                         task.setHasmail(true);
