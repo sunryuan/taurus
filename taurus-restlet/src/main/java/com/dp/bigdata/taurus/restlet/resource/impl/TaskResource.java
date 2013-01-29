@@ -157,7 +157,7 @@ public class TaskResource extends ServerResource implements ITaskResource {
             final String srcPath = filePathManager.getLocalPath(task.getFilename());
             final String destPath = filePathManager.getRemotePath(task.getTaskid(), task.getFilename());
             try {
-                hdfsUtils.removeFile(destPath);
+                hdfsUtils.removeFile(filePathManager.getRemotePath(task.getTaskid(), "*"));
                 hdfsUtils.writeFile(srcPath, destPath);
                 agentDeployUtils.notifyAllAgent(task.getTask(), DeployOptions.UNDEPLOY);
                 agentDeployUtils.notifyAllAgent(task.getTask(), DeployOptions.DEPLOY);
