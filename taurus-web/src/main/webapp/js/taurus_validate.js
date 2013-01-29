@@ -29,19 +29,23 @@ $.validator.addMethod("validIP",function(value,element,params){
 },"Invalid IP");	 
 
 $.validator.addMethod("taskNameTest",function(value,element,params){
-	 var p = /^[0-9a-zA-Z|_|;|\.|\-|(|)]*$/;
+	 var p = /^[0-9a-zA-Z|_|\.|\-|(|)]*$/;
 	 if(p.test(value)) return true; 
 	 return false; 
 },"名称中可使用的字符包括：数字、字母、下划线、横线、点和括号");
+
+$.validator.addMethod("dependencyTest",function(value,element,params){
+	 var p = /^[0-9a-zA-Z|_|\.|\-|(|)|\[|\]|\||&|\s]*$/;
+	 if(p.test(value)) return true; 
+	 return false; 
+},"表达式中含有非法字符");
 
 
 $.validator.addMethod("validName",function(value,element,params){
 	
 	
 	var result = false;
-	$.ajaxSetup({
-        async: false
-    });
+
 	$.ajax({
 	    url: 'create_task?name='+$("#taskName").val(),  //server script to process data
 	    type: 'get',
@@ -58,11 +62,10 @@ $.validator.addMethod("validName",function(value,element,params){
 	    enctype: 'application/x-www-form-urlencoded',
 	    cache: false,
 	    contentType: false,
-	    processData: false
+	    processData: false,
+	    async: false
 	});
-	$.ajaxSetup({
-        async: true
-    });
+	
 	return result;
 },"该名字已经存在！");	 
 
@@ -132,6 +135,7 @@ $(document).ready(function(){
 	    		required: true,
 	    	},
 			dependency: {
+				dependencyTest:true
 			},
 			maxWaitTime: {
 	    		required: true
@@ -187,6 +191,7 @@ $(document).ready(function(){
 			    		required: true,
 			    	},
 					dependency: {
+						dependencyTest:true
 					},
 					maxWaitTime: {
 			    		required: true

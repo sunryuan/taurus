@@ -35,7 +35,7 @@ $(document).ready(function() {
 	        // Form data
 	        data: jForm.serialize(),
 	        cache: false,
-	        contentType: false,
+	        contentType: 'application/xml;charset="utf-8"',
 	        processData: false
 	    });
 	}
@@ -153,7 +153,7 @@ $(document).ready(function() {
         		hiddenField.setAttribute("value", params[key]);
 				form.appendChild(hiddenField);
      		}
-		}		
+		}
 		if(autodeploy){
 			form.setAttribute("enctype","multipart/form-data");
 			form.appendChild(file);

@@ -111,7 +111,7 @@ function action_update(id) {
 	            	$('#modal-confirm').modal('toggle');
 	            },
 	            cache: false,
-		        contentType: false,
+		        contentType: 'application/xml;charset="utf-8"',
 		        processData: false
 		    });
 		} else {	
