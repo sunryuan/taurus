@@ -82,7 +82,7 @@
 							</select>
 							<% for(PoolDTO pool : pools){
 							    if(dto.getPoolid() == pool.getId()) {%>
-            	    				<input id="poolId" name="poolId" style="display:none" value="<%=pool.getName()%>">
+            	    				<input id="poolIdReal" name="poolId" style="display:none" value="<%=pool.getName()%>">
             	    			<%}%>
 							<%}%>
 											
@@ -151,7 +151,7 @@
           			<div class="control-group">
             			<label class="control-label">依赖</label>
             			<div class="controls">
-              				<input type="text" class="input-small field " id="dependency" name="dependency" placeholder="dependency expression"  value="<%=dto.getDependencyexpr()%>" disabled>
+              				<input type="text" class="input-large field " id="dependency" name="dependency" placeholder="dependency expression"  value="<%=dto.getDependencyexpr()%>" disabled>
             			</div>
           			</div>
           			<div class="control-group">

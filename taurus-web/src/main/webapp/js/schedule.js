@@ -79,7 +79,7 @@ function action_update(id) {
 		
 		params["alertCondition"] = condition;
 		params["alertType"] = type;
-		
+		params["poolId"] = $('#poolIdReal',form).val();
 		for(var key in params) {
     		if(params.hasOwnProperty(key)) {
         		var hiddenField = document.createElement("input");
@@ -96,7 +96,6 @@ function action_update(id) {
 	            url: 'create_task?update='+id, 
 	            data: $(newForm).serialize(), // serializes the form's elements.
 	            enctype: 'application/x-www-form-urlencoded',
-
 	            error: function(data)
 	            {
 	            	$("#alertContainer").html('<div id="alertContainer" class="alert alert-error"><button type="button" class="close" data-dismiss="alert">&times;</button> <strong>'
@@ -111,7 +110,7 @@ function action_update(id) {
 	            	$('#modal-confirm').modal('toggle');
 	            },
 	            cache: false,
-		        contentType: 'application/xml;charset="utf-8"',
+		        contentType: 'application/xml',
 		        processData: false
 		    });
 		} else {	
