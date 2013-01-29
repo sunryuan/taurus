@@ -34,8 +34,8 @@ import com.dp.bigdata.taurus.generated.module.UserGroupExample;
 import com.dp.bigdata.taurus.restlet.exception.DuplicatedNameException;
 import com.dp.bigdata.taurus.restlet.exception.InvalidArgumentException;
 import com.dp.bigdata.taurus.restlet.resource.impl.NameResource;
-import com.dp.bigdata.taurus.restlet.shared.TaskDetailControlName;
 import com.dp.bigdata.taurus.restlet.shared.TaskDTO;
+import com.dp.bigdata.taurus.restlet.shared.TaskDetailControlName;
 
 /**
  * TaskRequestExtractor
@@ -115,7 +115,7 @@ public class TaskRequestExtractor implements RequestExtrator<TaskDTO> {
                 int pid = poolManager.getID(value);
                 task.setPoolid(pid);
             } else if (key.equals(TaskDetailControlName.TASKHOSTNAME.getName())) {
-                if (StringUtils.isNotEmpty(value)) {
+                if (StringUtils.isNotBlank(value)) {
                     task.setHostname(value);
                 }
             } else if (key.equals(TaskDetailControlName.TASKCOMMAND.getName())) {
@@ -123,7 +123,7 @@ public class TaskRequestExtractor implements RequestExtrator<TaskDTO> {
             } else if (key.equals(TaskDetailControlName.MULTIINSTANCE.getName())) {
                 task.setAllowmultiinstances(Integer.parseInt(value));
             } else if (key.equals(TaskDetailControlName.CRONTAB.getName())) {
-                if (!StringUtils.isBlank(value)) {
+                if (StringUtils.isNotBlank(value)) {
                     task.setCrontab("0 " + value);
                 }
             } else if (key.equals(TaskDetailControlName.DEPENDENCY.getName())) {
@@ -169,6 +169,8 @@ public class TaskRequestExtractor implements RequestExtrator<TaskDTO> {
                         }
                     }
                     task.setGroupid(groupId.toString());
+                } else {
+                    task.setGroupid("");
                 }
             } else if (key.equals(TaskDetailControlName.ALERTUSER.getName())) {
                 if (StringUtils.isNotBlank(value)) {
@@ -187,6 +189,8 @@ public class TaskRequestExtractor implements RequestExtrator<TaskDTO> {
                         }
                     }
                     task.setUserid(userId.toString());
+                } else {
+                    task.setUserid("");
                 }
             } 
             else if (key.equals(TaskDetailControlName.ALERTTYPE.getName())) {
