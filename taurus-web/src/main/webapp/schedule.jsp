@@ -145,9 +145,9 @@
     
     <jsp:include page="task_form.jsp"/>
 
-	<script type="text/javascript" charset="utf-8" language="javascript" src="js/jquery.dataTables.js"></script>
-	<script type="text/javascript" charset="utf-8" language="javascript" src="js/DT_bootstrap.js"></script>
-    <script type="text/javascript" charset="utf-8" language="javascript" src="js/schedule.js"></script>
+	<script type="text/javascript" charset="utf-8" src="js/jquery.dataTables.js"></script>
+	<script type="text/javascript" charset="utf-8" src="js/DT_bootstrap.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/schedule.js"></script>
     <script src="js/jquery.validate.min.js" type="text/javascript"></script>
     <script src="js/taurus_validate.js" type="text/javascript"></script>
 </body>

@@ -35,7 +35,7 @@ $(document).ready(function() {
 	        // Form data
 	        data: jForm.serialize(),
 	        cache: false,
-	        contentType: false,
+	        contentType: 'application/xml;charset="utf-8"',
 	        processData: false
 	    });
 	}
@@ -153,14 +153,14 @@ $(document).ready(function() {
         		hiddenField.setAttribute("value", params[key]);
 				form.appendChild(hiddenField);
      		}
-		}		
+		}
 		if(autodeploy){
 			form.setAttribute("enctype","multipart/form-data");
 			form.appendChild(file);
 			post_to_url_with_file("create_task",form);
 			$('#fileDiv').append(file);
 		} else {
-			form.setAttribute("enctype","application/x-www-form-urlencoded");
+			form.setAttribute("enctype","application/x-www-form-urlencoded;charset=\"utf-8\"");
 			post_to_url("create_task",form);
 		}
     });
