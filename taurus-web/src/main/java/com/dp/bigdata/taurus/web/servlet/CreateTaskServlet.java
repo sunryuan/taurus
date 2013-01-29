@@ -77,26 +77,6 @@ public class CreateTaskServlet extends HttpServlet{
         HttpClient httpclient = new DefaultHttpClient();
         // Determine final URL
         StringBuffer uri = new StringBuffer();
-//        Enumeration keys = req.getParameterNames();
-//        while (keys.hasMoreElements())
-//        {
-//           String key = (String)keys.nextElement();
-//
-//           //To retrieve a single value
-//           String value = req.getParameter(key);
-//
-//           System.out.println(key+":"+value);
-//        }   
-//        keys = req.getAttributeNames();
-//        while (keys.hasMoreElements() )
-//        {
-//           String key = (String)keys.nextElement();
-//
-//           //To retrieve a single value
-//           String value = (String) req.getAttribute(key);
-//
-//           System.out.println(key+"/"+value);
-//        }
         
         if(req.getParameter("update") != null){
             uri.append(targetUri).append("/").append(req.getParameter("update"));
@@ -148,8 +128,7 @@ public class CreateTaskServlet extends HttpServlet{
         while (headers.hasMoreElements()) {
             String headerName = headers.nextElement();
             String headerValue = req.getHeader(headerName);
-            LOG.info("header: " + headerName + " value: " + headerValue);
-
+//          LOG.info("header: " + headerName + " value: " + headerValue);
             // Skip Content-Length and Host
             String lowerHeader = headerName.toLowerCase();
             if (!lowerHeader.equals("content-length")
@@ -169,7 +148,6 @@ public class CreateTaskServlet extends HttpServlet{
         Header[] responseHeaders = response.getAllHeaders();
         for (int i = 0; i < responseHeaders.length; i++) {
             Header header = responseHeaders[i];
-//            LOG.info("header: " + header.getName() + " value: " + header.getValue());
             if(!header.getName().equals("Transfer-Encoding"))
                 resp.addHeader(header.getName(), header.getValue());
         }
@@ -200,7 +178,7 @@ public class CreateTaskServlet extends HttpServlet{
         StringBuffer uri = new StringBuffer();
         if (req.getParameter("name") != null){
             uri.append(nameUri).append(req.getParameter("name"));
-            LOG.info(uri.toString());
+            LOG.info("Access URI : " + uri.toString());
             ClientResource cr = new ClientResource(uri.toString());
             INameResource nameResource = cr.wrap(INameResource.class);
             resp.setContentType("text/html");

@@ -160,7 +160,7 @@ $(document).ready(function() {
 			post_to_url_with_file("create_task",form);
 			$('#fileDiv').append(file);
 		} else {
-			form.setAttribute("enctype","application/x-www-form-urlencoded;charset=\"utf-8\"");
+			form.setAttribute("enctype","application/x-www-form-urlencoded");
 			post_to_url("create_task",form);
 		}
     });
