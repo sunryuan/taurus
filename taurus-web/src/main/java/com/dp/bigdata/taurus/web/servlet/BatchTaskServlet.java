@@ -41,33 +41,36 @@ public class BatchTaskServlet extends HttpServlet{
 	private static final long serialVersionUID = 2348545179764589572L;
 	private static final Log s_logger = LogFactory.getLog(BatchTaskServlet.class);
 	
-	private static final String MULTI_INSTANCE = "multiInstance";
-	private static final String IS_AUTO_RETRY = "isAutoRetry";
+//	private static final String MULTI_INSTANCE = "multiInstance";
+//	private static final String IS_AUTO_RETRY = "isAutoRetry";
 	private static final String TASK_TYPE = "taskType";
 	
-	private static final String[] PARAM_NAME_LIST = {"taskName", TASK_TYPE, "description","poolId",
-		"taskState","taskCommand",MULTI_INSTANCE ,"crontab","dependency","proxyUser",
-		"maxExecutionTime","maxWaitTime",IS_AUTO_RETRY ,"retryTimes"};
+	private static final String[] PARAM_NAME_LIST = {"taskName", "hostName",
+		"taskState","taskCommand","multiInstance","crontab","dependency","proxyUser",
+		"maxExecutionTime","maxWaitTime","retryTimes","description","alertCondition",
+		"alertType","alertGroup","alertUser"};
 	
 	private static Map<String, IFieldHandler> FIELD_NAME_TO_HANDLER_MAP = 
 		new HashMap<String, IFieldHandler>();
 	
 	static{
-		BooleanFieldHandler bfHandler = new BooleanFieldHandler();
+//		BooleanFieldHandler bfHandler = new BooleanFieldHandler();
 		TaskTypeFieldHandler ttfHandler = new TaskTypeFieldHandler();
-		FIELD_NAME_TO_HANDLER_MAP.put(MULTI_INSTANCE, bfHandler);
-		FIELD_NAME_TO_HANDLER_MAP.put(IS_AUTO_RETRY, bfHandler);
+//		FIELD_NAME_TO_HANDLER_MAP.put(MULTI_INSTANCE, bfHandler);
+//		FIELD_NAME_TO_HANDLER_MAP.put(IS_AUTO_RETRY, bfHandler);
 		FIELD_NAME_TO_HANDLER_MAP.put(TASK_TYPE, ttfHandler);
 	}
 	
 
-    private String XSL_UPLOAD_TMP_DIR;
+    private static String XSL_UPLOAD_TMP_DIR;
+    private static String RESTLET_SERVER;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         ServletContext context = getServletContext();
         XSL_UPLOAD_TMP_DIR = context.getInitParameter("XSL_UPLOAD_TMP_DIR");
+        RESTLET_SERVER = context.getInitParameter("RESTLET_SERVER") + "task";
     }
 
 	@Override
@@ -88,7 +91,7 @@ public class BatchTaskServlet extends HttpServlet{
 			List<Representation> repList = createRepFromExcel(file, username);
 			List<String> taskList = getTaskFromExcel(file);
 			List<Result> results = new ArrayList<Result>();
-            ClientResource taskResource = new ClientResource(XSL_UPLOAD_TMP_DIR);
+            ClientResource taskResource = new ClientResource(RESTLET_SERVER);
 			for(int i = 0; i < repList.size(); i++){
 				boolean success = false;
 				try{
@@ -182,16 +185,16 @@ public class BatchTaskServlet extends HttpServlet{
 		public String process(String orignalValue);
 	}
 	
-	private static final class BooleanFieldHandler implements IFieldHandler{
-
-		@Override
-		public String process(String orignalValue) {
-			if(orignalValue != null && orignalValue.equalsIgnoreCase("yes"))
-				return "1";
-			else
-				return "0";
-		}
-	}
+//	private static final class BooleanFieldHandler implements IFieldHandler{
+//
+//		@Override
+//		public String process(String orignalValue) {
+//			if(orignalValue != null && orignalValue.equalsIgnoreCase("yes"))
+//				return "1";
+//			else
+//				return "0";
+//		}
+//	}
 	
 	private static final class TaskTypeFieldHandler implements IFieldHandler{
 
