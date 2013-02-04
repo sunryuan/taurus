@@ -54,12 +54,14 @@ public class AttemptStatusMonitor implements Runnable {
                             scheduler.attemptFailed(attempt.getAttemptid());
                             break;
                         case AttemptStatus.RUNNING: {
-                            int timeout = attempt.getExecutiontimeout();
-                            Date start = attempt.getStarttime();
-                            long now = System.currentTimeMillis();
-                            if (now > start.getTime() + timeout * 1000 * 60) {
-                                LOG.info("attempt " +  attempt.getAttemptid() + " executing timeout ");
-                                scheduler.attemptExpired(attempt.getAttemptid());
+                            if (attempt.getStatus() != AttemptStatus.TIMEOUT) {
+                                int timeout = attempt.getExecutiontimeout();
+                                Date start = attempt.getStarttime();
+                                long now = System.currentTimeMillis();
+                                if (now > start.getTime() + timeout * 1000 * 60) {
+                                    LOG.info("attempt " + attempt.getAttemptid() + " executing timeout ");
+                                    scheduler.attemptExpired(attempt.getAttemptid());
+                                }
                             }
                         }
 
