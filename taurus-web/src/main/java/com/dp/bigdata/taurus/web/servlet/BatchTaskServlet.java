@@ -45,7 +45,7 @@ public class BatchTaskServlet extends HttpServlet{
 //	private static final String IS_AUTO_RETRY = "isAutoRetry";
 	private static final String TASK_TYPE = "taskType";
 	
-	private static final String[] PARAM_NAME_LIST = {"taskName", "hostName",
+	private static final String[] PARAM_NAME_LIST = {"taskName", "hostname",
 		"taskState","taskCommand","multiInstance","crontab","dependency","proxyUser",
 		"maxExecutionTime","maxWaitTime","retryTimes","description","alertCondition",
 		"alertType","alertGroup","alertUser"};

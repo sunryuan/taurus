@@ -39,6 +39,8 @@ public class ScheduleUtility {
     private static String killJob = "/script/kill-tree.sh";
     private static String env = "/script/agent-env.sh";
     private static String running = "/running";
+    private static String hadoop = "/hadoop";
+    private static String homeDir = "/home";
     private static boolean needHadoopAuthority;
     private static boolean needSudoAuthority;
 
@@ -51,11 +53,19 @@ public class ScheduleUtility {
 //	private static final String WORMHOLE_JOB = "wormhole";
 //  private static final String HIVE_JOB = "hive";
 //	private static final String SHELL_JOB = "shell script";
-	private static final String COMMAND_PATTERN_WITHOUT_SUDO = "echo %s;echo $$ >>%s; [ -f %s ] && cd %s; source %s && %s";
-	private static final String COMMAND_PATTERN_WITH_SUDO = "sudo -u %s -i \"echo $$ >>%s; [ -f %s ] && cd %s; source %s && %s\"";
-	private static String command_pattern;
+	private static final String KRB5_PATH = "KRB5CCNAME=%s/%s";
+	private static final String KINIT_COMMAND_PATTERN = "kinit -r 12l -k -t %s/%s/.keytab %s@DIANPING.COM;kinit -R;";
+	private static final String KDESTORY_COMMAND = "kdestroy;";
+	private static final String COMMAND_PATTERN_WITHOUT_SUDO 
+	    = "echo %s;export %s;%s echo $$ >>%s;  [ -f %s ] && cd %s; source %s && %s;%s";
+	private static final String COMMAND_PATTERN_WITH_SUDO 
+	    = "sudo -u %s %s -i \"%s echo $$ >>%s; [ -f %s ] && cd %s; source %s && %s; %s\"";
 	private static final String KILL_COMMAND = "%s %s %s";
 	private static final String REMOVE_COMMAND = "rm -f %s";
+	private static String krb5PathCommand = "";
+	private static String kinitCommand = "";
+	private static String kdestroyCommand = "";
+    private static String command_pattern;
 
 	static{
 		killThreadPool = AgentServerHelper.createThreadPool(2, 4);
@@ -67,14 +77,16 @@ public class ScheduleUtility {
 		logFileUpload =   agentRoot + logFileUpload;
 		killJob = agentRoot + killJob;
 		running = jobPath + running;
+		hadoop = jobPath + hadoop;
 	    env = agentRoot + env;
+	    homeDir = AgentEnvValue.getValue(AgentEnvValue.HOME_PATH,homeDir);
 		needHadoopAuthority = new Boolean(AgentEnvValue.getValue(AgentEnvValue.NEED_HADOOP_AUTHORITY, "false"));
 		needSudoAuthority = new Boolean(AgentEnvValue.getValue(AgentEnvValue.NEED_SUDO_AUTHORITY, "true"));
 		if(needSudoAuthority) {
 		    command_pattern = COMMAND_PATTERN_WITH_SUDO;
 		} else {
 		    command_pattern = COMMAND_PATTERN_WITHOUT_SUDO;
-		} 
+		}
 	}
 
 	private static Lock getLock(String jobInstanceId){
@@ -234,16 +246,21 @@ public class ScheduleUtility {
                 s_logger.error(e.getMessage(),e);
             }
             	
+//			if(needHadoopAuthority) {
+//				try {
+//					int returnCode = executor.execute(null, logFileStream, errorFileStream, hadoopAuthority,userName);
+//					if(returnCode != 0) {
+//						s_logger.error("Hadoop authority script executing failed");
+//					}
+//				} catch (IOException e) {
+//					s_logger.error(e.getMessage(),e);
+//				}		
+//			}
+            krb5PathCommand = String.format(KRB5_PATH, hadoop,"krb5cc_"+attemptID);
 			if(needHadoopAuthority) {
-				try {
-					int returnCode = executor.execute(null, logFileStream, errorFileStream, hadoopAuthority,userName);
-					if(returnCode != 0) {
-						s_logger.debug("Hadoop authority script executing failed");
-					}
-				} catch (IOException e) {
-					s_logger.error(e.getMessage(),e);
-				}		
-			}
+	            kinitCommand = String.format(KINIT_COMMAND_PATTERN,homeDir,userName,userName);
+	            kdestroyCommand = KDESTORY_COMMAND;
+	        }
 			String path = jobPath + FILE_SEPRATOR + taskID + FILE_SEPRATOR;
 			
 			int returnCode = 0;
@@ -259,10 +276,12 @@ public class ScheduleUtility {
 				    cmdLine = new CommandLine("bash");
 				    cmdLine.addArgument("-c");
 				    String pidFile = running + FILE_SEPRATOR + '.' + attemptID;
-                    cmdLine.addArgument(String.format(command_pattern,  userName, pidFile, path, path, env, escapedCmd), false);
+                    cmdLine.addArgument(String.format(command_pattern, userName, 
+                            krb5PathCommand, kinitCommand, pidFile, path, path, env, escapedCmd,kdestroyCommand), false);
 					s_logger.debug(taskAttempt + " start execute");
 					returnCode = executor.execute(attemptID, 0, null, cmdLine, logFileStream, errorFileStream);
-					executor.execute(null, logFileStream, errorFileStream, logFileUpload,logFilePath,errorFilePath,htmlFilePath,htmlFileName);
+					executor.execute("upload log", logFileStream, errorFileStream, 
+					        logFileUpload,logFilePath,errorFilePath,htmlFilePath,htmlFileName);
 				}
 				if(returnCode == 0) {
 					status.setStatus(ScheduleStatus.EXECUTE_SUCCESS);
@@ -382,5 +401,9 @@ public class ScheduleUtility {
 		        checkAndKillTasks(executor, localIp, cs, true);
 		    }
 		}
+	}
+	public static void main(String []args){
+	    
+	    System.out.println(String.format("%s , %s, world", "","hello"));
 	}
 }
