@@ -205,6 +205,7 @@ final public class Engine implements Scheduler {
             Task origin = registedTasks.get(task.getTaskid());
             task.setUpdatetime(new Date());
             task.setStatus(origin.getStatus());
+            task.setCreator(null);
             taskMapper.updateByPrimaryKeySelective(task);
             registedTasks.remove(task.getTaskid());
             Task tmp = taskMapper.selectByPrimaryKey(task.getTaskid());
