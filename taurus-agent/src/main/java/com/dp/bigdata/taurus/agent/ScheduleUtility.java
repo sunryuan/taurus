@@ -55,14 +55,13 @@ public class ScheduleUtility {
 //	private static final String SHELL_JOB = "shell script";
 	private static final String KRB5_PATH = "KRB5CCNAME=%s/%s";
 	private static final String KINIT_COMMAND_PATTERN = "kinit -r 12l -k -t %s/%s/.keytab %s@DIANPING.COM;kinit -R;";
-	private static final String KDESTORY_COMMAND = "kdestroy;";
+	private static final String KDESTORY_COMMAND = "bash -c \"export %s;kdestroy;\"";
 	private static final String COMMAND_PATTERN_WITHOUT_SUDO 
-	    = "echo %s;export %s;%s echo $$ >>%s;  [ -f %s ] && cd %s; source %s && %s;%s";
+	    = "echo %s;export %s;%s echo $$ >>%s;  [ -f %s ] && cd %s; source %s && %s";
 	private static final String COMMAND_PATTERN_WITH_SUDO 
-	    = "sudo -u %s %s -i \"%s echo $$ >>%s; [ -f %s ] && cd %s; source %s && %s; %s\"";
+	    = "sudo -u %s %s -i \"%s echo $$ >>%s; [ -f %s ] && cd %s; source %s && %s\"";
 	private static final String KILL_COMMAND = "%s %s %s";
 	private static final String REMOVE_COMMAND = "rm -f %s";
-	private static String krb5PathCommand = "";
 	private static String kinitCommand = "";
 	private static String kdestroyCommand = "";
     private static String command_pattern;
@@ -256,10 +255,10 @@ public class ScheduleUtility {
 //					s_logger.error(e.getMessage(),e);
 //				}		
 //			}
-            krb5PathCommand = String.format(KRB5_PATH, hadoop,"krb5cc_"+attemptID);
+            String krb5PathCommand = String.format(KRB5_PATH, hadoop,"krb5cc_"+attemptID);
 			if(needHadoopAuthority) {
 	            kinitCommand = String.format(KINIT_COMMAND_PATTERN,homeDir,userName,userName);
-	            kdestroyCommand = KDESTORY_COMMAND;
+	            kdestroyCommand = String.format(KDESTORY_COMMAND, krb5PathCommand);
 	        }
 			String path = jobPath + FILE_SEPRATOR + taskID + FILE_SEPRATOR;
 			
@@ -277,11 +276,14 @@ public class ScheduleUtility {
 				    cmdLine.addArgument("-c");
 				    String pidFile = running + FILE_SEPRATOR + '.' + attemptID;
                     cmdLine.addArgument(String.format(command_pattern, userName, 
-                            krb5PathCommand, kinitCommand, pidFile, path, path, env, escapedCmd,kdestroyCommand), false);
+                            krb5PathCommand, kinitCommand, pidFile, path, path, env, escapedCmd), false);
 					s_logger.debug(taskAttempt + " start execute");
 					returnCode = executor.execute(attemptID, 0, null, cmdLine, logFileStream, errorFileStream);
 					executor.execute("upload log", logFileStream, errorFileStream, 
 					        logFileUpload,logFilePath,errorFilePath,htmlFilePath,htmlFileName);
+					if(!kdestroyCommand.isEmpty()){
+					    executor.execute("kdestory",null,null,kdestroyCommand);
+					}
 				}
 				if(returnCode == 0) {
 					status.setStatus(ScheduleStatus.EXECUTE_SUCCESS);
