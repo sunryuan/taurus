@@ -20,7 +20,7 @@ package com.dp.bigdata.taurus.agent.utils;
  * @author renyuan.sun
  *
  */
-public class TaskLogUtills {
+public class TaskLogUtils {
     public static void uploadLog(){
         
     }
