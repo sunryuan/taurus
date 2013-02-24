@@ -31,7 +31,11 @@ public class AttemptContext {
     }
 
     public ExecuteContext getContext() {
-        return new ExecuteContext(getTaskid(), getAttemptid(), getExechost(), getProxyuser(), getType(), getCommand());
+        if (task.getType().equalsIgnoreCase("spring")) {
+            return new ExecuteContext(task.getFilename(), getAttemptid(), getExechost(), getProxyuser(), getType(), getCommand());
+        } else {
+            return new ExecuteContext(getTaskid(), getAttemptid(), getExechost(), getProxyuser(), getType(), getCommand());
+        }
     }
 
     public void setAttempt(TaskAttempt attempt) {

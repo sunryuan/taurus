@@ -14,10 +14,31 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context-support</artifactId>
+			<version>3.2.0.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-tx</artifactId>
+			<version>3.2.0.RELEASE</version>
+		</dependency>
+		<dependency>
 			<groupId>com.dp.bigdata</groupId>
 			<artifactId>taurus-zookeeper-helper</artifactId>
 			<version>0.3</version>
 		</dependency>
+		<dependency>
+			<groupId>com.dp.bigdata</groupId>
+			<artifactId>taurus-framework</artifactId>
+			<version>0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.2.3</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-exec</artifactId>
@@ -29,7 +50,7 @@
 			<version>3.0</version>
 		</dependency>
 	</dependencies>
-	
+
 	<build>
 		<plugins>
 			<plugin>
