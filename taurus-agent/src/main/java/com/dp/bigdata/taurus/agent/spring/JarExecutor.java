@@ -1,5 +1,6 @@
 package com.dp.bigdata.taurus.agent.spring;
 
+import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.URLClassLoader;
@@ -77,13 +78,6 @@ public class JarExecutor {
         } catch (Exception e) {
             throw new RuntimeException("Error initialize zookeeper client");
         }
-    }
-
-    private Object invoke(ClassLoader ucl, String clazz, String method) throws Exception {
-        Class<?> claz = ucl.loadClass(clazz);
-        Object obj = claz.newInstance();
-        Method methodInstance = obj.getClass().getDeclaredMethod(method);
-        return methodInstance.invoke(obj);
     }
 
     public void monitor() {
@@ -198,25 +192,33 @@ public class JarExecutor {
                             throw new Exception("Command is blank!");
                         }
                         String jarPackage = conf.getTaskID();
+                        String jarPath = JobPath + "/" + jarPackage;
+                        //download the necessary jar
+                        if(!hasDownload(jarPath)){
+                        	download(conf.getTaskUrl(),jarPath);
+                        }
+                        //loading the application context
                         ApplicationContext context = contextMap.get(jarPackage);
                         if (context == null) {
                             LOG.info("initial application context...");
-                            String jarPath = JobPath + "/" + jarPackage;
                             JarClassLoader jcl = new JarClassLoader();
                             try {
                                 URLClassLoader ucl = jcl.getClassLoader(jarPath);
                                 Thread.currentThread().setContextClassLoader(ucl);
                                 //load mainClass
-                                invoke(ucl, mainClass, "main");
+                                Class<?> mainClaz = ucl.loadClass(mainClass);
+                                String[] parameters = null;
+                                mainClaz.getMethod("main", String[].class).invoke(null,(Object)parameters);
                                 //get applicationContext
-                                Object bean = invoke(ucl, ApplicationContextProvider.class.getName(), "getApplicationContext");
+                    			Class<?> contextClaz = ucl.loadClass(ApplicationContextProvider.class.getName());
+                    			Object bean = contextClaz.getDeclaredMethod("getApplicationContext").invoke(null);
                                 context = (ApplicationContext) bean;
                                 contextMap.put(jarPackage, context);
                             } catch (Exception e) {
-                                throw new Exception("Error to initialize applicationContext.");
+                                throw new Exception("Fail to initialize applicationContext.",e);
                             }
-
                         }
+                        //execute the target bean method
                         try {
                             Object bean = context.getBean(beanName);
                             if (bean instanceof TaskBean) {
@@ -236,6 +238,28 @@ public class JarExecutor {
 
                 return call;
 
+            }
+       
+            public boolean hasDownload(String jarPath){
+            	File file = new File(jarPath);
+            	if(file.exists()){
+            		File[] files = file.listFiles();
+            		if(files != null && files.length != 0){
+            			return true;
+            		}else{
+            			return false;
+            		}
+            	}else{
+            		return false;
+            	}
+            }
+            
+            public void download(String url, String jarPath){
+            	File file = new File(jarPath);
+            	if(!file.exists()){
+            		file.mkdirs();
+            		JarDownloadUtil.downloadFromFTP(url, jarPath);
+            	}
             }
         });
 

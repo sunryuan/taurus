@@ -43,11 +43,17 @@ public class JarExecutorTest {
     }
 
     @Test
+    public void cleanup(){
+    	//System.out.println(JarExecutor.SCHEDULE_PATH + "/new");
+    	zkClient.deleteRecursive(JarExecutor.SCHEDULE_PATH);
+    }
+    
+    @Test
     public void testAddTestData() {
-        String attemptID = "attempt_17";
+        String attemptID = "attempt_1";
         ScheduleConf conf = new ScheduleConf();
         conf.setAttemptID(attemptID);
-        conf.setCommand("com.bigdata.TestTask1 hello print");
+        conf.setCommand("com.dp.bigdata.taurus.test.springtask.TestJob task1");
         conf.setPid("1234");
         conf.setTaskID("jar1234");
         conf.setTaskType("spring");

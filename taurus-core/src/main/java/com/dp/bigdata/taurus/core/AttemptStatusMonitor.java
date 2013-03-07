@@ -63,6 +63,10 @@ public class AttemptStatusMonitor implements Runnable {
                                     scheduler.attemptExpired(attempt.getAttemptid());
                                 }
                             }
+                            break;
+                        }
+                        case AttemptStatus.UNKNOWN: {
+                        	scheduler.attemptUnKonwed(attempt.getAttemptid());
                         }
 
                     }

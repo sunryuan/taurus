@@ -54,7 +54,28 @@
 				<form id="deploy-form" class="form-horizontal">
   					<fieldset>
                     <legend>部署设置</legend>
-					
+                    
+					<div class="control-group">
+						<label  class="control-label"  for="taskType">选择作业类型*</label>
+						<div class="controls">
+   						<select  id="taskType" name="taskType"  class="input-big  field" >
+   							<option>hadoop</option>
+							<option>wormhole</option>
+							<option>spring</option>
+							<option>hive</option>
+							<option>other</option>
+						</select>
+                      	</div>
+                    </div>
+                    <div id="jarAddress" style="display:none;">
+						<div class="control-group">
+            				<label class="control-label"  for="taskUrl">Jar包ftp地址*</label>
+            				<div class="controls">
+              					<input type="text" class="input-xxlarge field"  id="taskUrl" name="taskUrl"  placeholder="ftp://10.1.1.81/{project-name}/{date}/{jarName}">
+            				</div>
+          				</div>
+          			</div>
+          				
 					<div class="control-group">
 						<label class="control-label"  for="autodeploy">部署方式</label>
 						<div class="controls">
@@ -82,23 +103,13 @@
                        		</div>
                         </div>
 
-						<div class="control-group">
-							<label  class="control-label"  for="taskType">选择作业类型*</label>
-							<div class="controls">
-    						<select  id="taskType" name="taskType"  class="input-big  field" >
-    							<option>hadoop</option>
-								<option>wormhole</option>
-								<option>其他</option>
-							</select>
-                       		</div>
-                       	</div>
-
-                        <div class="control-group">
+                        <div id="upfile" class="control-group">
 							<label class="control-label"  for="uploadFile">上传作业*</label>
                         	<div id="fileDiv"  class="controls">
 								<input type="file" id="uploadFile" name="uploadFile" class="input-big  field"/>
                         	</div>
                     	</div>
+                    	
                     </div>
                     </fieldset>
 				</form>
@@ -114,18 +125,35 @@
               			<input type="text" class="input-xxlarge field"  id="taskName" name="taskName"  placeholder="name">
             		</div>
           		</div>
+          		
+          		<div id="mainClassCG" class="control-group">
+            		<label class="control-label" for="mainClass">MainClass*</label>
+            		<div class="controls">
+              			<input type="text" class="input-xxlarge field" id="mainClass" name="mainClass"  placeholder="mainClass">
+            		</div>
+          		</div>
                 <div class="control-group">
             		<label class="control-label" for="crontab">Crontab*</label>
             		<div class="controls">
               			<input type="text" class="input-xxlarge field" id="crontab" name="crontab"  value="0 0 * * ?">
             		</div>
           		</div>
+          		
                 <div class="control-group">
             		<label class="control-label" for="taskCommand">命令*</label>
             		<div class="controls">
               			<input type="text" class="input-xxlarge field" id="taskCommand" name="taskCommand"  placeholder="command">
             		</div>
           		</div>
+          		
+          		<div id="beanCG" class="control-group">
+          		    <label class="control-label" for="taskCommand"></label>
+          		    <div class="controls">
+          		        <button id="addNewBeanbtn" class="btn btn-small">增加Bean</button>
+          		        <button id="rmBeanbtn" class="btn btn-small" disabled>删除Bean</button>
+            		</div>
+          		</div>
+
                 <div class="control-group">
             		<label class="control-label" for="proxyUser">以该用户身份运行（不可为root）*</label>
             		<div class="controls">

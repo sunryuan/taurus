@@ -14,34 +14,38 @@ import java.util.List;
  */
 public class JarClassLoader {
 
-    private final List<File> files = new ArrayList<File>();
-
-    private void getAllJarFiles(File file) {
+    public void getAllJarFiles(File file, List<File> files) {
         if(file.exists()){
             if (file.isFile() && file.getAbsolutePath().endsWith(".jar")) {
                 files.add(file);
             }
             if (file.isDirectory()) {
-                File[] files = file.listFiles();
-                for (File path : files) {
-                    getAllJarFiles(path);
+                File[] _files = file.listFiles();
+                for (File path : _files) {
+                    getAllJarFiles(path,files);
                 }
             }
         }
     }
 
     public URLClassLoader getClassLoader(String folder) throws MalformedURLException {
-        getAllJarFiles(new File(folder));
+    	List<File> files = new ArrayList<File>();
+        getAllJarFiles(new File(folder),files);
         URL[] urls = new URL[files.size()];
         for (int i = 0; i < files.size(); i++) {
             urls[i] = new URL("file:///" + files.get(i).getAbsolutePath());
         }
         return new URLClassLoader(urls);
     }
-
-    public static void main(String args[]) {
-        JarClassLoader jcl = new JarClassLoader();
-        jcl.getAllJarFiles(new File("D:\\workspace\\test-task-1\\target"));
+    
+    public static void main(String[] args) {
+		JarClassLoader jcl = new JarClassLoader();
+		List<File> files = new ArrayList<File>();
+		jcl.getAllJarFiles(new File("/Users/damonzhu/.m2/repository/"), files);
+		for (int i = 0; i < files.size(); i++) {
+			System.out.println(files.get(i));
+		}
     }
+    
 
 }

@@ -380,6 +380,16 @@ final public class Engine implements Scheduler {
         }
     }
 
+    
+	public void attemptUnKonwed(String attemptID){
+		AttemptContext context = runningAttempts.get(AttemptID.getTaskID(attemptID)).get(attemptID);
+        TaskAttempt attempt = context.getAttempt();
+        attempt.setEndtime(new Date());
+        attempt.setStatus(AttemptStatus.UNKNOWN);
+        taskAttemptMapper.updateByPrimaryKeySelective(attempt);
+        unregistAttemptContext(context);
+	}
+	
     @Override
     public List<AttemptContext> getAllRunningAttempt() {
         List<AttemptContext> contexts = new ArrayList<AttemptContext>();

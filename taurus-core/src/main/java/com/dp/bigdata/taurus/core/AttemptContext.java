@@ -32,9 +32,10 @@ public class AttemptContext {
 
     public ExecuteContext getContext() {
         if (task.getType().equalsIgnoreCase("spring")) {
-            return new ExecuteContext(task.getFilename(), getAttemptid(), getExechost(), getProxyuser(), getType(), getCommand());
+        	String taskUrl = getFilename();
+            return new ExecuteContext(JarID.getID(taskUrl), getAttemptid(), getExechost(), getProxyuser(), getType(), getCommand(),taskUrl);
         } else {
-            return new ExecuteContext(getTaskid(), getAttemptid(), getExechost(), getProxyuser(), getType(), getCommand());
+            return new ExecuteContext(getTaskid(), getAttemptid(), getExechost(), getProxyuser(), getType(), getCommand(),null);
         }
     }
 
@@ -149,5 +150,9 @@ public class AttemptContext {
     public void setStatus(int status) {
         attempt.setStatus(status);
     }
+
+	public String getFilename() {
+		return task.getFilename();
+	}
 
 }

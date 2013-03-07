@@ -3,7 +3,7 @@ package com.dp.bigdata.taurus.framework;
 /**
  * TaskBean
  * 
- * @author damon.zhu
+ * @author hao.zhu
  */
 public interface TaskBean {
 

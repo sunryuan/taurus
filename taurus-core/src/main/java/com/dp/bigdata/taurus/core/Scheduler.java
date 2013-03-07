@@ -94,6 +94,12 @@ public interface Scheduler {
 	public void attemptFailed(String attemptID);
 	
 	/**
+	 * Notify the scheduler that a attempt has been finished with a unknown status.
+	 * @param attemptID
+	 */
+	public void attemptUnKonwed(String attemptID);
+	
+	/**
 	 * get all running attempts
 	 * @return List<AttemptContext>
 	 */

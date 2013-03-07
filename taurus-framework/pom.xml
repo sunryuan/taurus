@@ -4,10 +4,10 @@
 	<parent>
 		<groupId>com.dp.bigdata</groupId>
 		<artifactId>taurus-parent</artifactId>
-		<version>0.1</version>
+		<version>0.3</version>
 	</parent>
 	<artifactId>taurus-framework</artifactId>
-
+	<version>0.1</version>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework</groupId>

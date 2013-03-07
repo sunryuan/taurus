@@ -1,5 +1,49 @@
+var isSpringType = false;
+var beanCounter = 0;
 $(document).ready(function() {
 	$("#wizard").bwizard();
+	
+	$("#beanCG").hide();	
+	
+	$("#taskType").change(function(e){
+		if($(this).val() === 'spring'){
+			isSpringType = true;
+			$("#jarAddress").show();
+			$("#upfile").hide();
+			$("#mainClassCG").show();
+			$("#beanCG").show();
+		}else{
+			isSpringType = false;
+			$("#jarAddress").hide();
+			$("#upfile").show();
+			$("#mainClassCG").hide();
+			$("#beanCG").hide();
+		}
+	});
+	
+	$("#addNewBeanbtn").click(function(e){
+		beanCounter = beanCounter + 1;
+		var html1 = "<div class='control-group' id=" + "'cgcron" + beanCounter +"'><label class='control-label' for='crontab'>Crontab" + beanCounter +"*</label>"+
+					"<div class='controls'><input type='text' class='input-xxlarge' id='crontab' name='crontab'  value='0 0 * * ?'></div></div>";
+		$(html1).insertBefore($("#beanCG"));
+		
+		var html2 = "<div class='control-group' id=" + "'cgcommand" + beanCounter +"'><label class='control-label' for='taskCommand'>命令" + beanCounter + "*</label>"+
+					"<div class='controls'><input type='text' class='input-xxlarge' id='taskCommand' name='taskCommand'  placeholder='command'></div></div>";
+		$(html2).insertBefore($("#beanCG"));
+		if(beanCounter > 0){
+			$("#rmBeanbtn").button("enable");
+		}
+	});
+	
+	$("#rmBeanbtn").click(function(e){
+		$("#cgcron" + beanCounter).remove();
+		$("#cgcommand" + beanCounter).remove();
+		beanCounter = beanCounter - 1;
+		if(beanCounter == 0){
+			$("#rmBeanbtn").attr("disabled", "disabled");
+		}
+	});
+	
 	$("#autodeploy").change(function(e) {
         if($("#autodeploy").prop("checked")){
 			$("#poolDeployDiv").show();
@@ -11,6 +55,35 @@ $(document).ready(function() {
     });
 
 	function post_to_url(path, form) {
+		var jForm = jQuery(form);
+		//submit
+		$.ajax({
+	        url: 'create_task',  //server script to process data
+	        type: 'POST',
+	        //Ajax events
+	        success:function(data){
+	            $("#id_header").html("成功");
+				$("#id_body").html("添加作业成功!");
+				$(".modal-footer").html('<a href="schedule.jsp" class="btn btn-info">确定</a>');
+				$("#confirm").modal('toggle');
+				$("#submitButton").button('reset');			
+	    	},
+	    	error:function(data){
+	    		$("#id_header").html("失败");
+				$("#id_body").html("添加作业失败!");
+				$(".modal-footer").html('<a href="#" class="btn btn-info" data-dismiss="modal">确定</a>');
+				$("#confirm").modal('toggle');
+				$("#submitButton").button('reset');
+	    	},
+	        enctype: 'application/x-www-form-urlencoded',
+	        data: jForm.serialize(),
+	        cache: false,
+	        contentType: 'application/xml',
+	        processData: false
+	    });
+	}
+	
+	function post_to_url_for_spring(path, form){
 		var jForm = jQuery(form);
 		//submit
 		$.ajax({
@@ -151,7 +224,17 @@ $(document).ready(function() {
 				form.appendChild(hiddenField);
      		}
 		}
-		if(autodeploy){
+		
+		if(isSpringType){
+			if(beanCounter != 0){
+				for(i = 0 ; i <= beanCounter; i++ ){
+					params["crontab"] = $("#cgcron" + beanCounter + " input").val();
+					params["taskCommand"] = $("#cgcommand" + beanCounter + " input").val();
+					form.setAttribute("enctype","application/x-www-form-urlencoded");
+					post_to_url("create_task",form);
+				}
+			}
+		}else if(autodeploy){
 			form.setAttribute("enctype","multipart/form-data");
 			form.appendChild(file);
 			post_to_url_with_file("create_task",form);

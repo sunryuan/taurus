@@ -19,7 +19,7 @@
 <%@page import="java.util.ArrayList"%>
 
 <% 
-	String []types={"hadoop","wormhole","其他"};
+	String []types={"hadoop","wormhole","spring","hive","other"};
 	ClientResource cr = new ClientResource(host + "pool");
 	IPoolsResource poolResource = cr.wrap(IPoolsResource.class);
 	cr.accept(MediaType.APPLICATION_XML);
