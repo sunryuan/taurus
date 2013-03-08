@@ -156,13 +156,17 @@ $(document).ready(function() {
       		var element = $(".field").get(i);
 			if(element.id=="hostname") {
 				if(!autodeploy){
-					params[element.id] = element.value;					
+					params[element.id] = element.value;	
+				}else{
+					params[element.id] = "";
 				}
 			} else if(element.id=="uploadFile" || element.id=="alertCondition"  || element.id=="alertType"){
 				//do nothing
-			} else if(element.id=='poolId' || element.id=='taskType') {
+			} else if(element.id=='poolId') {
 				if(autodeploy){
 					params[element.id] = element.value;
+				}else{
+					params[element.id] = 1;
 				}
 			} else if(element.id=="alertUser" || element.id=="alertGroup") {
 				var result = element.value;
