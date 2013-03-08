@@ -5,7 +5,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.zookeeper.Watcher;
 
 import com.dp.bigdata.taurus.agent.exec.Executor;
-import com.dp.bigdata.taurus.agent.exec.TaurusExecutor;
+import com.dp.bigdata.taurus.agent.spring.JarClassLoader;
+import com.dp.bigdata.taurus.agent.spring.JarExecutor;
 import com.dp.bigdata.taurus.agent.utils.AgentServerHelper;
 import com.dp.bigdata.taurus.zookeeper.common.MachineType;
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.DefaultZKWatcher;
@@ -51,6 +52,10 @@ public class TaurusAgentServer implements AgentServer{
 		DeploymentUtility.checkAndUndeployTasks(executor, localIp, deployer,true);
 		ScheduleUtility.checkAndRunTasks(executor, localIp, schedule, true);
 		ScheduleUtility.checkAndKillTasks(executor, localIp, schedule, true);
+		
+		JarExecutor jarExecutor = new JarExecutor();
+		jarExecutor.monitor();
+		
 		while(true){
 			try {
 				Thread.sleep(interval);

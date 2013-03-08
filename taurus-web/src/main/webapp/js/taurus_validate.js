@@ -129,6 +129,7 @@ $(document).ready(function(){
 	    		.closest('.control-group').removeClass('error').addClass('success');
 	    },
 	  });
+	  
 	  $('#extended-form').validate({
 	    rules: {
 	    	maxExecutionTime: {
@@ -176,9 +177,6 @@ $(document).ready(function(){
 			    	crontab: {
 			    		required: true,
 			    		minlength: 6
-			    	},
-			    	taskCommand: {
-			    		required: true
 			    	},
 					proxyUser: {
 						required: true,

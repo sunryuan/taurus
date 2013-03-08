@@ -129,7 +129,7 @@
           		<div id="mainClassCG" class="control-group">
             		<label class="control-label" for="mainClass">MainClass*</label>
             		<div class="controls">
-              			<input type="text" class="input-xxlarge field" id="mainClass" name="mainClass"  placeholder="mainClass">
+              			<input type="text" class="input-xxlarge field required" id="mainClass" name="mainClass"  placeholder="mainClass">
             		</div>
           		</div>
                 <div class="control-group">
@@ -142,7 +142,7 @@
                 <div class="control-group">
             		<label class="control-label" for="taskCommand">命令*</label>
             		<div class="controls">
-              			<input type="text" class="input-xxlarge field" id="taskCommand" name="taskCommand"  placeholder="command">
+              			<input type="text" class="input-xxlarge field required" id="taskCommand" name="taskCommand"  placeholder="command">
             		</div>
           		</div>
           		

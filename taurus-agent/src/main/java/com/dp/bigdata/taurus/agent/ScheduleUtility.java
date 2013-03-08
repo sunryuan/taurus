@@ -14,6 +14,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.exec.CommandLine;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.zookeeper.WatchedEvent;
@@ -121,6 +122,12 @@ public class ScheduleUtility {
 			lock.lock();
 			cs.completeExecution(localIp, attemptID);
 			s_logger.debug(attemptID + " start schedule");
+			
+			ScheduleConf conf = (ScheduleConf) cs.getConf(localIp, attemptID);
+			if(conf != null && StringUtils.isNotBlank(conf.getTaskType()) && conf.getTaskType().equalsIgnoreCase("spring")){
+				return;
+			}
+			
 			ScheduleStatus status = (ScheduleStatus) cs.getStatus(localIp, attemptID, null);
 			if(status == null){
 				s_logger.error("status is null");

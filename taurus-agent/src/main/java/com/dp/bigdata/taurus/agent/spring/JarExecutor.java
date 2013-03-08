@@ -42,7 +42,7 @@ public class JarExecutor {
     private static final Log LOG = LogFactory.getLog(JarExecutor.class);
 
     public static final String IP = IPUtils.getFirstNoLoopbackIP4Address();
-    public static final String BASE = "/test";
+    public static final String BASE = "/taurus";
     public static final String DEPLOY_PATH = BASE + "/assignments/" + IP;
     public static final String SCHEDULE_PATH = BASE + "/schedules/" + IP;
     public static final String DEPLOY_NEW_PATH = DEPLOY_PATH + "/new";

@@ -76,7 +76,7 @@ public class TaskDTO implements Serializable {
         Task task = new Task();
         task.setAddtime(addtime);
         task.setAllowmultiinstances(allowmultiinstances);
-        if(getType().equalsIgnoreCase("spring")){
+        if(getType() != null && getType().equalsIgnoreCase("spring")){
         	String springCommand = mainClass + " " + command;
         	task.setCommand(springCommand);
         	task.setFilename(taskUrl);
