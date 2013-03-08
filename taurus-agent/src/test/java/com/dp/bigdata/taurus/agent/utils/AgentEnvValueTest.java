@@ -28,7 +28,7 @@ public class AgentEnvValueTest {
     
     @Test
     public void testGetValue(){
-        assertEquals(AgentEnvValue.getValue(AgentEnvValue.KEY_CHECK_INTERVALS, ""),"300");
+        assertEquals(AgentEnvValue.getValue(AgentEnvValue.KEY_CHECK_INTERVALS, ""),"30000");
         assertEquals(AgentEnvValue.getValue("key_not_exists", ""),"");
 
     }
