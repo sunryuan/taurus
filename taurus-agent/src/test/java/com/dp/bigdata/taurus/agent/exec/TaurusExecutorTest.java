@@ -17,7 +17,6 @@ package com.dp.bigdata.taurus.agent.exec;
 
 import java.io.IOException;
 
-import org.junit.Test;
 
 /**
  * @author renyuan.sun

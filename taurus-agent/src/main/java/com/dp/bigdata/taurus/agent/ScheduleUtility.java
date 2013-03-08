@@ -47,26 +47,25 @@ public class ScheduleUtility {
 	private static ExecutorService killThreadPool;
 	private static ExecutorService executeThreadPool;
 	
-	
+	private static final int INTERVAL = 60 * 1000;
 	private static final String FILE_SEPRATOR = File.separator;
-//	private static final String HADOOP_JOB = "hadoop";
-//	private static final String WORMHOLE_JOB = "wormhole";
-//  private static final String HIVE_JOB = "hive";
-//	private static final String SHELL_JOB = "shell script";
 	private static final String KRB5_PATH = "KRB5CCNAME=%s/%s";
 	private static final String KINIT_COMMAND_PATTERN = "kinit -r 12l -k -t %s/%s/.keytab %s@DIANPING.COM;kinit -R;";
-	private static final String KDESTORY_COMMAND = "bash -c \"export %s;kdestroy;\"";
+	private static final String KDESTROY_COMMAND = "kdestroy;";
 	private static final String COMMAND_PATTERN_WITHOUT_SUDO 
-	    = "echo %s;export %s;%s echo $$ >>%s;  [ -f %s ] && cd %s; source %s && %s";
+	    = "echo %s;export %s;%s echo $$ >%s;  [ -f %s ] && cd %s; source %s %s; %s; echo $? >%s; rm -f %s; %s";
 	private static final String COMMAND_PATTERN_WITH_SUDO 
-	    = "sudo -u %s %s -i \"%s echo $$ >>%s; [ -f %s ] && cd %s; source %s && %s\"";
+	    = "sudo -u %s %s -i \"%s echo $$ >%s; [ -f %s ] && cd %s; source %s %s; %s; echo $? >%s; rm -f %s; %s\"";
 	private static final String KILL_COMMAND = "%s %s %s";
 	private static final String REMOVE_COMMAND = "rm -f %s";
 	private static String kinitCommand = "";
 	private static String kdestroyCommand = "";
     private static String command_pattern;
+    private static boolean on_windows = false;
+    private static TaskHelper taskLogUploader = new TaskHelper();
 
 	static{
+	    on_windows = System.getProperty("os.name").toLowerCase().startsWith("windows");
 		killThreadPool = AgentServerHelper.createThreadPool(2, 4);
 		executeThreadPool = AgentServerHelper.createThreadPool(4, 10);
 		agentRoot = AgentEnvValue.getValue(AgentEnvValue.AGENT_ROOT_PATH,agentRoot);
@@ -126,6 +125,11 @@ public class ScheduleUtility {
 		s_logger.debug("End checkAndRunTasks");
 	}
 	
+	public static void startZombieThread(String localIp, ScheduleInfoChannel cs) {
+	    ZombieTaskThread thread = new ZombieTaskThread(localIp, cs);
+	    new Thread(thread).start();
+	}
+	
 	private static void submitTask(Executor executor, String localIp, ScheduleInfoChannel cs, String attemptID){
 		Lock lock = getLock(attemptID);
 		try{
@@ -175,6 +179,7 @@ public class ScheduleUtility {
 				lock.lock();
 				conf = (ScheduleConf) cs.getConf(localIp, taskAttempt);
 				status = (ScheduleStatus) cs.getStatus(localIp, taskAttempt, null);
+				cs.addRunningJob(localIp, taskAttempt);
 				status.setStatus(ScheduleStatus.EXECUTING);
 				cs.updateStatus(localIp, taskAttempt, status);
 			} finally{
@@ -185,13 +190,15 @@ public class ScheduleUtility {
 			} catch(RuntimeException e){
 				s_logger.error(e,e);
 				status.setStatus(ScheduleStatus.EXECUTE_FAILED);
+                cs.removeRunningJob(localIp, taskAttempt);
 			}
 			try {
 				lock.lock();
 				cs.updateConf(localIp, taskAttempt, conf);
 				ScheduleStatus thisStatus = (ScheduleStatus) cs.getStatus(localIp, taskAttempt, null);
-				if(thisStatus.getStatus()!=ScheduleStatus.DELETE_SUCCESS) {
+				if(thisStatus.getStatus() != ScheduleStatus.DELETE_SUCCESS) {
 					cs.updateStatus(localIp, taskAttempt, status);
+	                cs.removeRunningJob(localIp, taskAttempt);
 				}
 				s_logger.debug(taskAttempt + " end execute");
 			} finally{
@@ -208,7 +215,6 @@ public class ScheduleUtility {
 				return;
 			}
 			String attemptID = conf.getAttemptID();
-			String taskType = conf.getTaskType();
 			String taskID = conf.getTaskID();
 			String command = conf.getCommand();
 			String userName = conf.getUserName();
@@ -216,7 +222,8 @@ public class ScheduleUtility {
                 userName = "nobody";
             }
 			
-			if(attemptID == null || taskID == null || command == null){
+			if(attemptID == null || taskID == null || command == null
+			        || attemptID.isEmpty() || taskID.isEmpty() || command.isEmpty()){
 				s_logger.error("Configure is not completed!");
 				status.setStatus(ScheduleStatus.EXECUTE_FAILED);
 				status.setFailureInfo("Configure is not completed!");
@@ -244,28 +251,22 @@ public class ScheduleUtility {
             } catch (IOException e) {
                 s_logger.error(e.getMessage(),e);
             }
-            	
-//			if(needHadoopAuthority) {
-//				try {
-//					int returnCode = executor.execute(null, logFileStream, errorFileStream, hadoopAuthority,userName);
-//					if(returnCode != 0) {
-//						s_logger.error("Hadoop authority script executing failed");
-//					}
-//				} catch (IOException e) {
-//					s_logger.error(e.getMessage(),e);
-//				}		
-//			}
+            
             String krb5PathCommand = String.format(KRB5_PATH, hadoop,"krb5cc_"+attemptID);
 			if(needHadoopAuthority) {
 	            kinitCommand = String.format(KINIT_COMMAND_PATTERN,homeDir,userName,userName);
-	            kdestroyCommand = String.format(KDESTORY_COMMAND, krb5PathCommand);
+	            kdestroyCommand = KDESTROY_COMMAND;
 	        }
 			String path = jobPath + FILE_SEPRATOR + taskID + FILE_SEPRATOR;
-			
+            String pidFile = running + FILE_SEPRATOR + '.' + attemptID;
+            String returnValueFile = running + FILE_SEPRATOR + "rv." + attemptID;
 			int returnCode = 0;
 			try {
-				if(!command.isEmpty()) {
-					
+			    s_logger.debug(taskAttempt + " start execute");
+			    if(on_windows){
+			        returnCode = executor.execute(attemptID, logFileStream, errorFileStream, command);
+			    }
+			    else {
 					//execute
 					CommandLine cmdLine;
 					
@@ -274,17 +275,26 @@ public class ScheduleUtility {
 				      
 				    cmdLine = new CommandLine("bash");
 				    cmdLine.addArgument("-c");
-				    String pidFile = running + FILE_SEPRATOR + '.' + attemptID;
-                    cmdLine.addArgument(String.format(command_pattern, userName, 
-                            krb5PathCommand, kinitCommand, pidFile, path, path, env, escapedCmd), false);
-					s_logger.debug(taskAttempt + " start execute");
-					returnCode = executor.execute(attemptID, 0, null, cmdLine, logFileStream, errorFileStream);
-					executor.execute("upload log", logFileStream, errorFileStream, 
-					        logFileUpload,logFilePath,errorFilePath,htmlFilePath,htmlFileName);
-					if(!kdestroyCommand.isEmpty()){
-					    executor.execute("kdestory",null,null,kdestroyCommand);
-					}
+                    cmdLine.addArgument(String.format(command_pattern, userName, krb5PathCommand,
+                            kinitCommand, pidFile, path, path, env, env, escapedCmd, returnValueFile,pidFile, kdestroyCommand), false);
+					executor.execute(attemptID, 0, null, cmdLine, logFileStream, errorFileStream);
+//					executor.execute("upload log", logFileStream, errorFileStream, 
+//					        logFileUpload,logFilePath,errorFilePath,htmlFilePath,htmlFileName);
+					try{
+					    BufferedReader br = new BufferedReader(new FileReader((new File(returnValueFile)))); 
+					    String returnValStr = br.readLine();
+					    br.close();
+                        returnCode = Integer.parseInt(returnValStr);
+                        new File(returnValueFile).delete();
+                    } catch (NumberFormatException e){
+                        s_logger.error(e,e);
+                        returnCode = 1;
+                    } catch (IOException e){
+                        s_logger.error(e,e);
+                        returnCode = 1;
+                    }
 				}
+			    taskLogUploader.uploadLog(returnCode,errorFilePath, logFilePath, htmlFilePath, htmlFileName);
 				if(returnCode == 0) {
 					status.setStatus(ScheduleStatus.EXECUTE_SUCCESS);
 				} else  {
@@ -296,9 +306,10 @@ public class ScheduleUtility {
 				status.setStatus(ScheduleStatus.EXECUTE_FAILED);
 				status.setFailureInfo("Job failed to execute");
 			}
-            String pidFile = running + FILE_SEPRATOR + '.' + attemptID;
             try {
-                executor.execute("removePidFile", logFileStream,errorFileStream,String.format(REMOVE_COMMAND, pidFile));
+                if(!on_windows){
+                    executor.execute("removePidFile", logFileStream,errorFileStream,String.format(REMOVE_COMMAND, pidFile));
+                }
                 logFileStream.close();
                 errorFileStream.close();
             } catch (IOException e) {
@@ -307,7 +318,90 @@ public class ScheduleUtility {
 		}
 	}
 	
-	
+	private static final class ZombieTaskThread implements Runnable{
+	    String localIp;
+	    ScheduleInfoChannel cs;
+	    Set<String> jobInstanceIds;
+	    ZombieTaskThread( String localIp, ScheduleInfoChannel cs){
+            this.localIp = localIp;
+            this.cs = cs;
+        }
+        @Override
+        public void run() {
+            jobInstanceIds = cs.getRunningJobs(localIp);
+            int num = 0;
+            if(on_windows) {
+                for(String attemptID : jobInstanceIds){
+                    ScheduleStatus status = (ScheduleStatus) cs.getStatus(localIp,attemptID,null);
+                    if(status.getStatus() == ScheduleStatus.EXECUTING){
+                        status.setStatus(ScheduleStatus.UNKNOWN);
+                        cs.updateStatus(localIp, attemptID, status);
+                    }
+                    cs.removeRunningJob(localIp,attemptID);
+                }
+                return;
+            }
+            while(jobInstanceIds.size() != 0 && num <300){      
+                for(String attemptID:jobInstanceIds) {
+                    String pidFile = running + FILE_SEPRATOR + '.' + attemptID;
+                    String returnValueFile = running + FILE_SEPRATOR + "rv." + attemptID;
+                    int returnCode =1 ;
+                    try{
+                        BufferedReader br = new BufferedReader(new FileReader((new File(returnValueFile)))); 
+                        String returnValStr = br.readLine();
+                        br.close();
+                        returnCode = Integer.parseInt(returnValStr);
+                    } catch (Exception e){
+                        s_logger.error(e,e);
+                        returnCode = 1;
+                    }
+                    if(!new File(pidFile).exists() && new File(returnValueFile).exists()){
+                        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+                        String date = format.format(new Date());
+                        String logFilePath = logPath + FILE_SEPRATOR + date + FILE_SEPRATOR + attemptID + ".log";
+                        String errorFilePath = logPath + FILE_SEPRATOR + date + FILE_SEPRATOR + attemptID + ".error";
+                        String htmlFileName = attemptID + ".html";
+                        String htmlFilePath = logPath + FILE_SEPRATOR + date + FILE_SEPRATOR + htmlFileName;
+                        try {
+                            new File(returnValueFile).delete();
+                            taskLogUploader.uploadLog(returnCode, errorFilePath, logFilePath, htmlFilePath, htmlFileName);
+                        } catch (IOException e) {
+                            s_logger.error(e,e);
+                        }
+                        ScheduleStatus status = (ScheduleStatus) cs.getStatus(localIp,attemptID,null);
+                        if(status.getStatus() == ScheduleStatus.EXECUTING){
+                            if(returnCode == 0){
+                                status.setStatus(ScheduleStatus.EXECUTE_SUCCESS);
+                            } else{
+                                status.setStatus(ScheduleStatus.EXECUTE_FAILED);
+                            }
+                            cs.updateStatus(localIp, attemptID, status);
+                        }
+                        cs.removeRunningJob(localIp,attemptID);
+                    }    
+                } 
+                jobInstanceIds = cs.getRunningJobs(localIp);
+                try {
+                    Thread.sleep(INTERVAL);
+                    num ++;
+                } catch (InterruptedException e) {
+                    s_logger.error(e,e);
+                }
+            }
+            if(jobInstanceIds.size() != 0){
+                for(String attemptID : jobInstanceIds){
+                    ScheduleStatus status = (ScheduleStatus) cs.getStatus(localIp,attemptID,null);
+                    if(status.getStatus() == ScheduleStatus.EXECUTING){
+                        status.setStatus(ScheduleStatus.UNKNOWN);
+                        cs.updateStatus(localIp, attemptID, status);
+                    }
+                    cs.removeRunningJob(localIp,attemptID);
+                }
+                return;
+            }
+        }
+	    
+	}
 	
 	private static final class KillTaskThread implements Runnable{
 		
@@ -332,6 +426,7 @@ public class ScheduleUtility {
 				ScheduleStatus status = (ScheduleStatus) cs.getStatus(localIp, jobInstanceId, null);
 				killTask(localIp,conf, status);
 				cs.updateStatus(localIp, jobInstanceId, status);
+                cs.removeRunningJob(localIp, jobInstanceId);
 			} finally{
 				lock.unlock();
 			}
@@ -341,26 +436,34 @@ public class ScheduleUtility {
 			String attemptID = conf.getAttemptID();
 			int returnCode = 1;
 			try{
-                String fileName = running + FILE_SEPRATOR + '.' + attemptID;
-                BufferedReader br = new BufferedReader(new FileReader((new File(fileName)))); 
-                String pid = br.readLine();
-                br.close();
-                s_logger.debug("Ready to kill " + attemptID + ", pid is " + pid);
-                String kill = String.format(KILL_COMMAND, killJob, pid, "9");
-                returnCode = executor.execute("kill",System.out,System.err,kill);
+			    if(on_windows){
+			        returnCode = executor.kill(attemptID);
+			    } else{
+			        String fileName = running + FILE_SEPRATOR + '.' + attemptID;
+	                BufferedReader br = new BufferedReader(new FileReader((new File(fileName)))); 
+	                String pid = br.readLine();
+	                br.close();
+	                s_logger.debug("Ready to kill " + attemptID + ", pid is " + pid);
+	                String kill = String.format(KILL_COMMAND, killJob, pid, "9");
+	                returnCode = executor.execute("kill",System.out,System.err,kill);
+	                try {
+	                    new File(fileName).delete();
+	                } catch(Exception e) {
+	                    //do nothing
+	                }
+			    }
             } catch(Exception e) {
                 s_logger.error(e,e);
                 returnCode = 1;
             }
 			
+			
 			if(returnCode == 0)  {
 				status.setStatus(ScheduleStatus.DELETE_SUCCESS);
-			} else {
-				status.setStatus(ScheduleStatus.DELETE_FAILED);
-				status.setFailureInfo("Job failed to delete");
 			}
 			cs.completeKill(ip, attemptID);
 		}
+		
 		
 	}
 	
@@ -403,9 +506,5 @@ public class ScheduleUtility {
 		        checkAndKillTasks(executor, localIp, cs, true);
 		    }
 		}
-	}
-	public static void main(String []args){
-	    
-	    System.out.println(String.format("%s , %s, world", "","hello"));
 	}
 }

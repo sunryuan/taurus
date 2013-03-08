@@ -182,7 +182,6 @@ public class DefaultDeployerManager implements Deployer{
 				lock.unlock();
 			}
 		}
-
 		public DeploymentStatus getDeploymentStatus(){
 			return status;
 		}

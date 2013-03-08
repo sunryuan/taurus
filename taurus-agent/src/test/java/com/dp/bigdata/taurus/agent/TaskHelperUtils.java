@@ -1,7 +1,7 @@
 /**
  * Project: taurus-agent
  * 
- * File Created at 2013-2-6
+ * File Created at 2013-2-22
  * $Id$
  * 
  * Copyright 2013 dianping.com.
@@ -13,16 +13,13 @@
  * accordance with the terms of the license agreement you entered into
  * with dianping.com.
  */
-package com.dp.bigdata.taurus.agent.utils;
+package com.dp.bigdata.taurus.agent;
 
 /**
- * upload task log
+ * TODO Comment of TaskHelperUtils
  * @author renyuan.sun
  *
  */
-public class TaskLogUtils {
-    public static void uploadLog(){
-        
-    }
-
+public class TaskHelperUtils {
+    
 }

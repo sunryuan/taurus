@@ -23,6 +23,12 @@ public final class AgentEnvValue {
 	public static final String NEED_SUDO_AUTHORITY = "needSudoAuthority";
 	public static final String HOME_PATH = "homePath";
 	
+	public static final String HDFS_CONF = "hdfs.properties";
+	public static final String HDFS_HOST = "hdfsHost";
+	public static final String NAMENODE_PRINCIPAL = "namenodePrincipal";
+	public static final String KERBEROS_PRINCIPAL = "clinetPrincipal";
+	public static final String KEYTAB_FILE = "keytabFile";
+	
 	public static String getValue(String key){
 		return getValue(key,"");
 	}
@@ -31,6 +37,27 @@ public final class AgentEnvValue {
         try{
             Properties props = new Properties();
             InputStream in = ClassLoaderUtils.getDefaultClassLoader().getResourceAsStream(CONF);
+            props.load(in);
+            String result = props.getProperty(key);
+            in.close();
+            if(result == null) {
+                return defaultValue;
+            }
+            return result;
+        } catch(IOException e) {
+            LOG.error(e.getMessage(),e);
+            return defaultValue;
+        }
+    }
+	
+	public static String getHdfsValue(String key){
+	    return getHdfsValue(key,"");
+	}
+	
+	public static String getHdfsValue(String key,String defaultValue){
+        try{
+            Properties props = new Properties();
+            InputStream in = ClassLoaderUtils.getDefaultClassLoader().getResourceAsStream(HDFS_CONF);
             props.load(in);
             String result = props.getProperty(key);
             in.close();

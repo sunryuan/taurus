@@ -88,6 +88,11 @@ abstract class TaurusZKInfoChannel implements ClusterInfoChannel{
 			if(!existPath(BASE)){
 				setupBasePath();
 			}
+			try{
+			    rmPath(BASE, HEARTBEATS, mt.getName(), REALTIME, ip);
+			} catch(Exception e){
+			    //do nothing;
+			}
 			mkPath(CreateMode.EPHEMERAL, BASE, HEARTBEATS, mt.getName(), REALTIME, ip);
 			mkPath(BASE, HEARTBEATS, mt.getName(), INFO, ip);
 		} catch(Exception e){
