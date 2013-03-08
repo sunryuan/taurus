@@ -146,7 +146,7 @@ public class JarExecutor {
                     String attemptPath = SCHEDULE_PATH + "/" + child + "/" + STATUS;
                     if (object instanceof ScheduleConf) {
                         final ScheduleConf conf = (ScheduleConf) object;
-                        if (conf.getTaskType().equalsIgnoreCase(TaskType.getString(TaskType.SPRING))) {
+                        if (StringUtils.isNotBlank(conf.getTaskType()) && conf.getTaskType().equalsIgnoreCase(TaskType.getString(TaskType.SPRING))) {
                             //delete zookeeper node first
                             zkClient.delete(SCHEDULE_NEW_PATH + "/" + child);
                             //update attempt status
@@ -200,16 +200,18 @@ public class JarExecutor {
                         //loading the application context
                         ApplicationContext context = contextMap.get(jarPackage);
                         if (context == null) {
-                            LOG.info("initial application context...");
                             JarClassLoader jcl = new JarClassLoader();
                             try {
                                 URLClassLoader ucl = jcl.getClassLoader(jarPath);
                                 Thread.currentThread().setContextClassLoader(ucl);
                                 //load mainClass
+                                LOG.info("loading main class...");
                                 Class<?> mainClaz = ucl.loadClass(mainClass);
                                 String[] parameters = null;
                                 mainClaz.getMethod("main", String[].class).invoke(null,(Object)parameters);
+
                                 //get applicationContext
+                                LOG.info("initial application context...");
                     			Class<?> contextClaz = ucl.loadClass(ApplicationContextProvider.class.getName());
                     			Object bean = contextClaz.getDeclaredMethod("getApplicationContext").invoke(null);
                                 context = (ApplicationContext) bean;
@@ -222,9 +224,11 @@ public class JarExecutor {
                         try {
                             Object bean = context.getBean(beanName);
                             if (bean instanceof TaskBean) {
+                            	LOG.info("start to invoke Taskbean.execute...");
                                 TaskBean taskBean = (TaskBean) bean;
                                 taskBean.execute();
                             } else {
+                            	LOG.info("start to invoke bean's method...");
                                 Method beanMt = bean.getClass().getDeclaredMethod(beanMethod);
                                 beanMt.invoke(bean);
                             }
