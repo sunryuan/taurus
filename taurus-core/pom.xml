@@ -38,13 +38,13 @@
 		<dependency>
 			<groupId>org.apache.derby</groupId>
 			<artifactId>derby</artifactId>
-			<version>10.8.2.2</version>
+			<version>10.9.1.0</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.derby</groupId>
 			<artifactId>derbyclient</artifactId>
-			<version>10.8.2.2</version>
+			<version>10.9.1.0</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -55,7 +55,7 @@
 		</dependency>
 	</dependencies>
 
-	<!--build>
+	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.mybatis.generator</groupId>
@@ -76,7 +76,8 @@
 		</plugins>
 		<pluginManagement>
 			<plugins>
-			
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>
@@ -109,5 +110,5 @@
 				</plugin>
 			</plugins>
 		</pluginManagement>
-	</build-->
+	</build>
 </project>
