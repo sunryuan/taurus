@@ -6,18 +6,6 @@
 	<version>0.3</version>
 	<packaging>pom</packaging>
 	<name>taurus-parent</name>
-	<repositories>
-                                <repository>
-                                        <id>central</id>
-                                        <name>Maven2 Central Repository</name>
-                                        <layout>default</layout>
-                                        <url>http://repo1.maven.org/maven2</url>
-                                        <snapshots>
-                                                <enabled>false</enabled>
-                                        </snapshots>
-                                </repository>
-                                	</repositories>
-                                
 	<build>
 		<pluginManagement>
 			<plugins>
