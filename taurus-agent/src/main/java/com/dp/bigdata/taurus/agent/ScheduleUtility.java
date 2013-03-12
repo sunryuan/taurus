@@ -49,15 +49,16 @@ public class ScheduleUtility {
 	
 	private static final int INTERVAL = 60 * 1000;
 	private static final String FILE_SEPRATOR = File.separator;
-	private static final String KRB5_PATH = "KRB5CCNAME=%s/%s";
 	private static final String KINIT_COMMAND_PATTERN = "kinit -r 12l -k -t %s/%s/.keytab %s@DIANPING.COM;kinit -R;";
 	private static final String KDESTROY_COMMAND = "kdestroy;";
 	private static final String COMMAND_PATTERN_WITHOUT_SUDO 
-	    = "echo %s;export %s;%s echo $$ >%s;  [ -f %s ] && cd %s; source %s %s; %s; echo $? >%s; rm -f %s; %s";
+	    = "echo %s; %s;%s echo $$ >%s;  [ -f %s ] && cd %s; source %s %s; %s; echo $? >%s;echo %s; %s; rm -f %s; %s";
 	private static final String COMMAND_PATTERN_WITH_SUDO 
-	    = "sudo -u %s %s -i \"%s echo $$ >%s; [ -f %s ] && cd %s; source %s %s; %s; echo $? >%s; rm -f %s; %s\"";
+	    = "sudo -u %s %s -i \"%s echo $$ >%s; [ -f %s ] && cd %s; source %s %s; %s\"; echo $? >%s; sudo -u %s %s -i \"rm -f %s; %s\"";
 	private static final String KILL_COMMAND = "%s %s %s";
 	private static final String REMOVE_COMMAND = "rm -f %s";
+	
+	private static String krb5Path = "KRB5CCNAME=%s/%s";
 	private static String kinitCommand = "";
 	private static String kdestroyCommand = "";
     private static String command_pattern;
@@ -84,6 +85,7 @@ public class ScheduleUtility {
 		    command_pattern = COMMAND_PATTERN_WITH_SUDO;
 		} else {
 		    command_pattern = COMMAND_PATTERN_WITHOUT_SUDO;
+		    krb5Path = "export " + krb5Path;
 		}
 	}
 
@@ -252,8 +254,9 @@ public class ScheduleUtility {
                 s_logger.error(e.getMessage(),e);
             }
             
-            String krb5PathCommand = String.format(KRB5_PATH, hadoop,"krb5cc_"+attemptID);
+            String krb5PathCommand = "";
 			if(needHadoopAuthority) {
+			    krb5PathCommand = String.format(krb5Path, hadoop,"krb5cc_"+attemptID);
 	            kinitCommand = String.format(KINIT_COMMAND_PATTERN,homeDir,userName,userName);
 	            kdestroyCommand = KDESTROY_COMMAND;
 	        }
@@ -276,7 +279,8 @@ public class ScheduleUtility {
 				    cmdLine = new CommandLine("bash");
 				    cmdLine.addArgument("-c");
                     cmdLine.addArgument(String.format(command_pattern, userName, krb5PathCommand,
-                            kinitCommand, pidFile, path, path, env, env, escapedCmd, returnValueFile,pidFile, kdestroyCommand), false);
+                            kinitCommand, pidFile, path, path, env, env, escapedCmd, returnValueFile,
+                            userName, krb5PathCommand, pidFile, kdestroyCommand), false);
 					executor.execute(attemptID, 0, null, cmdLine, logFileStream, errorFileStream);
 //					executor.execute("upload log", logFileStream, errorFileStream, 
 //					        logFileUpload,logFilePath,errorFilePath,htmlFilePath,htmlFileName);
