@@ -141,6 +141,9 @@ $(document).ready(function() {
 		
 		params["alertCondition"] = condition;
 		params["alertType"] = type;
+		if(params["dependency"]!=null && params["dependency"]!=''){
+			params["alertCondition"] = params["alertCondition"] + ";DEPENDENCY_TIMEOUT";
+		}
 		
 		for(var key in params) {
     		if(params.hasOwnProperty(key)) {

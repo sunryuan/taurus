@@ -10,20 +10,21 @@ public class ScheduleStatus implements Serializable{
 	private static final long serialVersionUID = -2768469281475075308L;
 
 	public static final int AGENT_UNAVAILABLE = -1;
+	public static final int UNKNOWN = 0;
 	
 	public static final int SCHEDULE_SUCCESS = 1;
 	public static final int SCHEDULE_FAILED = 2;
-	public static final int SCHEDULED = 3;
+	//public static final int SCHEDULED = 3;
 	
 	public static final int EXECUTING = 200;
 	public static final int EXECUTE_SUCCESS = 201;
 	public static final int EXECUTE_FAILED = 202;
 	
-	public static final int DELETE_SUBMITTED = 100;
+//	public static final int DELETE_SUBMITTED = 100;
 	public static final int DELETE_SUCCESS = 101;
-	public static final int DELETE_FAILED = 102;
-	public static final int DELETE_TIMEOUT = 103;
-	public static final int DELETED = 104;
+//	public static final int DELETE_FAILED = 102;
+//	public static final int DELETE_TIMEOUT = 103;
+//	public static final int DELETED = 104;
 	
 	public ScheduleStatus(int status) {
 		super();

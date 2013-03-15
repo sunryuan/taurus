@@ -1,7 +1,7 @@
 /**
  * Project: taurus-agent
  * 
- * File Created at 2013-1-9
+ * File Created at 2013-2-22
  * $Id$
  * 
  * Copyright 2013 dianping.com.
@@ -13,21 +13,13 @@
  * accordance with the terms of the license agreement you entered into
  * with dianping.com.
  */
-package com.dp.bigdata.taurus.agent.exec;
-
-import java.io.IOException;
-
+package com.dp.bigdata.taurus.agent;
 
 /**
+ * TODO Comment of TaskHelperUtils
  * @author renyuan.sun
  *
  */
-public class TaurusExecutorTest {
+public class TaskHelperUtils {
     
-    public void testExecute() throws IOException {
-//        Executor exec = new TaurusExecutor();
-//        exec.execute("test", System.out, System.err, "C:\\Users\\renyuan.sun\\AppData\\Local\\Google\\Chrome\\Application\\chrome.exe");
-        
-        
-    }
 }
