@@ -68,8 +68,8 @@ public class DefaultExecutorManager implements ExecutorManager{
         if(!dic.exists(MachineType.AGENT,agentIP)){
             ScheduleStatus status = new ScheduleStatus();
             status.setStatus(ScheduleStatus.AGENT_UNAVAILABLE);
-            LOGGER.error("Agent unavailable");
-            throw new ExecuteException("Agent unavailable");
+            LOGGER.error("Agent " + agentIP + " is unavailable");
+            throw new ExecuteException("Agent " + agentIP + " is unavailable");
         }else{
             ScheduleStatus status = (ScheduleStatus) dic.getStatus(agentIP, attemptID, null);
             if(status == null){
