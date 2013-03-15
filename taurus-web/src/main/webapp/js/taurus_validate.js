@@ -114,8 +114,9 @@ $(document).ready(function(){
 	    		required: true
 	    	},
 			proxyUser: {
-				required: true,
-				notRoot: true
+				notRoot: function(element) {
+                	return ($("#creator").val()!="renyuan.sun");
+        		},
 			},
 	    	description: {
 	    		required: true,

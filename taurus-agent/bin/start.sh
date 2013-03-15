@@ -17,6 +17,8 @@ if [ "$1" == "init" ]; then
 	chmod 744 script/*
 	mkdir -p $taurusJobPath/running
 	chmod 777 $taurusJobPath/running
+	mkdir -p $taurusJobPath/hadoop
+	chmod 777 $taurusJobPath/hadoop
 else
 	/usr/local/jdk/bin/java -classpath "conf/:lib/*"  com.dp.bigdata.taurus.agent.StartServer
 fi

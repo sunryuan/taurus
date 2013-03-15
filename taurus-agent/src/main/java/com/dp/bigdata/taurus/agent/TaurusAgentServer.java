@@ -5,7 +5,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.zookeeper.Watcher;
 
 import com.dp.bigdata.taurus.agent.exec.Executor;
-import com.dp.bigdata.taurus.agent.spring.JarClassLoader;
 import com.dp.bigdata.taurus.agent.spring.JarExecutor;
 import com.dp.bigdata.taurus.agent.utils.AgentServerHelper;
 import com.dp.bigdata.taurus.zookeeper.common.MachineType;
@@ -48,11 +47,12 @@ public class TaurusAgentServer implements AgentServer{
 		schedule.connectToCluster(MachineType.AGENT, localIp);
 	    LOG.info("Taurus agent starts.");
 
-		DeploymentUtility.checkAndDeployTasks(executor, localIp, deployer,true);
-		DeploymentUtility.checkAndUndeployTasks(executor, localIp, deployer,true);
+		DeploymentUtility.checkAndDeployTasks(localIp, deployer,true);
+		DeploymentUtility.checkAndUndeployTasks( localIp, deployer,true);
 		ScheduleUtility.checkAndRunTasks(executor, localIp, schedule, true);
 		ScheduleUtility.checkAndKillTasks(executor, localIp, schedule, true);
 		
+		ScheduleUtility.startZombieThread(localIp, schedule);
 		JarExecutor jarExecutor = new JarExecutor();
 		jarExecutor.monitor();
 		
@@ -60,8 +60,8 @@ public class TaurusAgentServer implements AgentServer{
 			try {
 				Thread.sleep(interval);
 			} catch (InterruptedException e) { /*do nothing*/}
-			DeploymentUtility.checkAndDeployTasks(executor, localIp, deployer, false);
-			DeploymentUtility.checkAndUndeployTasks(executor, localIp, deployer, false);
+			DeploymentUtility.checkAndDeployTasks(localIp, deployer, false);
+			DeploymentUtility.checkAndUndeployTasks(localIp, deployer, false);
 			ScheduleUtility.checkAndRunTasks(executor, localIp, schedule, false);
 			ScheduleUtility.checkAndKillTasks(executor, localIp, schedule, false);
 		}

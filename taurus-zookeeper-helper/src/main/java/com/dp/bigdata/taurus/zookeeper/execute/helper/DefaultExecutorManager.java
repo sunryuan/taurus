@@ -133,12 +133,10 @@ public class DefaultExecutorManager implements ExecutorManager{
 			throw new ExecuteException("Agent unavailable");
 		}else{
 			status = (ScheduleStatus) dic.getStatus(agentIP, attemptID, null);
-			if(status == null||status.getStatus() == ScheduleStatus.DELETE_SUCCESS
-					||status.getStatus() == ScheduleStatus.EXECUTE_SUCCESS||status.getStatus() == ScheduleStatus.EXECUTE_FAILED){
-				LOGGER.error("Job Instance:" + attemptID + " cannot be killed!");
-				throw new ExecuteException("Job Instance:" + attemptID + " cannot be killed!");
-			}else{
-				status.setStatus(ScheduleStatus.DELETE_SUBMITTED);
+			if(status == null || status.getStatus() != ScheduleStatus.EXECUTING) {
+				LOGGER.error("Job Attempt:" + attemptID + " cannot be killed!");
+				throw new ExecuteException("Job Attempt:" + attemptID + " cannot be killed!");
+			} else{
 				Lock lock = getLock(attemptID);
 				try{
 					lock.lock();
@@ -146,12 +144,8 @@ public class DefaultExecutorManager implements ExecutorManager{
 					ScheduleStatusWatcher w = new ScheduleStatusWatcher(lock, killFinish, dic, agentIP, attemptID);
 					dic.killTask(agentIP, attemptID, status, w);
 					if(!killFinish.await(opTimeout, TimeUnit.SECONDS)){
-						status = (ScheduleStatus) dic.getStatus(agentIP, attemptID, null);
-						if(status != null && status.getStatus() == ScheduleStatus.DELETE_SUBMITTED){
-							status.setStatus(ScheduleStatus.DELETE_TIMEOUT);
-			                LOGGER.error("Delete " + attemptID + " timeout");
-							throw new ExecuteException("Delete " + attemptID + " timeout");
-						}
+						LOGGER.error("Delete " + attemptID + " timeout");
+                        throw new ExecuteException("Delete " + attemptID + " timeout");
 					}else{
 						status = w.getScheduleStatus();
 					}
@@ -193,6 +187,8 @@ public class DefaultExecutorManager implements ExecutorManager{
 				result = new ExecuteStatus(ExecuteStatus.SUCCEEDED);
 			} else if(statusCode == ScheduleStatus.DELETE_SUCCESS) {
 				result = new ExecuteStatus(ExecuteStatus.KILLED);
+			} else if(statusCode == ScheduleStatus.UNKNOWN) {
+			    result = new ExecuteStatus(ExecuteStatus.UNKNOWN);
 			} else {
 				result = new ExecuteStatus(ExecuteStatus.RUNNING);
 			}

@@ -27,4 +27,10 @@ public interface ScheduleInfoChannel extends ClusterInfoChannel{
 	public void updateStatus(String ip, String taskAttempt, Object status);
 	
 	public void updateConf(String ip, String taskAttempt, Object conf);
+	
+	public Set<String> getRunningJobs(String ip);
+	
+	public void addRunningJob(String ip, String taskAttempt);
+	
+	public void removeRunningJob(String ip, String taskAttempt);
 }

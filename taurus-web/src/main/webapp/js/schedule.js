@@ -80,6 +80,9 @@ function action_update(id) {
 		params["alertCondition"] = condition;
 		params["alertType"] = type;
 		params["poolId"] = $('#poolIdReal',form).val();
+		if(params["dependency"]!=null && params["dependency"]!=''){
+			params["alertCondition"] = params["alertCondition"] + ";DEPENDENCY_TIMEOUT";
+		}
 		for(var key in params) {
     		if(params.hasOwnProperty(key)) {
         		var hiddenField = document.createElement("input");

@@ -8,14 +8,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.Watcher.Event.EventType;
-import org.apache.zookeeper.Watcher.Event.KeeperState;
 
-import com.dp.bigdata.taurus.agent.exec.Executor;
 import com.dp.bigdata.taurus.agent.utils.AgentEnvValue;
 import com.dp.bigdata.taurus.agent.utils.AgentServerHelper;
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.bean.DeploymentConf;
@@ -29,16 +28,17 @@ public class DeploymentUtility {
 	private static final Log s_logger = LogFactory.getLog(DeploymentUtility.class);
 	private static Map<String, Lock> taskIdToLockMap = new HashMap<String, Lock>();
 
-	private static final String UNDEPLOYMENT_CMD = "rm -rf %s";
-	private static String taskDeploy = "/script/task-deploy.sh";
+//	private static final String UNDEPLOYMENT_CMD = "rm -rf %s";
+//	private static String taskDeploy = "/script/task-deploy.sh";
 
 	private static String deployPath;
 	private static ExecutorService threadPool;
+	private static TaskHelper taskDeployer = new TaskHelper();
 	
 	static{
 		threadPool = AgentServerHelper.createThreadPool(2, 4);
-		String path = AgentEnvValue.getValue(AgentEnvValue.AGENT_ROOT_PATH,"/data/app/taurus-agent");
-		taskDeploy = path + taskDeploy;
+//		String path = AgentEnvValue.getValue(AgentEnvValue.AGENT_ROOT_PATH,"/data/app/taurus-agent");
+//		taskDeploy = path + taskDeploy;
 		deployPath = AgentEnvValue.getValue(AgentEnvValue.JOB_PATH);
 	}
 
@@ -53,30 +53,30 @@ public class DeploymentUtility {
 		}
 	}
 	
-	public static void checkAndUndeployTasks(Executor executor, String localIp, DeploymentInfoChannel cs, boolean addWatcher) {
+	public static void checkAndUndeployTasks( String localIp, DeploymentInfoChannel cs, boolean addWatcher) {
 		s_logger.debug("Start checkAndUndeployTasks");
 		Watcher watcher = null;
 		if(addWatcher) {
-			watcher = new TaskUndeployWatcher(executor, localIp, cs);
+			watcher = new TaskUndeployWatcher( localIp, cs);
 		} 
 		Set<String> currentNew = cs.getNewUnDeploymentTaskIds(localIp, watcher);
 		for(String task: currentNew){
-			Runnable undeploymentThread = new UndeploymentThread(executor, localIp, cs, task);
+			Runnable undeploymentThread = new UndeploymentThread( localIp, cs, task);
 			threadPool.submit(undeploymentThread);
 		}
 		s_logger.debug("End checkAndUndeployTasks");
 	}
 
-	public static void checkAndDeployTasks(Executor executor, String localIp, DeploymentInfoChannel cs, boolean addWatcher) {
+	public static void checkAndDeployTasks(String localIp, DeploymentInfoChannel cs, boolean addWatcher) {
 		s_logger.debug("Start checkAndDeployTasks");
 		Watcher watcher = null;
 		if(addWatcher) {
-			watcher = new TaskDeployWatcher(executor, localIp, cs);
+			watcher = new TaskDeployWatcher( localIp, cs);
 		} 
 		Set<String> currentNew = cs.getNewDeploymentTaskIds(localIp, watcher);		
 //		Set<String> newAddedJTIds = AgentServerHelper.getNewAddedJobs(previousJTs, currentNew);
 		for(String task: currentNew){
-			Runnable deploymentThread = new DeploymentThread(executor, localIp, cs, task);
+			Runnable deploymentThread = new DeploymentThread(localIp, cs, task);
 			threadPool.submit(deploymentThread);
 		}
 		s_logger.debug("End checkAndDeployTasks");
@@ -84,13 +84,12 @@ public class DeploymentUtility {
 	
 	private static final class DeploymentThread implements Runnable{
 		
-		Executor executor;
+//		Executor executor;
 		String localIp;
 		DeploymentInfoChannel cs;
 		String task;
 
-		DeploymentThread(Executor executor, String localIp, DeploymentInfoChannel cs, String task){
-			this.executor = executor;
+		DeploymentThread( String localIp, DeploymentInfoChannel cs, String task){
 			this.localIp = localIp;
 			this.cs = cs;
 			this.task = task;
@@ -140,20 +139,22 @@ public class DeploymentUtility {
 			
 			StringBuilder stdErr = new StringBuilder();
 			try{
-				if(new File(localPath).exists()) {
-					executor.execute("remove task",System.out, System.err, String.format(UNDEPLOYMENT_CMD, localParentPath));
+				if(new File(localParentPath).exists()) {
+					//executor.execute("remove task",System.out, System.err, String.format(UNDEPLOYMENT_CMD, localParentPath));
+				    FileUtils.deleteDirectory(new File(localParentPath));
 				}
 				s_logger.debug("hdfsPath:" + hdfsPath + ";localPath:" +hdfsPath);
-				int returnCode = executor.execute("deploy task",System.out, System.err, taskDeploy, hdfsPath,localPath);
-				conf.setLocalPath(localParentPath);
-				if(returnCode == 0) {
-					status.setStatus(DeploymentStatus.DEPLOY_SUCCESS);
-					s_logger.debug("Job " + taskID + " deploy successed");
-				} else {
-                    s_logger.debug("Job " + taskID + " deploy failed");
-					status.setStatus(DeploymentStatus.DEPLOY_FAILED);
-					status.setFailureInfo(stdErr.toString());
+				//int returnCode = executor.execute("deploy task",System.out, System.err, taskDeploy, hdfsPath,localPath);
+				try{
+				    taskDeployer.deployTask(hdfsPath, localPath);
+				    status.setStatus(DeploymentStatus.DEPLOY_SUCCESS);
+                    s_logger.debug("Job " + taskID + " deploy successed");
+				} catch(Exception e ){
+				    s_logger.debug("Job " + taskID + " deploy failed");
+                    status.setStatus(DeploymentStatus.DEPLOY_FAILED);
+                    status.setFailureInfo(stdErr.toString());
 				}
+				conf.setLocalPath(localParentPath);
 			} catch(Exception e){
 				s_logger.error(e,e);
 				status.setStatus(DeploymentStatus.DEPLOY_FAILED);
@@ -164,13 +165,11 @@ public class DeploymentUtility {
 
 	private static final class UndeploymentThread implements Runnable{
 		
-		Executor executor;
 		String localIp;
 		DeploymentInfoChannel cs;
 		String taskID;
 		
-		UndeploymentThread(Executor executor, String localIp, DeploymentInfoChannel cs, String taskID){
-			this.executor = executor;
+		UndeploymentThread( String localIp, DeploymentInfoChannel cs, String taskID){
 			this.localIp = localIp;
 			this.cs = cs;
 			this.taskID = taskID;
@@ -206,16 +205,10 @@ public class DeploymentUtility {
 				return;
 			}
 			try{
-				int returnCode = 0;
-				if(new File(localPath).exists()) {
-					returnCode = executor.execute("undeploy task",System.out, System.err, String.format(UNDEPLOYMENT_CMD, localPath));
-				}
-				if(returnCode == 0) {
-					status.setStatus(DeploymentStatus.DELETE_SUCCESS);
-				} else {
-					status.setStatus(DeploymentStatus.DELETE_FAILED);
-					status.setFailureInfo("delete failed");
-				}
+			    if(new File(localPath).exists()) {
+                    FileUtils.deleteDirectory(new File(localPath));
+                    status.setStatus(DeploymentStatus.DELETE_SUCCESS);
+                }
 			} catch(Exception e){
 				s_logger.error(e.getMessage(),e);
 				status.setStatus(DeploymentStatus.DELETE_FAILED);
@@ -229,39 +222,37 @@ public class DeploymentUtility {
 
 		protected String localIp;
 		protected DeploymentInfoChannel cs;
-		protected Executor executor;
 
-		private BaseTaskWatcher(Executor executor, String localIp, DeploymentInfoChannel cs){
+		private BaseTaskWatcher( String localIp, DeploymentInfoChannel cs){
 			this.localIp = localIp;
 			this.cs = cs;
-			this.executor = executor;
 		}
 	}
 
 	private static final class TaskDeployWatcher extends BaseTaskWatcher{
 
-		private TaskDeployWatcher(Executor executor, String localIp, DeploymentInfoChannel cs){
-			super(executor, localIp, cs);
+		private TaskDeployWatcher( String localIp, DeploymentInfoChannel cs){
+			super(localIp, cs);
 		}
 
 		@Override
 		public void process(WatchedEvent event) {
 		    if(event.getType() == EventType.NodeChildrenChanged ) {
-		        checkAndDeployTasks(executor, localIp, cs, true);
+		        checkAndDeployTasks( localIp, cs, true);
 		    }
 		}
 	}
 
 	private static final class TaskUndeployWatcher extends BaseTaskWatcher{
 
-		private TaskUndeployWatcher(Executor executor, String localIp, DeploymentInfoChannel cs){
-			super(executor, localIp, cs);
+		private TaskUndeployWatcher( String localIp, DeploymentInfoChannel cs){
+			super( localIp, cs);
 		}
 
 		@Override
 		public void process(WatchedEvent event) {
 		    if(event.getType() == EventType.NodeChildrenChanged ) {
-		        checkAndUndeployTasks(executor, localIp, cs, true);
+		        checkAndUndeployTasks( localIp, cs, true);
 		    }
 		}
 	}
