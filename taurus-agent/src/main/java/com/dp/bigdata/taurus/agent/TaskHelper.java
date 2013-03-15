@@ -76,7 +76,6 @@ public class TaskHelper {
     }
     
     public void uploadLog(int returnValue, String errorFile, String logFile, String targetFile, String fileName) throws IOException{
-        long errorFileLength = new File(errorFile).length();
         long logFileLength = new File(logFile).length();
         File target = new File(targetFile);
         target.createNewFile();
@@ -88,6 +87,7 @@ public class TaskHelper {
         InputStreamReader isr;
         BufferedReader reader;
         if(errorFile != null ){
+            long errorFileLength = new File(errorFile).length();
         	writer.write(LOG_STDERR);
         	isr = new InputStreamReader(new FileInputStream(errorFile), System.getProperty("file.encoding"));
         	reader = new BufferedReader(isr);
