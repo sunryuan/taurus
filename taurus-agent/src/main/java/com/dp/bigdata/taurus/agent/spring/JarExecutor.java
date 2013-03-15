@@ -1,6 +1,7 @@
 package com.dp.bigdata.taurus.agent.spring;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
@@ -28,6 +29,7 @@ import org.apache.log4j.Layout;
 import org.apache.log4j.PatternLayout;
 import org.springframework.context.ApplicationContext;
 
+import com.dp.bigdata.taurus.agent.TaskHelper;
 import com.dp.bigdata.taurus.agent.TaskType;
 import com.dp.bigdata.taurus.agent.utils.AgentEnvValue;
 import com.dp.bigdata.taurus.agent.utils.IPUtils;
@@ -47,7 +49,7 @@ public class JarExecutor {
 	private static final Log LOG = LogFactory.getLog(JarExecutor.class);
 
 	public static final String IP = IPUtils.getFirstNoLoopbackIP4Address();
-	public static final String BASE = "/test";
+	public static final String BASE = "/taurus";
 	public static final String DEPLOY_PATH = BASE + "/assignments/" + IP;
 	public static final String SCHEDULE_PATH = BASE + "/schedules/" + IP;
 	public static final String DEPLOY_NEW_PATH = DEPLOY_PATH + "/new";
@@ -62,10 +64,12 @@ public class JarExecutor {
 	public static String JobPath = "/data/app/taurus-agent/jobs";
 	public static String LogPath = "/data/app/taurus-agent/logs";
 	private static final String LOGNAME = "spring-task.log";
+    private static TaskHelper taskLogUploader;
 
 	static {
 		JobPath = AgentEnvValue.getValue(AgentEnvValue.JOB_PATH, JobPath);
 		LogPath = AgentEnvValue.getValue(AgentEnvValue.LOG_PATH, LogPath);
+		taskLogUploader = new TaskHelper();
 	}
 
 	private ZkClient zkClient;
@@ -129,6 +133,7 @@ public class JarExecutor {
 									"yyyy-MM-dd");
 							String date = format.format(new Date());
 							if (future.isDone()) {
+								int returnValue = 0;
 								futureMap.remove(attemptID);
 								// delete attempt in the running folder
 								if (zkClient.exists(SCHEDULE_RUNNING_PATH + "/"
@@ -144,6 +149,7 @@ public class JarExecutor {
 								if (isSuccess) {
 									status.setStatus(ScheduleStatus.EXECUTE_SUCCESS);
 									status.setReturnCode(0);
+									returnValue = 0;
 								} else if (isKill) {
 									// delete attempt in the delete folder
 									if (zkClient.exists(SCHEDULE_DELETE_PATH
@@ -153,9 +159,11 @@ public class JarExecutor {
 									}
 									status.setStatus(ScheduleStatus.DELETE_SUCCESS);
 									status.setReturnCode(1);
+									returnValue = 1;
 								} else {
 									status.setStatus(ScheduleStatus.EXECUTE_FAILED);
 									status.setReturnCode(1);
+									returnValue = 1;
 								}
 
 								// add attempt in the date folder
@@ -164,7 +172,15 @@ public class JarExecutor {
 								zkClient.writeData(attemptPath, status);
 								
 								// upload log
-								
+								Object confObject = zkClient.readData(SCHEDULE_PATH
+										+ "/" + attemptID + "/" + CONF);
+								ScheduleConf conf = (ScheduleConf)confObject;
+								String logPath = LogPath+"/"+conf.getTaskID() + "/";
+								try {
+									taskLogUploader.uploadLog(returnValue, null, logPath + LOGNAME , logPath + "tmp.log", attemptID+".html");
+								} catch (IOException e) {
+									LOG.error("fail to Upload log onto hdfs for attempt : " + attemptID, e);
+								}
 							}
 						}
 
