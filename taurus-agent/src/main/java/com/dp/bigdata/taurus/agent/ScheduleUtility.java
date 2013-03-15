@@ -97,6 +97,10 @@ public class ScheduleUtility {
 		} 
 		Set<String> currentNew = cs.getNewKillingJobInstanceIds(localIp, watcher);
 		for(String attemptID: currentNew){
+			ScheduleConf conf = (ScheduleConf) cs.getConf(localIp, attemptID);
+			if(conf != null && StringUtils.isNotBlank(conf.getTaskType()) && conf.getTaskType().equalsIgnoreCase(TaskType.SPRING.name())){
+				return;
+			}
 			Runnable killThread = new KillTaskThread(executor, localIp, cs, attemptID);
 			killThreadPool.submit(killThread);
 		}
@@ -124,7 +128,7 @@ public class ScheduleUtility {
 			s_logger.debug(attemptID + " start schedule");
 			
 			ScheduleConf conf = (ScheduleConf) cs.getConf(localIp, attemptID);
-			if(conf != null && StringUtils.isNotBlank(conf.getTaskType()) && conf.getTaskType().equalsIgnoreCase("spring")){
+			if(conf != null && StringUtils.isNotBlank(conf.getTaskType()) && conf.getTaskType().equalsIgnoreCase(TaskType.SPRING.name())){
 				return;
 			}
 			

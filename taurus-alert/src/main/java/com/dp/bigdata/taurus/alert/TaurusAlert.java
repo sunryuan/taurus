@@ -62,9 +62,6 @@ public class TaurusAlert {
     private UserMapper userMapper;
 
     @Autowired
-    private UserGroupMapper userGroupMapper;
-
-    @Autowired
     private UserGroupMappingMapper userGroupMappingMapper;
 
     @Autowired
@@ -247,7 +244,11 @@ public class TaurusAlert {
                     + "&action=view-log</td>");
             sbMailContent.append("</tr>");
             sbMailContent.append("</table>");
-            alarmService.sendEmail(sbMailContent.toString(), "Taurus告警服务", mailTo);
+            try{
+            	alarmService.sendEmail(sbMailContent.toString(), "Taurus告警服务", mailTo);
+            }catch(Exception e){
+            	LOG.error("fail to send mail to " + mailTo, e);
+            }
         }
 
         private void sendSMS(String tel, TaskAttempt attempt) {
@@ -256,7 +257,11 @@ public class TaurusAlert {
             Task task = taskMapper.selectByPrimaryKey(attempt.getTaskid());
             sbMailContent.append("任务名： " + task.getName() + "</br>");
             sbMailContent.append("任务状态： " + AttemptStatus.getInstanceRunState(attempt.getStatus()) + "</br>");
-            alarmService.sendSmsMessage(sbMailContent.toString(), tel);
+            try{
+            	alarmService.sendSmsMessage(sbMailContent.toString(), tel);
+            }catch(Exception e){
+            	LOG.error("fail to send sms to " + tel, e);
+            }
         }
     }
 

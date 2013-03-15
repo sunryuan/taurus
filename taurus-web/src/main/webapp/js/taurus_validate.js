@@ -178,6 +178,9 @@ $(document).ready(function(){
 			    		required: true,
 			    		minlength: 6
 			    	},
+			    	taskCommand: {
+			    		required: true
+			    	},
 					proxyUser: {
 						required: true,
 						notRoot: true

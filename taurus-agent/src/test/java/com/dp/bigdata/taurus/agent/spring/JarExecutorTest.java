@@ -42,20 +42,27 @@ public class JarExecutorTest {
         zkClient.createPersistent(scheduleNewPath, true);
     }
 
-    @Test
+    //@Test
     public void cleanup(){
     	//System.out.println(JarExecutor.SCHEDULE_PATH + "/new");
-    	zkClient.deleteRecursive(JarExecutor.SCHEDULE_PATH);
+    	zkClient.deleteRecursive(JarExecutor.BASE);
     }
     
-    @Test
+    //@Test
+    public void getData(){
+    	String path = "/taurus/schedules/192.168.7.80/attempt_201303081131_0001_0002_0001/conf";
+    	ScheduleConf conf = (ScheduleConf)zkClient.readData(path);
+    	System.out.println(conf.getTaskID());
+    }
+   
+   @Test
     public void testAddTestData() {
-        String attemptID = "attempt_1";
+        String attemptID = "attempt_6";
         ScheduleConf conf = new ScheduleConf();
         conf.setAttemptID(attemptID);
-        conf.setCommand("com.dp.bigdata.taurus.test.springtask.TestJob task1");
+        conf.setCommand("com.dp.bigdata.taurus.test.springtask.TestJob task1 execute");
         conf.setPid("1234");
-        conf.setTaskID("jar1234");
+        conf.setTaskID("123456");
         conf.setTaskType("spring");
         conf.setUserName("hadoop");
 

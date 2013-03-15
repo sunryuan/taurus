@@ -1,5 +1,6 @@
 package com.dp.bigdata.taurus.test.springtask;
 
+import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -7,6 +8,8 @@ import com.dp.bigdata.taurus.framework.TaskBean;
 
 
 public class TestJob implements TaskBean {
+	
+	private Logger LOG = Logger.getLogger(TestJob.class);
 
 	private int i;
 	
@@ -16,7 +19,7 @@ public class TestJob implements TaskBean {
 	
 	@Override
 	public void execute() throws Exception {
-		System.out.println(i);
+		LOG.info("value i = "+i);
 	}
 
 	/**
@@ -24,5 +27,12 @@ public class TestJob implements TaskBean {
 	 */
 	public static void main(String[] args) {
 		ApplicationContext ctx = new ClassPathXmlApplicationContext("applicationContext.xml");
+//		TaskBean bean = (TaskBean)ctx.getBean("task1");
+//		try {
+//			bean.execute();
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 }

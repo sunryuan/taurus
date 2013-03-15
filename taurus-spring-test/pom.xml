@@ -16,7 +16,6 @@
 			<groupId>com.dp.bigdata</groupId>
 			<artifactId>taurus-framework</artifactId>
 			<version>0.1</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
