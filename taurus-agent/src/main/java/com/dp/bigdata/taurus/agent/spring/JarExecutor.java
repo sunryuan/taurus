@@ -64,7 +64,7 @@ public class JarExecutor {
 	public static String JobPath = "/data/app/taurus-agent/jobs";
 	public static String LogPath = "/data/app/taurus-agent/logs";
 	private static final String LOGNAME = "spring-task.log";
-    private static TaskHelper taskLogUploader;
+	private static TaskHelper taskLogUploader;
 
 	static {
 		JobPath = AgentEnvValue.getValue(AgentEnvValue.JOB_PATH, JobPath);
@@ -113,13 +113,15 @@ public class JarExecutor {
 			public void run() {
 				while (true) {
 					for (String attemptID : futureMap.keySet()) {
+						LOG.info("Scan the executing progress of attempt : "
+								+ attemptID);
 						Future<Integer> future = futureMap.get(attemptID);
 						boolean isSuccess = true;
 						boolean isKill = false;
 						try {
 							future.get(1000, TimeUnit.MILLISECONDS);
 						} catch (InterruptedException e) {
-							LOG.info("task is interrupted, it is possibly being killed.");
+							LOG.error("task is interrupted, it is possibly being killed.");
 							isSuccess = false;
 							isKill = true;
 						} catch (ExecutionException e) {
@@ -127,7 +129,8 @@ public class JarExecutor {
 									e.getCause());
 							isSuccess = false;
 						} catch (TimeoutException e) {
-							e.printStackTrace();
+							LOG.error("task execution timeout : " + attemptID,
+									e);
 						} finally {
 							SimpleDateFormat format = new SimpleDateFormat(
 									"yyyy-MM-dd");
@@ -170,16 +173,23 @@ public class JarExecutor {
 								zkClient.createPersistent(SCHEDULE_PATH + "/"
 										+ date + "/" + attemptID, true);
 								zkClient.writeData(attemptPath, status);
-								
+
 								// upload log
-								Object confObject = zkClient.readData(SCHEDULE_PATH
-										+ "/" + attemptID + "/" + CONF);
-								ScheduleConf conf = (ScheduleConf)confObject;
-								String logPath = LogPath+"/"+conf.getTaskID() + "/";
+								Object confObject = zkClient
+										.readData(SCHEDULE_PATH + "/"
+												+ attemptID + "/" + CONF);
+								ScheduleConf conf = (ScheduleConf) confObject;
+								String logPath = LogPath + "/"
+										+ conf.getTaskID() + "/";
 								try {
-									taskLogUploader.uploadLog(returnValue, null, logPath + LOGNAME , logPath + "tmp.log", attemptID+".html");
+									taskLogUploader.uploadLog(returnValue,
+											null, logPath + LOGNAME, logPath
+													+ "tmp.log", attemptID
+													+ ".html");
 								} catch (IOException e) {
-									LOG.error("fail to Upload log onto hdfs for attempt : " + attemptID, e);
+									LOG.error(
+											"fail to Upload log onto hdfs for attempt : "
+													+ attemptID, e);
 								}
 							}
 						}
@@ -281,8 +291,6 @@ public class JarExecutor {
 													.getClassLoader(jarPath),
 											JarExecutor.class.getClassLoader());
 									try {
-										// URLClassLoader ucl =
-										// jcl.getClassLoader(jarPath);
 										Thread.currentThread()
 												.setContextClassLoader(ucl);
 										// load mainClass
@@ -303,21 +311,44 @@ public class JarExecutor {
 												.getClassLoader());
 										System.out.println(rootLogger
 												.getClass().getClassLoader());
-									
+
 										String fileName = LogPath + "/"
 												+ jarPackage + "/" + LOGNAME;
-										Class<?> layoutClazz0 = ucl.loadClass(Layout.class.getName());
-										Class<?> layoutClazz = ucl.loadClass(PatternLayout.class.getName());
-										Class<?> appenderClazz0 = ucl.loadClass(Appender.class.getName());
-										Class<?> appenderClazz = ucl.loadClass(DailyRollingFileAppender.class.getName());
-										
-										Object layout = layoutClazz.getDeclaredConstructor(String.class).newInstance("%d %-5p [%c] %m%n");
-										//layoutClazz.getMethod("setConversionPattern", String.class).invoke(layout, "%d %-5p [%c] %m%n");
-										Object appender = appenderClazz.getDeclaredConstructor(layoutClazz0,String.class,String.class).newInstance(layout,fileName,"yyyy-MM-dd-HH-mm");
-										appenderClazz.getMethod("setAppend", boolean.class).invoke(appender, true);
-										appenderClazz.getMethod("setName", String.class).invoke(appender, "taurus");
-										
-										rootLoggerClass.getMethod("addAppender", appenderClazz0).invoke(rootLogger, appender);
+										Class<?> layoutClazz0 = ucl
+												.loadClass(Layout.class
+														.getName());
+										Class<?> layoutClazz = ucl
+												.loadClass(PatternLayout.class
+														.getName());
+										Class<?> appenderClazz0 = ucl
+												.loadClass(Appender.class
+														.getName());
+										Class<?> appenderClazz = ucl
+												.loadClass(DailyRollingFileAppender.class
+														.getName());
+
+										Object layout = layoutClazz
+												.getDeclaredConstructor(
+														String.class)
+												.newInstance(
+														"%d %-5p [%c] %m%n");
+										Object appender = appenderClazz
+												.getDeclaredConstructor(
+														layoutClazz0,
+														String.class,
+														String.class)
+												.newInstance(layout, fileName,
+														"yyyy-MM-dd");
+										appenderClazz.getMethod("setAppend",
+												boolean.class).invoke(appender,
+												true);
+										appenderClazz.getMethod("setName",
+												String.class).invoke(appender,
+												"taurus");
+
+										rootLoggerClass.getMethod(
+												"addAppender", appenderClazz0)
+												.invoke(rootLogger, appender);
 
 										// get applicationContext
 										LOG.info("initial application context...");
@@ -424,15 +455,6 @@ public class JarExecutor {
 
 					}
 				});
-	}
-
-	public static void main(String[] args) throws InterruptedException {
-		JarExecutor executor = new JarExecutor();
-		executor.monitor();
-
-		while (true) {
-			Thread.sleep(1000);
-		}
 	}
 
 }
