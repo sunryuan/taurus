@@ -214,6 +214,7 @@ public class JarExecutor {
 					public void handleChildChange(String parentPath,
 							List<String> currentChilds) throws Exception {
 						for (String child : currentChilds) {
+							LOG.info("detect new attempt : " + child);
 							Object object = zkClient.readData(SCHEDULE_PATH
 									+ "/" + child + "/" + CONF);
 							String attemptPath = SCHEDULE_PATH + "/" + child
