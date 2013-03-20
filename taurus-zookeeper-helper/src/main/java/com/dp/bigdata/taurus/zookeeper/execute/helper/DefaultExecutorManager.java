@@ -63,12 +63,13 @@ public class DefaultExecutorManager implements ExecutorManager{
         String cmd = context.getCommand();
         String taskType = context.getType();
         String proxyUser = context.getProxyUser();
+        String taskUrl = context.getTaskUrl();
         
         if(!dic.exists(MachineType.AGENT,agentIP)){
             ScheduleStatus status = new ScheduleStatus();
             status.setStatus(ScheduleStatus.AGENT_UNAVAILABLE);
-            LOGGER.error("Agent unavailable");
-            throw new ExecuteException("Agent unavailable");
+            LOGGER.error("Agent " + agentIP + " is unavailable");
+            throw new ExecuteException("Agent " + agentIP + " is unavailable");
         }else{
             ScheduleStatus status = (ScheduleStatus) dic.getStatus(agentIP, attemptID, null);
             if(status == null){
@@ -78,6 +79,7 @@ public class DefaultExecutorManager implements ExecutorManager{
                 conf.setCommand(cmd);
                 conf.setTaskType(taskType);
                 conf.setUserName(proxyUser);
+                conf.setTaskUrl(taskUrl);
                 status = new ScheduleStatus();
                 status.setStatus(ScheduleStatus.SCHEDULE_SUCCESS);
                 Lock lock = getLock(attemptID);

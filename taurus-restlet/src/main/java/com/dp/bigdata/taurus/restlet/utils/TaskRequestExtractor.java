@@ -206,6 +206,10 @@ public class TaskRequestExtractor implements RequestExtrator<TaskDTO> {
                         task.setHasmail(true);
                     }
                 }
+            }else if (key.equals(TaskDetailControlName.MAINCLASS.getName())){
+            	task.setMainClass(value);
+            }else if (key.equals(TaskDetailControlName.TASKURL.getName())){
+            	task.setTaskUrl(value);
             }
         }
         validate(task, isUpdateAction);
