@@ -69,7 +69,7 @@ public class DefaultExecutorManager implements ExecutorManager{
             ScheduleStatus status = new ScheduleStatus();
             status.setStatus(ScheduleStatus.AGENT_UNAVAILABLE);
             LOGGER.error("Agent " + agentIP + " is unavailable");
-            throw new ExecuteException("Agent " + agentIP + " is unavailable");
+            throw new ExecuteException("Agent unavailable");
         }else{
             ScheduleStatus status = (ScheduleStatus) dic.getStatus(agentIP, attemptID, null);
             if(status == null){

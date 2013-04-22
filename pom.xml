@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.dp.bigdata</groupId>
 	<artifactId>taurus-parent</artifactId>
@@ -91,15 +92,21 @@ org.eclipse.jdt.core.compiler.compliance=1.6
 			<version>1.2.16</version>
 		</dependency>
 	</dependencies>
+	<distributionManagement>
+		<repository>
+			<id>dianping.repo</id>
+			<url>http://192.168.8.45:8080/artifactory/dianping-releases</url>
+		</repository>
+	</distributionManagement>
 
 	<modules>
 		<module>taurus-core</module>
 		<module>taurus-zookeeper-helper</module>
-		<module>taurus-framework</module>	
+		<module>taurus-framework</module>
 		<module>taurus-agent</module>
 		<module>taurus-restlet</module>
-    	<module>taurus-web</module>
-    	<module>taurus-alert</module>
-    	<module>taurus-spring-test</module>
+		<module>taurus-web</module>
+		<module>taurus-alert</module>
+		<module>taurus-spring-test</module>
 	</modules>
 </project>

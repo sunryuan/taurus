@@ -280,7 +280,7 @@ final public class Engine implements Scheduler {
             attempt.setEndtime(new Date());
             taskAttemptMapper.updateByPrimaryKeySelective(attempt);
             throw new ScheduleException("Fail to execute attemptID : " + attempt.getAttemptid() + " on host : "
-                    + host.getIp());
+                    + host.getIp(),ee);
         }
         final long end = System.nanoTime();
         LOG.info("Time (seconds) taken " + (end - start) / 1.0e9 + " to start attempt : " + context.getAttemptid());

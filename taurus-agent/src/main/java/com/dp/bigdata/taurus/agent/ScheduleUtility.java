@@ -141,13 +141,15 @@ public class ScheduleUtility {
 		Lock lock = getLock(attemptID);
 		try{
 			lock.lock();
-			cs.completeExecution(localIp, attemptID);
-			s_logger.debug(attemptID + " start schedule");
 			
 			ScheduleConf conf = (ScheduleConf) cs.getConf(localIp, attemptID);
 			if(conf != null && StringUtils.isNotBlank(conf.getTaskType()) && conf.getTaskType().equalsIgnoreCase(TaskType.SPRING.name())){
 				return;
 			}
+			
+			cs.completeExecution(localIp, attemptID);
+			s_logger.debug(attemptID + " start schedule");
+			
 			
 			ScheduleStatus status = (ScheduleStatus) cs.getStatus(localIp, attemptID, null);
 			if(status == null){

@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * LoginServlet
  * 
@@ -42,6 +44,11 @@ public class LoginServlet extends HttpServlet {
         String userName = request.getParameter("username");
         String password = request.getParameter("password");
 
+        if(StringUtils.isBlank(password)){
+           response.setStatus(401);
+           return;
+        }
+        
         System.out.println("login request");
         System.out.println("userName : " + userName);
 
@@ -74,4 +81,34 @@ public class LoginServlet extends HttpServlet {
             response.setStatus(200);
         }
     }
+    
+    public static void main(String[] args) {
+   	 String userName = "damon.zhu";
+       String password = "";
+       System.out.println("login request");
+       System.out.println("userName : " + userName);
+
+       Hashtable<String, String> env = new Hashtable<String, String>();
+       env.put(Context.INITIAL_CONTEXT_FACTORY, FACTORY);
+       env.put(Context.PROVIDER_URL, URL + "DC=dianpingoa,DC=com");
+       env.put(Context.SECURITY_AUTHENTICATION, "simple");
+       env.put(Context.SECURITY_PRINCIPAL, "cn=" + userName + "," + BASEDN);
+       env.put(Context.SECURITY_CREDENTIALS, password);
+
+       LdapContext ctx = null;
+       try {
+           ctx = new InitialLdapContext(env, null);
+       } catch (javax.naming.AuthenticationException e) {
+           System.out.println("Authentication faild: " + e.toString());
+       } catch (Exception e) {
+           System.out.println("Something wrong while authenticating: " + e.toString());
+       }
+
+       if (ctx == null) {
+           System.out.println("longin fail!");
+       } else {
+           System.out.println("login success!");
+       }
+   	 
+   }
 }

@@ -50,12 +50,12 @@ public class JarExecutorTest {
     
     //@Test
     public void getData(){
-    	String path = "/taurus/schedules/192.168.7.80/attempt_201303081131_0001_0002_0001/conf";
-    	ScheduleConf conf = (ScheduleConf)zkClient.readData(path);
-    	System.out.println(conf.getTaskID());
+    	String path = "/taurus/schedules/192.168.7.80/attempt_201303151700_0002_1693_0001/status";
+    	ScheduleStatus conf = (ScheduleStatus)zkClient.readData(path);
+    	System.out.println(conf.getStatus());
     }
    
-   @Test
+   //@Test
     public void testAddTestData() {
         String attemptID = "attempt_6";
         ScheduleConf conf = new ScheduleConf();
