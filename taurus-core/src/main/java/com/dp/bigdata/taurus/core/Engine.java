@@ -422,7 +422,8 @@ final public class Engine implements Scheduler {
         try {
             status = zookeeper.getStatus(context.getContext());
         } catch (ExecuteException ee) {
-            status = new ExecuteStatus(AttemptStatus.UNKNOWN);
+      	  // 当心跳节点消失后出现异常，但是作业仍应该是running状态。
+            status = new ExecuteStatus(AttemptStatus.RUNNING);
         }
         AttemptStatus astatus = new AttemptStatus(status.getStatus());
         astatus.setReturnCode(status.getReturnCode());
