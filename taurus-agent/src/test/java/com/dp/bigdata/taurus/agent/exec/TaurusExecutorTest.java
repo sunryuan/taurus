@@ -17,6 +17,8 @@ package com.dp.bigdata.taurus.agent.exec;
 
 import java.io.IOException;
 
+import org.junit.Test;
+
 
 /**
  * @author renyuan.sun
@@ -24,9 +26,10 @@ import java.io.IOException;
  */
 public class TaurusExecutorTest {
     
+    @Test
     public void testExecute() throws IOException {
-//        Executor exec = new TaurusExecutor();
-//        exec.execute("test", System.out, System.err, "C:\\Users\\renyuan.sun\\AppData\\Local\\Google\\Chrome\\Application\\chrome.exe");
+        Executor exec = new TaurusExecutor();
+        exec.execute("test", System.out, System.err, "C:/1.bat");
         
         
     }

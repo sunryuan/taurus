@@ -132,7 +132,9 @@ public class TaskHelper {
         if(result != null && result.getName().endsWith(".tar")){
             FileExtractUtils.unTar(result, outputDir);
         }
-        result.delete();
+        if(result != null) {
+            result.delete();
+        }
     }
     
     private void writeLogToFile(BufferedReader reader,BufferedWriter writer, long fileSize, 
@@ -197,6 +199,5 @@ public class TaskHelper {
             }
             throw e;
         }
-    } 
-
+    }
 }

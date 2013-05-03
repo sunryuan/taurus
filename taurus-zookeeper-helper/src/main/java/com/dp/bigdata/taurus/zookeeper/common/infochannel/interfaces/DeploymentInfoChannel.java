@@ -2,28 +2,34 @@ package com.dp.bigdata.taurus.zookeeper.common.infochannel.interfaces;
 
 import java.util.Set;
 
-import org.apache.zookeeper.Watcher;
+import org.I0Itec.zkclient.IZkChildListener;
+import org.I0Itec.zkclient.IZkDataListener;
+
 
 public interface DeploymentInfoChannel extends ClusterInfoChannel{
 
 	//Deployment
-	public void deploy(String ip, String taskID, Object conf, Object status, Watcher watcher);
+	public void deploy(String ip, String taskID, Object conf, Object status, IZkDataListener dataListener);
 
-	public void completeDeploy(String ip, String taskID);
+	public void completeDeploy(String ip, String taskID, IZkDataListener dataListener);
 	
-	public Set<String> getNewDeploymentTaskIds(String ip, Watcher watcher);
+	public Set<String> getNewDeploymentTaskIds(String ip);
+	
+	public void setNewDeployDirListen(IZkChildListener childListener);
 
 	//Undeployment
-	public void undeploy(String ip, String taskID, Object status, Watcher watcher);
+	public void undeploy(String ip, String taskID, Object status, IZkDataListener dataListener);
+	
+	public void completeUndeploy(String ip, String taskID, IZkDataListener dataListener);
+	
+	public Set<String> getNewUnDeploymentTaskIds(String ip);
+	
+	public void setNewUndeployDirListen(IZkChildListener childListener);
 
-	public void completeUndeploy(String ip, String taskID);
-	
-	public Set<String> getNewUnDeploymentTaskIds(String ip, Watcher watcher);
-	
 	//Share Methods
 	public Object getConf(String ip, String taskID);
 	
-	public Object getStatus(String ip, String taskID, Watcher watcher);
+	public Object getStatus(String ip, String taskID);
 
 	public void updateStatus(String ip, String taskID, Object status);
 	

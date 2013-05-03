@@ -2,12 +2,10 @@ package com.dp.bigdata.taurus.agent;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.zookeeper.Watcher;
 
 import com.dp.bigdata.taurus.agent.exec.Executor;
 import com.dp.bigdata.taurus.agent.utils.AgentServerHelper;
 import com.dp.bigdata.taurus.zookeeper.common.MachineType;
-import com.dp.bigdata.taurus.zookeeper.common.infochannel.DefaultZKWatcher;
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.interfaces.DeploymentInfoChannel;
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.interfaces.ScheduleInfoChannel;
 import com.google.inject.Inject;
@@ -26,14 +24,9 @@ public class TaurusAgentServer implements AgentServer{
 	
 	@Inject
 	public TaurusAgentServer(DeploymentInfoChannel deployer,ScheduleInfoChannel schedule, Executor executor, int interval){
-	    LOG.info("Starting..");
 	    this.deployer = deployer;
 		this.schedule = schedule;
 		this.executor = executor;
-		Watcher deployWatcher = new DefaultZKWatcher(deployer);
-		deployer.registerWatcher(deployWatcher);
-	    Watcher scheduleWatcher = new DefaultZKWatcher(schedule);
-	    schedule.registerWatcher(scheduleWatcher);
 
 		localIp = AgentServerHelper.getLocalIp();
 		if(interval > 0){

@@ -2,7 +2,8 @@ package com.dp.bigdata.taurus.zookeeper.common.infochannel.interfaces;
 
 import java.util.Set;
 
-import org.apache.zookeeper.Watcher;
+import org.I0Itec.zkclient.IZkChildListener;
+import org.I0Itec.zkclient.IZkDataListener;
 
 public interface ScheduleInfoChannel extends ClusterInfoChannel{
 	//execute task
@@ -10,19 +11,23 @@ public interface ScheduleInfoChannel extends ClusterInfoChannel{
 
 	public void completeExecution(String ip, String taskAttempt);
 	
-	public Set<String> getNewExecutionJobInstanceIds(String ip, Watcher watcher);
+	public Set<String> getNewExecutionJobInstanceIds(String ip);
+	
+	public void setExecutionJobListener(IZkChildListener childListener);
 
 	//kill task
-	public void killTask(String ip, String taskAttempt, Object status, Watcher watcher);
+	public void killTask(String ip, String taskAttempt, Object status, IZkDataListener dataListener);
 
-	public void completeKill(String ip, String taskAttempt);
+	public void completeKill(String ip, String taskAttempt,IZkDataListener dataListener);
 	
-	public Set<String> getNewKillingJobInstanceIds(String ip, Watcher watcher);
+	public Set<String> getNewKillingJobInstanceIds(String ip);
+	
+	public void setKillingJobListener(IZkChildListener childListener);
 	
 	//Share Methods
 	public Object getConf(String ip, String taskAttempt);
 	
-	public Object getStatus(String ip, String taskAttempt, Watcher watcher);
+	public Object getStatus(String ip, String taskAttempt);
 
 	public void updateStatus(String ip, String taskAttempt, Object status);
 	

@@ -8,17 +8,18 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
+import org.I0Itec.zkclient.IZkChildListener;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.zookeeper.WatchedEvent;
-import org.apache.zookeeper.Watcher;
-import org.apache.zookeeper.Watcher.Event.EventType;
 import com.dp.bigdata.taurus.agent.exec.Executor;
 import com.dp.bigdata.taurus.agent.utils.AgentEnvValue;
 import com.dp.bigdata.taurus.agent.utils.AgentServerHelper;
@@ -52,7 +53,7 @@ public class ScheduleUtility {
 	private static final String KINIT_COMMAND_PATTERN = "kinit -r 12l -k -t %s/%s/.keytab %s@DIANPING.COM;kinit -R;";
 	private static final String KDESTROY_COMMAND = "kdestroy;";
 	private static final String COMMAND_PATTERN_WITHOUT_SUDO 
-	    = "echo %s; %s;%s echo $$ >%s;  [ -f %s ] && cd %s; source %s %s; %s; echo $? >%s;echo %s; %s; rm -f %s; %s";
+	    = "echo %s; %s %s echo $$ >%s;  [ -f %s ] && cd %s; source %s %s; %s; echo $? >%s;echo %s; %s rm -f %s; %s";
 	private static final String COMMAND_PATTERN_WITH_SUDO 
 	    = "sudo -u %s %s -i \"%s echo $$ >%s; [ -f %s ] && cd %s; source %s %s; %s\"; echo $? >%s; sudo -u %s %s -i \"rm -f %s; %s\"";
 	private static final String KILL_COMMAND = "%s %s %s";
@@ -68,7 +69,7 @@ public class ScheduleUtility {
 	static{
 	    on_windows = System.getProperty("os.name").toLowerCase().startsWith("windows");
 		killThreadPool = AgentServerHelper.createThreadPool(2, 4);
-		executeThreadPool = AgentServerHelper.createThreadPool(4, 10);
+		executeThreadPool = AgentServerHelper.createThreadPool(10, 10);
 		agentRoot = AgentEnvValue.getValue(AgentEnvValue.AGENT_ROOT_PATH,agentRoot);
 		jobPath = AgentEnvValue.getValue(AgentEnvValue.JOB_PATH,jobPath);
         logPath = AgentEnvValue.getValue(AgentEnvValue.LOG_PATH,logPath);
@@ -85,7 +86,7 @@ public class ScheduleUtility {
 		    command_pattern = COMMAND_PATTERN_WITH_SUDO;
 		} else {
 		    command_pattern = COMMAND_PATTERN_WITHOUT_SUDO;
-		    krb5Path = "export " + krb5Path;
+		    krb5Path = "export " + krb5Path + ";";
 		}
 	}
 
@@ -100,13 +101,12 @@ public class ScheduleUtility {
 		}
 	}
 	
-	public static void checkAndKillTasks(Executor executor, String localIp, ScheduleInfoChannel cs, boolean addWatcher) {
+	public static void checkAndKillTasks(Executor executor, String localIp, ScheduleInfoChannel cs, boolean addListener) {
 		s_logger.debug("Start checkAndKillTasks");
-		Watcher watcher = null;
-		if(addWatcher) {
-			watcher = new TaskKillWatcher(executor, localIp, cs);
-		} 
-		Set<String> currentNew = cs.getNewKillingJobInstanceIds(localIp, watcher);
+		if(addListener) {
+            cs.setKillingJobListener(new TaskKillListener(executor, localIp, cs));
+        } 
+		Set<String> currentNew = cs.getNewKillingJobInstanceIds(localIp);
 		for(String attemptID: currentNew){
 			Runnable killThread = new KillTaskThread(executor, localIp, cs, attemptID);
 			killThreadPool.submit(killThread);
@@ -114,13 +114,12 @@ public class ScheduleUtility {
 		s_logger.debug("End checkAndKillTasks");
 	}
 
-	public static void checkAndRunTasks(Executor executor, String localIp, ScheduleInfoChannel cs, boolean addWatcher) {
+	public static void checkAndRunTasks(Executor executor, String localIp, ScheduleInfoChannel cs, boolean addListener) {
 		s_logger.debug("Start checkAndRunTasks");
-		Watcher watcher = null;
-		if(addWatcher) {
-			watcher = new TaskExcuteWatcher(executor, localIp, cs);
+		if(addListener) {
+		    cs.setExecutionJobListener(new TaskExcuteListener(executor, localIp, cs));
 		} 
-		Set<String> currentNew = cs.getNewExecutionJobInstanceIds(localIp, watcher);
+		Set<String> currentNew = cs.getNewExecutionJobInstanceIds(localIp);
 		for(String attemptID: currentNew){
 			submitTask(executor, localIp, cs, attemptID);
 		}
@@ -138,7 +137,7 @@ public class ScheduleUtility {
 			lock.lock();
 			cs.completeExecution(localIp, attemptID);
 			s_logger.debug(attemptID + " start schedule");
-			ScheduleStatus status = (ScheduleStatus) cs.getStatus(localIp, attemptID, null);
+			ScheduleStatus status = (ScheduleStatus) cs.getStatus(localIp, attemptID);
 			if(status == null){
 				s_logger.error("status is null");
 				return;
@@ -147,7 +146,7 @@ public class ScheduleUtility {
 				cs.updateStatus(localIp, attemptID,status);
 				return;
 			}	
-		} catch(RuntimeException e) {
+		} catch(Exception e) {
 			s_logger.error(e,e);
 			ScheduleStatus status = new ScheduleStatus();
 			status.setStatus(ScheduleStatus.SCHEDULE_FAILED);
@@ -180,16 +179,18 @@ public class ScheduleUtility {
 			try{
 				lock.lock();
 				conf = (ScheduleConf) cs.getConf(localIp, taskAttempt);
-				status = (ScheduleStatus) cs.getStatus(localIp, taskAttempt, null);
+				status = (ScheduleStatus) cs.getStatus(localIp, taskAttempt);
 				cs.addRunningJob(localIp, taskAttempt);
 				status.setStatus(ScheduleStatus.EXECUTING);
 				cs.updateStatus(localIp, taskAttempt, status);
-			} finally{
+			} catch(Exception e){
+                s_logger.error(e,e);
+            } finally{
 				lock.unlock();
 			}
 			try {
 				executeJob(conf, status);
-			} catch(RuntimeException e){
+			} catch(Exception e){
 				s_logger.error(e,e);
 				status.setStatus(ScheduleStatus.EXECUTE_FAILED);
                 cs.removeRunningJob(localIp, taskAttempt);
@@ -197,13 +198,15 @@ public class ScheduleUtility {
 			try {
 				lock.lock();
 				cs.updateConf(localIp, taskAttempt, conf);
-				ScheduleStatus thisStatus = (ScheduleStatus) cs.getStatus(localIp, taskAttempt, null);
+				ScheduleStatus thisStatus = (ScheduleStatus) cs.getStatus(localIp, taskAttempt);
 				if(thisStatus.getStatus() != ScheduleStatus.DELETE_SUCCESS) {
 					cs.updateStatus(localIp, taskAttempt, status);
 	                cs.removeRunningJob(localIp, taskAttempt);
 				}
 				s_logger.debug(taskAttempt + " end execute");
-			} finally{
+			} catch(Exception e){
+                s_logger.error(e,e);
+            } finally{
 				lock.unlock();
 			}
 		}
@@ -298,18 +301,24 @@ public class ScheduleUtility {
                         returnCode = 1;
                     }
 				}
-			    taskLogUploader.uploadLog(returnCode,errorFilePath, logFilePath, htmlFilePath, htmlFileName);
-				if(returnCode == 0) {
-					status.setStatus(ScheduleStatus.EXECUTE_SUCCESS);
-				} else  {
-					status.setStatus(ScheduleStatus.EXECUTE_FAILED);
-				} 
-				status.setReturnCode(returnCode);
+			    if(returnCode == 0) {
+                    status.setStatus(ScheduleStatus.EXECUTE_SUCCESS);
+                } else  {
+                    status.setStatus(ScheduleStatus.EXECUTE_FAILED);
+                }
+			    status.setReturnCode(returnCode);				
 			} catch (IOException e) {
 				s_logger.error(e,e);
 				status.setStatus(ScheduleStatus.EXECUTE_FAILED);
-				status.setFailureInfo("Job failed to execute");
+				status.setFailureInfo("Job failed!");
 			}
+			
+            try {
+                taskLogUploader.uploadLog(returnCode,errorFilePath, logFilePath, htmlFilePath, htmlFileName);
+            } catch (IOException e) {
+                s_logger.error(e,e);
+            }
+
             try {
                 if(!on_windows){
                     executor.execute("removePidFile", logFileStream,errorFileStream,String.format(REMOVE_COMMAND, pidFile));
@@ -336,7 +345,7 @@ public class ScheduleUtility {
             int num = 0;
             if(on_windows) {
                 for(String attemptID : jobInstanceIds){
-                    ScheduleStatus status = (ScheduleStatus) cs.getStatus(localIp,attemptID,null);
+                    ScheduleStatus status = (ScheduleStatus) cs.getStatus(localIp,attemptID);
                     if(status.getStatus() == ScheduleStatus.EXECUTING){
                         status.setStatus(ScheduleStatus.UNKNOWN);
                         cs.updateStatus(localIp, attemptID, status);
@@ -372,7 +381,7 @@ public class ScheduleUtility {
                         } catch (IOException e) {
                             s_logger.error(e,e);
                         }
-                        ScheduleStatus status = (ScheduleStatus) cs.getStatus(localIp,attemptID,null);
+                        ScheduleStatus status = (ScheduleStatus) cs.getStatus(localIp,attemptID);
                         if(status.getStatus() == ScheduleStatus.EXECUTING){
                             if(returnCode == 0){
                                 status.setStatus(ScheduleStatus.EXECUTE_SUCCESS);
@@ -384,7 +393,14 @@ public class ScheduleUtility {
                         cs.removeRunningJob(localIp,attemptID);
                     }    
                 } 
-                jobInstanceIds = cs.getRunningJobs(localIp);
+                Set<String> runningInstanceIds = cs.getRunningJobs(localIp);
+                Set<String> zombieInstancesIds = new HashSet<String>();
+                for(String instanceId:runningInstanceIds){
+                    if(jobInstanceIds.contains(instanceId)){
+                        zombieInstancesIds.add(instanceId);
+                    }
+                }
+                jobInstanceIds = zombieInstancesIds;
                 try {
                     Thread.sleep(INTERVAL);
                     num ++;
@@ -394,7 +410,7 @@ public class ScheduleUtility {
             }
             if(jobInstanceIds.size() != 0){
                 for(String attemptID : jobInstanceIds){
-                    ScheduleStatus status = (ScheduleStatus) cs.getStatus(localIp,attemptID,null);
+                    ScheduleStatus status = (ScheduleStatus) cs.getStatus(localIp,attemptID);
                     if(status.getStatus() == ScheduleStatus.EXECUTING){
                         status.setStatus(ScheduleStatus.UNKNOWN);
                         cs.updateStatus(localIp, attemptID, status);
@@ -427,11 +443,13 @@ public class ScheduleUtility {
 			try{
 				lock.lock();
 				ScheduleConf conf = (ScheduleConf) cs.getConf(localIp, jobInstanceId);
-				ScheduleStatus status = (ScheduleStatus) cs.getStatus(localIp, jobInstanceId, null);
+				ScheduleStatus status = (ScheduleStatus) cs.getStatus(localIp, jobInstanceId);
 				killTask(localIp,conf, status);
 				cs.updateStatus(localIp, jobInstanceId, status);
                 cs.removeRunningJob(localIp, jobInstanceId);
-			} finally{
+			} catch(Exception e){
+                s_logger.error(e,e);
+            } finally{
 				lock.unlock();
 			}
 		}
@@ -461,54 +479,55 @@ public class ScheduleUtility {
                 returnCode = 1;
             }
 			
-			
 			if(returnCode == 0)  {
 				status.setStatus(ScheduleStatus.DELETE_SUCCESS);
 			}
-			cs.completeKill(ip, attemptID);
 		}
 		
 		
 	}
 	
-	private static abstract class BaseTaskWatcher implements Watcher{
+	private static abstract class BaseTaskListener implements IZkChildListener{
 
 		protected String localIp;
 		protected ScheduleInfoChannel cs;
 		protected Executor executor;
 
-		private BaseTaskWatcher(Executor executor, String localIp, ScheduleInfoChannel cs){
+		private BaseTaskListener(Executor executor, String localIp, ScheduleInfoChannel cs){
 			this.localIp = localIp;
 			this.cs = cs;
 			this.executor = executor;
 		}
 	}
 
-	private static final class TaskExcuteWatcher extends BaseTaskWatcher{
+	private static final class TaskExcuteListener extends BaseTaskListener{
 
-		private TaskExcuteWatcher(Executor executor, String localIp, ScheduleInfoChannel cs){
+		private TaskExcuteListener(Executor executor, String localIp, ScheduleInfoChannel cs){
 			super(executor, localIp, cs);
 		}
 
-		@Override
-		public void process(WatchedEvent event) {
-		    
-		    if(event.getType() == EventType.NodeChildrenChanged ) {
-				checkAndRunTasks(executor, localIp, cs, true);
-		    }
-		}
+        /* (non-Javadoc)
+         * @see org.I0Itec.zkclient.IZkChildListener#handleChildChange(java.lang.String, java.util.List)
+         */
+        @Override
+        public void handleChildChange(String parentPath, List<String> currentChilds) throws Exception {
+            checkAndRunTasks(executor, localIp, cs, false);    
+        }
 	}
 
-	private static final class TaskKillWatcher extends BaseTaskWatcher{
-		private TaskKillWatcher(Executor executor, String localIp, ScheduleInfoChannel cs){
+	private static final class TaskKillListener extends BaseTaskListener{
+		private TaskKillListener(Executor executor, String localIp, ScheduleInfoChannel cs){
 			super(executor, localIp, cs);
 		}
 
-		@Override
-		public void process(WatchedEvent event) {
-		    if(event.getType() == EventType.NodeChildrenChanged ) {
-		        checkAndKillTasks(executor, localIp, cs, true);
-		    }
-		}
+
+        /* (non-Javadoc)
+         * @see org.I0Itec.zkclient.IZkChildListener#handleChildChange(java.lang.String, java.util.List)
+         */
+        @Override
+        public void handleChildChange(String parentPath, List<String> currentChilds) throws Exception {
+            checkAndKillTasks(executor, localIp, cs, false);
+        }
 	}
+	
 }
