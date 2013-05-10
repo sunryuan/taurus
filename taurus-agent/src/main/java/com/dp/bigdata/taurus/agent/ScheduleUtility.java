@@ -55,9 +55,10 @@ public class ScheduleUtility {
 	private static final String COMMAND_PATTERN_WITHOUT_SUDO 
 	    = "echo %s; %s %s echo $$ >%s;  [ -f %s ] && cd %s; source %s %s; %s; echo $? >%s;echo %s; %s rm -f %s; %s";
 	private static final String COMMAND_PATTERN_WITH_SUDO 
-	    = "sudo -u %s %s -i \"%s echo $$ >%s; [ -f %s ] && cd %s; source %s %s; %s\"; echo $? >%s; sudo -u %s %s -i \"rm -f %s; %s\"";
+	    = "sudo -u %s %s bash -c \"%s echo $$ >%s; [ -f %s ] && cd %s; source %s %s; %s\"; echo $? >%s; sudo -u %s %s bash -c \"rm -f %s; %s\"";
 	private static final String KILL_COMMAND = "%s %s %s";
 	private static final String REMOVE_COMMAND = "rm -f %s";
+	private static final String UPDATE_COMMAND = "$taurusAgentPath/script/update-agent.sh > $taurusAgentPath/agent-logs/update.log";
 	
 	private static String krb5Path = "KRB5CCNAME=%s/%s";
 	private static String kinitCommand = "";
@@ -102,28 +103,32 @@ public class ScheduleUtility {
 	}
 	
 	public static void checkAndKillTasks(Executor executor, String localIp, ScheduleInfoChannel cs, boolean addListener) {
-		s_logger.debug("Start checkAndKillTasks");
-		if(addListener) {
-            cs.setKillingJobListener(new TaskKillListener(executor, localIp, cs));
-        } 
-		Set<String> currentNew = cs.getNewKillingJobInstanceIds(localIp);
-		for(String attemptID: currentNew){
-			Runnable killThread = new KillTaskThread(executor, localIp, cs, attemptID);
-			killThreadPool.submit(killThread);
-		}
-		s_logger.debug("End checkAndKillTasks");
+	    synchronized (ScheduleUtility.class) {
+    		s_logger.debug("Start checkAndKillTasks");
+    		if(addListener) {
+                cs.setKillingJobListener(new TaskKillListener(executor, localIp, cs));
+            } 
+    		Set<String> currentNew = cs.getNewKillingJobInstanceIds(localIp);
+    		for(String attemptID: currentNew){
+    			Runnable killThread = new KillTaskThread(executor, localIp, cs, attemptID);
+    			killThreadPool.submit(killThread);
+    		}
+    		s_logger.debug("End checkAndKillTasks");
+	    }
 	}
 
 	public static void checkAndRunTasks(Executor executor, String localIp, ScheduleInfoChannel cs, boolean addListener) {
-		s_logger.debug("Start checkAndRunTasks");
-		if(addListener) {
-		    cs.setExecutionJobListener(new TaskExcuteListener(executor, localIp, cs));
-		} 
-		Set<String> currentNew = cs.getNewExecutionJobInstanceIds(localIp);
-		for(String attemptID: currentNew){
-			submitTask(executor, localIp, cs, attemptID);
-		}
-		s_logger.debug("End checkAndRunTasks");
+	    synchronized (ScheduleUtility.class) {
+    		s_logger.debug("Start checkAndRunTasks");
+    		if(addListener) {
+    		    cs.setExecutionJobListener(new TaskExcuteListener(executor, localIp, cs));
+    		} 
+    		Set<String> currentNew = cs.getNewExecutionJobInstanceIds(localIp);
+    		for(String attemptID: currentNew){
+    			submitTask(executor, localIp, cs, attemptID);
+    		}
+    		s_logger.debug("End checkAndRunTasks");
+	    }
 	}
 	
 	public static void startZombieThread(String localIp, ScheduleInfoChannel cs) {
@@ -529,5 +534,25 @@ public class ScheduleUtility {
             checkAndKillTasks(executor, localIp, cs, false);
         }
 	}
+
+    /**
+     * @param executor
+     * @param localIp
+     * @param schedule
+     */
+    public static void checkAndUpdate(Executor executor, String localIp, ScheduleInfoChannel cs,boolean atStart) {
+        synchronized (ScheduleUtility.class) {
+            if(cs.needUpdate(localIp)){
+                if(atStart) {
+                    cs.completeUpdate(localIp);
+                }
+                try {
+                    executor.execute("updateAgent", null, null, UPDATE_COMMAND);
+                } catch (IOException e) {
+                    s_logger.error(e,e);
+                }
+            }       
+        }
+    }
 	
 }

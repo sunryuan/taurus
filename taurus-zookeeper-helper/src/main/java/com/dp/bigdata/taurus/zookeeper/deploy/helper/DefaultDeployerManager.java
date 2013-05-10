@@ -51,56 +51,51 @@ public class DefaultDeployerManager implements Deployer{
     	String taskId = context.getTaskID();
     	String hdfsPath = context.getHdfsPath();
     	
-    	if(!dic.exists(MachineType.AGENT,agentIp)){
-    	    LOGGER.error("Agent unavailable");
-			throw new DeploymentException("Agent unavailable");
-		}else{
-			DeploymentStatus status = (DeploymentStatus) dic.getStatus(agentIp, taskId);
-			if(status == null || status.getStatus() != DeploymentStatus.DEPLOY_SUCCESS){
-				DeploymentConf conf = new DeploymentConf();
-				conf.setHdfsPath(hdfsPath);
-				conf.setTaskID(taskId);
-				status = new DeploymentStatus();
-				status.setStatus(DeploymentStatus.DEPLOY_SUBMITTED);
-				Lock lock = getLock(taskId);
-				try{
-					lock.lock();
-					Condition deployFinish = lock.newCondition();
-					DeploymentListener listener = new DeploymentListener(lock, deployFinish, dic, agentIp, taskId);
-					dic.deploy(agentIp, taskId, conf, status, listener);
-					if(!deployFinish.await(opTimeout, TimeUnit.SECONDS)){
-						status = (DeploymentStatus) dic.getStatus(agentIp, taskId);
-						if(status != null && status.getStatus() == DeploymentStatus.DEPLOY_SUBMITTED){
-							status.setStatus(DeploymentStatus.DEPLOY_TIMEOUT);
-							dic.updateStatus(agentIp, taskId, status);
-					        LOGGER.error("Task " + taskId + "deploy time out");
-							throw new DeploymentException("Task " + taskId + "deploy time out");
-						}
-					}else{
-						status = listener.getDeploymentStatus();
-					}
-					
-					if(status != null && status.getStatus() == DeploymentStatus.DEPLOY_SUCCESS){
-						dic.completeDeploy(agentIp, taskId,listener);
-					}
-				} catch (InterruptedException e){
-                    LOGGER.error("Task " + taskId + " deploy failed",e);
-					throw new DeploymentException(e);
-				}
-				finally{
-					lock.unlock();
-				}
-				if(status.getStatus() != DeploymentStatus.DEPLOY_SUCCESS) {
-                    LOGGER.error("Task " + taskId + " deploy failed");
-                    throw new DeploymentException("Task " + taskId + " deploy failed");
-				}
-				
-			}
-			else{
+    	DeploymentStatus status = (DeploymentStatus) dic.getStatus(agentIp, taskId);
+        if(status == null || status.getStatus() != DeploymentStatus.DEPLOY_SUCCESS){
+            DeploymentConf conf = new DeploymentConf();
+            conf.setHdfsPath(hdfsPath);
+            conf.setTaskID(taskId);
+            status = new DeploymentStatus();
+            status.setStatus(DeploymentStatus.DEPLOY_SUBMITTED);
+            Lock lock = getLock(taskId);
+            try{
+                lock.lock();
+                Condition deployFinish = lock.newCondition();
+                DeploymentListener listener = new DeploymentListener(lock, deployFinish, dic, agentIp, taskId);
+                dic.deploy(agentIp, taskId, conf, status, listener);
+                if(!deployFinish.await(opTimeout, TimeUnit.SECONDS)){
+                    status = (DeploymentStatus) dic.getStatus(agentIp, taskId);
+                    if(status != null && status.getStatus() == DeploymentStatus.DEPLOY_SUBMITTED){
+                        status.setStatus(DeploymentStatus.DEPLOY_TIMEOUT);
+                        dic.updateStatus(agentIp, taskId, status);
+                        LOGGER.error("Task " + taskId + "deploy time out");
+                        throw new DeploymentException("Task " + taskId + "deploy time out");
+                    }
+                }else{
+                    status = listener.getDeploymentStatus();
+                }
+                
+                if(status != null && status.getStatus() == DeploymentStatus.DEPLOY_SUCCESS){
+                    dic.completeDeploy(agentIp, taskId,listener);
+                }
+            } catch (InterruptedException e){
+                LOGGER.error("Task " + taskId + " deploy failed",e);
+                throw new DeploymentException(e);
+            }
+            finally{
+                lock.unlock();
+            }
+            if(status.getStatus() != DeploymentStatus.DEPLOY_SUCCESS) {
                 LOGGER.error("Task " + taskId + " deploy failed");
-				throw new DeploymentException("Task " + taskId + " is already deployed!");
-			}
-		}
+                throw new DeploymentException("Task " + taskId + " deploy failed");
+            }
+            
+        }
+        else{
+            LOGGER.error("Task " + taskId + " deploy failed");
+            throw new DeploymentException("Task " + taskId + " is already deployed!");
+        }
         
     }
 
@@ -108,46 +103,41 @@ public class DefaultDeployerManager implements Deployer{
     public void undeploy(String agentIp, DeploymentContext context) throws DeploymentException {
     	String taskId = context.getTaskID();    	
     	DeploymentStatus status = new DeploymentStatus();
-		if(!dic.exists(MachineType.AGENT, agentIp)){
-		    LOGGER.error("Agent unavailable");
-			throw new DeploymentException("Agent unavailable");
-		}else{
-			status = (DeploymentStatus) dic.getStatus(agentIp, taskId);
-			if(status == null){
-		        LOGGER.error("Task " + taskId + " is already deleted!");
-				throw new DeploymentException("Task " + taskId + " is already deleted!");
-			} else{
-				status.setStatus(DeploymentStatus.DELETE_SUBMITTED);
-				Lock lock = getLock(taskId);
-				try{
-					lock.lock();
-					Condition deployFinish = lock.newCondition();
-					DeploymentListener listener = new DeploymentListener(lock, deployFinish, dic, agentIp, taskId);
-					dic.undeploy(agentIp, taskId, status, listener);
-					if(!deployFinish.await(opTimeout, TimeUnit.SECONDS)){
-						status = (DeploymentStatus) dic.getStatus(agentIp, taskId);
-						if(status != null && status.getStatus() == DeploymentStatus.DELETE_SUBMITTED){
-							status.setStatus(DeploymentStatus.DELETE_TIMEOUT);
-						}
-					}else{
-						status = listener.getDeploymentStatus();
-					}
-					
-					if(status != null && status.getStatus() == DeploymentStatus.DELETE_SUCCESS){
-						dic.completeUndeploy(agentIp, taskId, listener);
-					}
-				} catch (InterruptedException e){
-				    LOGGER.error("Task " + taskId + "delete failed",e);
-					throw new DeploymentException(e);
-				} finally{
-					lock.unlock();
-				}
-				if(status.getStatus() != DeploymentStatus.DELETE_SUCCESS) {
-                    LOGGER.error("Task " + taskId + "delete failed");
-					throw new DeploymentException("Task " + taskId + "delete failed");
-				}
-			}
-		}
+    	status = (DeploymentStatus) dic.getStatus(agentIp, taskId);
+        if(status == null){
+            LOGGER.error("Task " + taskId + " is already deleted!");
+            throw new DeploymentException("Task " + taskId + " is already deleted!");
+        } else{
+            status.setStatus(DeploymentStatus.DELETE_SUBMITTED);
+            Lock lock = getLock(taskId);
+            try{
+                lock.lock();
+                Condition deployFinish = lock.newCondition();
+                DeploymentListener listener = new DeploymentListener(lock, deployFinish, dic, agentIp, taskId);
+                dic.undeploy(agentIp, taskId, status, listener);
+                if(!deployFinish.await(opTimeout, TimeUnit.SECONDS)){
+                    status = (DeploymentStatus) dic.getStatus(agentIp, taskId);
+                    if(status != null && status.getStatus() == DeploymentStatus.DELETE_SUBMITTED){
+                        status.setStatus(DeploymentStatus.DELETE_TIMEOUT);
+                    }
+                }else{
+                    status = listener.getDeploymentStatus();
+                }
+                
+                if(status != null && status.getStatus() == DeploymentStatus.DELETE_SUCCESS){
+                    dic.completeUndeploy(agentIp, taskId, listener);
+                }
+            } catch (InterruptedException e){
+                LOGGER.error("Task " + taskId + "delete failed",e);
+                throw new DeploymentException(e);
+            } finally{
+                lock.unlock();
+            }
+            if(status.getStatus() != DeploymentStatus.DELETE_SUCCESS) {
+                LOGGER.error("Task " + taskId + "delete failed");
+                throw new DeploymentException("Task " + taskId + "delete failed");
+            }
+        }
     }
     
     private static final class DeploymentListener implements IZkDataListener{

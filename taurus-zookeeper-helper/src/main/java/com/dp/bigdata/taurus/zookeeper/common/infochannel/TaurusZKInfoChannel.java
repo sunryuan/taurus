@@ -57,6 +57,9 @@ public abstract class TaurusZKInfoChannel implements ClusterInfoChannel{
 			if(!existPath(BASE)){
 				setupBasePath();
 			}
+			if(existPath(BASE, HEARTBEATS, mt.getName(), REALTIME, ip)){
+			    rmPath(BASE, HEARTBEATS, mt.getName(), REALTIME, ip);
+			}
 			mkPathIfNotExists(CreateMode.EPHEMERAL, BASE, HEARTBEATS, mt.getName(), REALTIME, ip);
 			mkPathIfNotExists(BASE, HEARTBEATS, mt.getName(), INFO, ip);
 		} catch(Exception e){

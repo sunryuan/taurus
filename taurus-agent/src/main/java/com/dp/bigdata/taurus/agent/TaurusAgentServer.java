@@ -43,6 +43,7 @@ public class TaurusAgentServer implements AgentServer{
 		DeploymentUtility.checkAndUndeployTasks( localIp, deployer,true);
 		ScheduleUtility.checkAndRunTasks(executor, localIp, schedule, true);
 		ScheduleUtility.checkAndKillTasks(executor, localIp, schedule, true);
+		ScheduleUtility.checkAndUpdate(executor, localIp, schedule,true);
 		ScheduleUtility.startZombieThread(localIp, schedule);
 		while(true){
 			try {
@@ -52,6 +53,7 @@ public class TaurusAgentServer implements AgentServer{
 			DeploymentUtility.checkAndUndeployTasks(localIp, deployer, false);
 			ScheduleUtility.checkAndRunTasks(executor, localIp, schedule, false);
 			ScheduleUtility.checkAndKillTasks(executor, localIp, schedule, false);
+			ScheduleUtility.checkAndUpdate(executor, localIp, schedule,false);
 		}
 	}
 }

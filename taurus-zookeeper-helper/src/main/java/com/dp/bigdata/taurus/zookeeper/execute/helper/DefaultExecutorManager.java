@@ -63,39 +63,32 @@ public class DefaultExecutorManager implements ExecutorManager{
         String taskType = context.getType();
         String proxyUser = context.getProxyUser();
         
-        if(!dic.exists(MachineType.AGENT,agentIP)){
-            ScheduleStatus status = new ScheduleStatus();
-            status.setStatus(ScheduleStatus.AGENT_UNAVAILABLE);
-            LOGGER.error("Agent unavailable");
-            throw new ExecuteException("Agent unavailable");
-        }else{
-            ScheduleStatus status = (ScheduleStatus) dic.getStatus(agentIP, attemptID);
-            if(status == null){
-                ScheduleConf conf = new ScheduleConf();
-                conf.setTaskID(taskID);
-                conf.setAttemptID(attemptID);
-                conf.setCommand(cmd);
-                conf.setTaskType(taskType);
-                conf.setUserName(proxyUser);
-                status = new ScheduleStatus();
-                status.setStatus(ScheduleStatus.SCHEDULE_SUCCESS);
-                Lock lock = getLock(attemptID);
-                try{
-                    lock.lock();
-                    dic.execute(agentIP, attemptID, conf, status);
-                } catch (RuntimeException e) {
-                    LOGGER.error("Attempt "+attemptID + " schedule failed",e);
-                    status.setStatus(ScheduleStatus.SCHEDULE_FAILED);
-                    throw new ExecuteException(e);
-                }   
-                finally{
-                    lock.unlock();
-                }
+        ScheduleStatus status = (ScheduleStatus) dic.getStatus(agentIP, attemptID);
+        if(status == null){
+            ScheduleConf conf = new ScheduleConf();
+            conf.setTaskID(taskID);
+            conf.setAttemptID(attemptID);
+            conf.setCommand(cmd);
+            conf.setTaskType(taskType);
+            conf.setUserName(proxyUser);
+            status = new ScheduleStatus();
+            status.setStatus(ScheduleStatus.SCHEDULE_SUCCESS);
+            Lock lock = getLock(attemptID);
+            try{
+                lock.lock();
+                dic.execute(agentIP, attemptID, conf, status);
+            } catch (RuntimeException e) {
+                LOGGER.error("Attempt "+attemptID + " schedule failed",e);
+                status.setStatus(ScheduleStatus.SCHEDULE_FAILED);
+                throw new ExecuteException(e);
+            }   
+            finally{
+                lock.unlock();
             }
-            else{
-                LOGGER.error("Attempt "+attemptID + " has already scheduled");
-                throw new ExecuteException("Attempt "+attemptID + " has already scheduled");
-            }
+        }
+        else{
+            LOGGER.error("Attempt "+attemptID + " has already scheduled");
+            throw new ExecuteException("Attempt "+attemptID + " has already scheduled");
         }
 	}
 	
@@ -125,74 +118,64 @@ public class DefaultExecutorManager implements ExecutorManager{
 
     	
     	ScheduleStatus status = new ScheduleStatus();
-		if(!dic.exists(MachineType.AGENT, agentIP)){
-	        LOGGER.error("Agent unavailable");
-			throw new ExecuteException("Agent unavailable");
-		}else{
-			status = (ScheduleStatus) dic.getStatus(agentIP, attemptID);
-			if(status == null || status.getStatus() != ScheduleStatus.EXECUTING) {
-				LOGGER.error("Job Attempt:" + attemptID + " cannot be killed!");
-				throw new ExecuteException("Job Attempt:" + attemptID + " cannot be killed!");
-			} else{
-				Lock lock = getLock(attemptID);
-				try{
-					lock.lock();
-					Condition killFinish = lock.newCondition();
-					ScheduleStatusListener listener = new ScheduleStatusListener(lock, killFinish, dic, agentIP, attemptID);
-					dic.killTask(agentIP, attemptID, status, listener );
-					
-					if(!killFinish.await(opTimeout, TimeUnit.SECONDS)){
-						LOGGER.error("Delete " + attemptID + " timeout");
-                        throw new ExecuteException("Delete " + attemptID + " timeout");
-					}else{
-						status = listener.getScheduleStatus();
-					}
-					
-					dic.completeKill(agentIP, attemptID, listener);
-				} catch(InterruptedException e){
-	                LOGGER.error("Delete " + attemptID + " failed" ,e);
-					throw new ExecuteException("Delete " + attemptID + " failed");
-				}
-				finally{
-					lock.unlock();
-				}
-				if(status.getStatus()!=ScheduleStatus.DELETE_SUCCESS) {
-                    LOGGER.error("Delete " + attemptID + " failed");
-					throw new ExecuteException("Delete " + attemptID + " failed");
-				}
-			}
-		}
+    	status = (ScheduleStatus) dic.getStatus(agentIP, attemptID);
+        if(status == null || status.getStatus() != ScheduleStatus.EXECUTING) {
+            LOGGER.error("Job Attempt:" + attemptID + " cannot be killed!");
+            throw new ExecuteException("Job Attempt:" + attemptID + " cannot be killed!");
+        } else{
+            Lock lock = getLock(attemptID);
+            try{
+                lock.lock();
+                Condition killFinish = lock.newCondition();
+                ScheduleStatusListener listener = new ScheduleStatusListener(lock, killFinish, dic, agentIP, attemptID);
+                dic.killTask(agentIP, attemptID, status, listener );
+                
+                if(!killFinish.await(opTimeout, TimeUnit.SECONDS)){
+                    LOGGER.error("Delete " + attemptID + " timeout");
+                    throw new ExecuteException("Delete " + attemptID + " timeout");
+                }else{
+                    status = listener.getScheduleStatus();
+                }
+                
+                dic.completeKill(agentIP, attemptID, listener);
+            } catch(InterruptedException e){
+                LOGGER.error("Delete " + attemptID + " failed" ,e);
+                throw new ExecuteException("Delete " + attemptID + " failed");
+            }
+            finally{
+                lock.unlock();
+            }
+            if(status.getStatus()!=ScheduleStatus.DELETE_SUCCESS) {
+                LOGGER.error("Delete " + attemptID + " failed");
+                throw new ExecuteException("Delete " + attemptID + " failed");
+            }
+        }
     }
 
     public ExecuteStatus getStatus(ExecuteContext context) throws ExecuteException {
     	String agentIP = context.getAgentIP();
     	String attemptID = context.getAttemptID();
 
-    	if(!dic.exists(MachineType.AGENT, agentIP)){
-            LOGGER.error("Agent unavailable");
-			throw new ExecuteException("Agent unavailable");
-		} else{
-			ScheduleStatus status = (ScheduleStatus) dic.getStatus(agentIP, attemptID);
-			if(status == null) {
-		        LOGGER.error("Fail to get status");
-				throw new ExecuteException("Fail to get status");
-			}
-			ExecuteStatus result = null;
-			int statusCode = status.getStatus();
-			if(statusCode == ScheduleStatus.EXECUTE_FAILED) {
-				result = new ExecuteStatus(ExecuteStatus.FAILED);
-			} else if(statusCode == ScheduleStatus.EXECUTE_SUCCESS) {
-				result = new ExecuteStatus(ExecuteStatus.SUCCEEDED);
-			} else if(statusCode == ScheduleStatus.DELETE_SUCCESS) {
-				result = new ExecuteStatus(ExecuteStatus.KILLED);
-			} else if(statusCode == ScheduleStatus.UNKNOWN) {
-			    result = new ExecuteStatus(ExecuteStatus.UNKNOWN);
-			} else {
-				result = new ExecuteStatus(ExecuteStatus.RUNNING);
-			}
-			result.setReturnCode(status.getReturnCode());
-			return result;
-		}
+    	ScheduleStatus status = (ScheduleStatus) dic.getStatus(agentIP, attemptID);
+        if(status == null) {
+            LOGGER.error("Fail to get status");
+            throw new ExecuteException("Fail to get status");
+        }
+        ExecuteStatus result = null;
+        int statusCode = status.getStatus();
+        if(statusCode == ScheduleStatus.EXECUTE_FAILED) {
+            result = new ExecuteStatus(ExecuteStatus.FAILED);
+        } else if(statusCode == ScheduleStatus.EXECUTE_SUCCESS) {
+            result = new ExecuteStatus(ExecuteStatus.SUCCEEDED);
+        } else if(statusCode == ScheduleStatus.DELETE_SUCCESS) {
+            result = new ExecuteStatus(ExecuteStatus.KILLED);
+        } else if(statusCode == ScheduleStatus.UNKNOWN) {
+            result = new ExecuteStatus(ExecuteStatus.UNKNOWN);
+        } else {
+            result = new ExecuteStatus(ExecuteStatus.RUNNING);
+        }
+        result.setReturnCode(status.getReturnCode());
+        return result;
     }
 
 

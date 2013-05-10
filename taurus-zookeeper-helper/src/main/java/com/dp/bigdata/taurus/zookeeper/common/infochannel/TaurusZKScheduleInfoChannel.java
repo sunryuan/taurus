@@ -26,6 +26,7 @@ public class TaurusZKScheduleInfoChannel extends TaurusZKInfoChannel implements 
 	private static final String NEW = "new";
 	private static final String DELETE = "delete";
 	private static final String RUNNING = "running";
+	private static final String UPDATE = "update";
 	private static final Log LOGGER = LogFactory.getLog(TaurusZKScheduleInfoChannel.class);
 	
 	@Inject
@@ -220,4 +221,29 @@ public class TaurusZKScheduleInfoChannel extends TaurusZKInfoChannel implements 
         addChildListener(childListener, BASE, SCHEDULE, ip, DELETE);   
         
     }
+
+    /* (non-Javadoc)
+     * @see com.dp.bigdata.taurus.zookeeper.common.infochannel.interfaces.ScheduleInfoChannel#needUpdate(java.lang.String)
+     */
+    @Override
+    public boolean needUpdate(String ip) {
+        return existPath(BASE, SCHEDULE, ip, UPDATE);
+    }
+
+    /* (non-Javadoc)
+     * @see com.dp.bigdata.taurus.zookeeper.common.infochannel.interfaces.ScheduleInfoChannel#completeUpdate(java.lang.String)
+     */
+    @Override
+    public void completeUpdate(String ip) {
+        rmPath(BASE, SCHEDULE, ip, UPDATE);
+    }
+
+    /* (non-Javadoc)
+     * @see com.dp.bigdata.taurus.zookeeper.common.infochannel.interfaces.ScheduleInfoChannel#newUpdate(java.lang.String)
+     */
+    @Override
+    public void newUpdate(String ip) {
+        mkPathIfNotExists(BASE, SCHEDULE, ip, UPDATE);
+    }
+
 }
