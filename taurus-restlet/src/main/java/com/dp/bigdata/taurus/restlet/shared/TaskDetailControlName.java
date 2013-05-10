@@ -2,7 +2,7 @@ package com.dp.bigdata.taurus.restlet.shared;
 
 /**
  * 
- * GWTTaskDetailControlName
+ * TaskDetailControlName
  * @author damon.zhu
  *
  */
@@ -29,7 +29,9 @@ public enum TaskDetailControlName {
     ALERTCONDITION("alertCondition"),
     ALERTTYPE("alertType"),
     ALERTGROUP("alertGroup"),
-    ALERTUSER("alertUser");
+    ALERTUSER("alertUser"),
+    TASKURL("taskUrl"),
+    MAINCLASS("mainClass");
     
     private String name;
     

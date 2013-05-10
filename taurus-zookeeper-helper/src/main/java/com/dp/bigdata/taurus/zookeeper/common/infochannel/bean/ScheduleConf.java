@@ -11,6 +11,8 @@ public class ScheduleConf implements Serializable{
 	private String taskType;
 	private String userName;
 	private String pid;
+	private String taskUrl;
+	
 	public String getTaskID() {
 		return taskID;
 	}
@@ -47,5 +49,10 @@ public class ScheduleConf implements Serializable{
 	public void setPid(String pid) {
 		this.pid = pid;
 	}
-
+	public String getTaskUrl() {
+		return taskUrl;
+	}
+	public void setTaskUrl(String taskUrl) {
+		this.taskUrl = taskUrl;
+	}
 }

@@ -45,7 +45,12 @@ public class NameResource extends ServerResource implements INameResource {
             scheduler.getTaskByName(name);
             return true;
         } catch (ScheduleException e) {
-            return false;
+        	try {
+				scheduler.getTaskByName(name + "#1");
+				return true;
+			} catch (ScheduleException e1) {
+				return false;
+			}
         }
     }
 }

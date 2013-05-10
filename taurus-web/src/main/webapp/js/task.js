@@ -1,5 +1,49 @@
+var isSpringType = false;
+var beanCounter = 0;
 $(document).ready(function() {
 	$("#wizard").bwizard();
+	$("#mainClassCG").hide();
+	$("#beanCG").hide();	
+	
+	$("#taskType").change(function(e){
+		if($(this).val() === 'spring'){
+			isSpringType = true;
+			$("#jarAddress").show();
+			$("#upfile").hide();
+			$("#mainClassCG").show();
+			$("#beanCG").show();
+		}else{
+			isSpringType = false;
+			$("#jarAddress").hide();
+			$("#upfile").show();
+			$("#mainClassCG").hide();
+			$("#beanCG").hide();
+		}
+	});
+	
+	$("#addNewBeanbtn").click(function(e){
+		beanCounter = beanCounter + 1;
+		var html1 = "<div class='control-group' id=" + "'cgcron" + beanCounter +"'><label class='control-label' for='crontab" + beanCounter +"'>Crontab" + beanCounter +"*</label>"+
+					"<div class='controls'><input type='text' id='crontab" + beanCounter +"' class='input-xxlarge required' value='0 0 * * ?'></div></div>";
+		$(html1).insertBefore($("#beanCG"));
+		
+		var html2 = "<div class='control-group' id=" + "'cgcommand" + beanCounter +"'><label class='control-label' for='taskCommand'>命令" + beanCounter + "*</label>"+
+					"<div class='controls'><input type='text' id='taskCommand" + beanCounter + "'class='input-xxlarge required' placeholder='command'></div></div>";
+		$(html2).insertBefore($("#beanCG"));
+		if(beanCounter > 0){
+			$("#rmBeanbtn").button("enable");
+		}
+	});
+	
+	$("#rmBeanbtn").click(function(e){
+		$("#cgcron" + beanCounter).remove();
+		$("#cgcommand" + beanCounter).remove();
+		beanCounter = beanCounter - 1;
+		if(beanCounter == 0){
+			$("#rmBeanbtn").attr("disabled", "disabled");
+		}
+	});
+	
 	$("#autodeploy").change(function(e) {
         if($("#autodeploy").prop("checked")){
 			$("#poolDeployDiv").show();
@@ -112,13 +156,17 @@ $(document).ready(function() {
       		var element = $(".field").get(i);
 			if(element.id=="hostname") {
 				if(!autodeploy){
-					params[element.id] = element.value;					
+					params[element.id] = element.value;	
+				}else{
+					params[element.id] = "";
 				}
 			} else if(element.id=="uploadFile" || element.id=="alertCondition"  || element.id=="alertType"){
 				//do nothing
-			} else if(element.id=='poolId' || element.id=='taskType') {
+			} else if(element.id=='poolId') {
 				if(autodeploy){
 					params[element.id] = element.value;
+				}else{
+					params[element.id] = 1;
 				}
 			} else if(element.id=="alertUser" || element.id=="alertGroup") {
 				var result = element.value;
@@ -154,14 +202,33 @@ $(document).ready(function() {
 				form.appendChild(hiddenField);
      		}
 		}
-		if(autodeploy){
-			form.setAttribute("enctype","multipart/form-data");
-			form.appendChild(file);
-			post_to_url_with_file("create_task",form);
-			$('#fileDiv').append(file);
-		} else {
-			form.setAttribute("enctype","application/x-www-form-urlencoded");
-			post_to_url("create_task",form);
+		
+		if(isSpringType){
+			//params["taskName"] = $("#taskName").val();
+			if(beanCounter > 0){
+				for(i = 0 ; i <= beanCounter; i++ ){
+					$("input[name='taskName']",form).val($("#taskName").val() + "#" + (i+1));
+					if(i != 0){
+						$("input[name='crontab']",form).val($("#cgcron" + i + " input").val());
+						$("input[name='taskCommand']",form).val($("#cgcommand" + i + " input").val());
+					}
+					form.setAttribute("enctype","application/x-www-form-urlencoded");
+					post_to_url("create_task",form);
+				}
+			}else{
+				form.setAttribute("enctype","application/x-www-form-urlencoded");
+				post_to_url("create_task",form);
+			}
+		}else{
+			if(autodeploy){
+				form.setAttribute("enctype","multipart/form-data");
+				form.appendChild(file);
+				post_to_url_with_file("create_task",form);
+				$('#fileDiv').append(file);
+			} else {
+				form.setAttribute("enctype","application/x-www-form-urlencoded");
+				post_to_url("create_task",form);
+			}
 		}
     });
 });
