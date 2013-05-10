@@ -14,8 +14,9 @@ public class ExecuteContext {
     private String proxyUser;
     private String type;
     private String command;
+    private String taskUrl;
     
-    public ExecuteContext(String taskID, String attemptID, String agentIP, String proxyUser, String type, String command) {
+    public ExecuteContext(String taskID, String attemptID, String agentIP, String proxyUser, String type, String command, String taskUrl) {
         super();
         this.taskID = taskID;
         this.attemptID = attemptID;
@@ -23,6 +24,7 @@ public class ExecuteContext {
         this.proxyUser = proxyUser;
         this.type = type;
         this.command = command;
+        this.taskUrl = taskUrl;
     }
     
     public String getTaskID() {
@@ -61,5 +63,10 @@ public class ExecuteContext {
     public void setCommand(String command) {
         this.command = command;
     }
-    
+	public String getTaskUrl() {
+		return taskUrl;
+	}
+	public void setTaskUrl(String taskUrl) {
+		this.taskUrl = taskUrl;
+	}
 }

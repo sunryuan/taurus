@@ -205,6 +205,7 @@ final public class Engine implements Scheduler {
             Task origin = registedTasks.get(task.getTaskid());
             task.setUpdatetime(new Date());
             task.setStatus(origin.getStatus());
+            task.setCreator(null);
             taskMapper.updateByPrimaryKeySelective(task);
             registedTasks.remove(task.getTaskid());
             Task tmp = taskMapper.selectByPrimaryKey(task.getTaskid());
@@ -279,7 +280,7 @@ final public class Engine implements Scheduler {
             attempt.setEndtime(new Date());
             taskAttemptMapper.updateByPrimaryKeySelective(attempt);
             throw new ScheduleException("Fail to execute attemptID : " + attempt.getAttemptid() + " on host : "
-                    + host.getIp());
+                    + host.getIp(),ee);
         }
         final long end = System.nanoTime();
         LOG.info("Time (seconds) taken " + (end - start) / 1.0e9 + " to start attempt : " + context.getAttemptid());
@@ -379,6 +380,16 @@ final public class Engine implements Scheduler {
         }
     }
 
+    
+	public void attemptUnKonwed(String attemptID){
+		AttemptContext context = runningAttempts.get(AttemptID.getTaskID(attemptID)).get(attemptID);
+        TaskAttempt attempt = context.getAttempt();
+        attempt.setEndtime(new Date());
+        attempt.setStatus(AttemptStatus.UNKNOWN);
+        taskAttemptMapper.updateByPrimaryKeySelective(attempt);
+        unregistAttemptContext(context);
+	}
+	
     @Override
     public List<AttemptContext> getAllRunningAttempt() {
         List<AttemptContext> contexts = new ArrayList<AttemptContext>();
@@ -411,7 +422,8 @@ final public class Engine implements Scheduler {
         try {
             status = zookeeper.getStatus(context.getContext());
         } catch (ExecuteException ee) {
-            status = new ExecuteStatus(AttemptStatus.UNKNOWN);
+      	  // 当心跳节点消失后出现异常，但是作业仍应该是running状态。
+            status = new ExecuteStatus(AttemptStatus.RUNNING);
         }
         AttemptStatus astatus = new AttemptStatus(status.getStatus());
         astatus.setReturnCode(status.getReturnCode());

@@ -2,6 +2,8 @@ package com.dp.bigdata.taurus.core;
 
 import java.util.Date;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.dp.bigdata.taurus.generated.module.Task;
 import com.dp.bigdata.taurus.generated.module.TaskAttempt;
 import com.dp.bigdata.taurus.zookeeper.execute.helper.ExecuteContext;
@@ -31,7 +33,12 @@ public class AttemptContext {
     }
 
     public ExecuteContext getContext() {
-        return new ExecuteContext(getTaskid(), getAttemptid(), getExechost(), getProxyuser(), getType(), getCommand());
+        if (StringUtils.isNotBlank(task.getType()) && task.getType().equalsIgnoreCase("spring")) {
+        	String taskUrl = getFilename();
+            return new ExecuteContext(JarID.getID(taskUrl), getAttemptid(), getExechost(), getProxyuser(), getType(), getCommand(),taskUrl);
+        } else {
+            return new ExecuteContext(getTaskid(), getAttemptid(), getExechost(), getProxyuser(), getType(), getCommand(),null);
+        }
     }
 
     public void setAttempt(TaskAttempt attempt) {
@@ -145,5 +152,9 @@ public class AttemptContext {
     public void setStatus(int status) {
         attempt.setStatus(status);
     }
+
+	public String getFilename() {
+		return task.getFilename();
+	}
 
 }
