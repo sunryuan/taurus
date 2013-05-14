@@ -69,6 +69,7 @@
 					<th class="hide">ID</th>
 					<th>名称</th>
 					<th>调度人</th>
+					<th>调度身份</th>
 					<th class="hide">组</th>
 					<th>创建时间</th>
 					<th>Crontab</th>
@@ -78,7 +79,11 @@
 				</tr>
 			</thead>
 			<tbody>
-				<% ClientResource cr = new ClientResource(host + "task");
+				<%  String task_api = host + "task";
+					if(currentUser != null){
+						task_api = task_api + "?user=" + currentUser;
+					}
+					ClientResource cr = new ClientResource(task_api);
                     ITasksResource resource = cr.wrap(ITasksResource.class);
                     cr.accept(MediaType.APPLICATION_XML);
                     ArrayList<TaskDTO> tasks = resource.retrieve();
@@ -96,6 +101,7 @@
                     <td class="hide"><%=dto.getTaskid()%></td>
                     <td><%=dto.getName()%></td>
                     <td><%=dto.getCreator()%></td>
+					<td><%=dto.getProxyuser()%></td>
                     <td class="hide">arch(mock)</td>
                     <td><%=formatter.format(dto.getAddtime())%></td>
                     <td><%=dto.getCrontab()%></td>

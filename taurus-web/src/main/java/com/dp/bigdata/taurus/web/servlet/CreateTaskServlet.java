@@ -128,7 +128,7 @@ public class CreateTaskServlet extends HttpServlet{
         while (headers.hasMoreElements()) {
             String headerName = headers.nextElement();
             String headerValue = req.getHeader(headerName);
-//            LOG.info("header: " + headerName + " value: " + headerValue);
+            //LOG.info("header: " + headerName + " value: " + headerValue);
             // Skip Content-Length and Host
             String lowerHeader = headerName.toLowerCase();
             if(lowerHeader.equals("content-type")) {

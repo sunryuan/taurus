@@ -72,7 +72,7 @@ public class AttemptResource extends ServerResource implements IAttemptResource 
             try {
                 hdfsUtils.readFile(logPath, localPath);
             } catch (Exception e) {
-                LOG.error("File not found", e);
+                LOG.info("File not found");
                 setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
                 return null;
             }

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.dp.bigdata.taurus.generated.mapper.PoolMapper;
@@ -38,6 +39,11 @@ public class PoolManager {
     }
     
     public int getID(String name){
-        return nameMap.get(name.toLowerCase());
+        if (StringUtils.isNotBlank(name)) {
+            Integer key = nameMap.get(name.toLowerCase());
+            return (key == null) ? 1 : key;
+        } else {
+            return 1;
+        }
     }
 }

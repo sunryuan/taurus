@@ -62,6 +62,7 @@ public class DefaultExecutorManager implements ExecutorManager{
         String cmd = context.getCommand();
         String taskType = context.getType();
         String proxyUser = context.getProxyUser();
+        String taskUrl = context.getTaskUrl();
         
         ScheduleStatus status = (ScheduleStatus) dic.getStatus(agentIP, attemptID);
         if(status == null){
@@ -71,6 +72,7 @@ public class DefaultExecutorManager implements ExecutorManager{
             conf.setCommand(cmd);
             conf.setTaskType(taskType);
             conf.setUserName(proxyUser);
+            conf.setTaskUrl(taskUrl);
             status = new ScheduleStatus();
             status.setStatus(ScheduleStatus.SCHEDULE_SUCCESS);
             Lock lock = getLock(attemptID);
@@ -84,6 +86,7 @@ public class DefaultExecutorManager implements ExecutorManager{
             }   
             finally{
                 lock.unlock();
+
             }
         }
         else{

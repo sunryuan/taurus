@@ -130,6 +130,7 @@ $(document).ready(function(){
 	    		.closest('.control-group').removeClass('error').addClass('success');
 	    },
 	  });
+	  
 	  $('#extended-form').validate({
 	    rules: {
 	    	maxExecutionTime: {

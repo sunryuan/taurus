@@ -68,17 +68,32 @@ public class TaskDTO implements Serializable {
 
     private String conditions;
 
+    private String mainClass;
+    
+    private String taskUrl;
+    
     public Task getTask() {
         Task task = new Task();
         task.setAddtime(addtime);
         task.setAllowmultiinstances(allowmultiinstances);
-        task.setCommand(command);
+        if(getType() != null && getType().equalsIgnoreCase("spring")){
+        	String springCommand;
+        	if(mainClass != null){
+        		springCommand = mainClass + " " + command;
+        	}else{
+        		springCommand = command;
+        	}
+        	task.setCommand(springCommand);
+        	task.setFilename(taskUrl);
+        }else{
+        	task.setCommand(command);
+        	task.setFilename(filename);
+        }
         task.setCreator(creator);
         task.setCrontab(crontab);
         task.setDependencyexpr(dependencyexpr);
         task.setDescription(description);
         task.setExecutiontimeout(executiontimeout);
-        task.setFilename(filename);
         task.setHostname(hostname);
         task.setIsautoretry(isautoretry);
         task.setName(name);
@@ -322,5 +337,21 @@ public class TaskDTO implements Serializable {
     public void setFilename(String filename) {
         this.filename = filename;
     }
+
+	public String getMainClass() {
+		return mainClass;
+	}
+
+	public void setMainClass(String mainClass) {
+		this.mainClass = mainClass;
+	}
+
+	public String getTaskUrl() {
+		return taskUrl;
+	}
+
+	public void setTaskUrl(String taskUrl) {
+		this.taskUrl = taskUrl;
+	}
 
 }

@@ -18,6 +18,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.I0Itec.zkclient.IZkChildListener;
 import org.apache.commons.exec.CommandLine;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import com.dp.bigdata.taurus.agent.exec.Executor;
@@ -58,7 +59,7 @@ public class ScheduleUtility {
 	    = "sudo -u %s %s bash -c \"%s echo $$ >%s; [ -f %s ] && cd %s; source %s %s; %s\"; echo $? >%s; sudo -u %s %s bash -c \"rm -f %s; %s\"";
 	private static final String KILL_COMMAND = "%s %s %s";
 	private static final String REMOVE_COMMAND = "rm -f %s";
-	private static final String UPDATE_COMMAND = "$taurusAgentPath/script/update-agent.sh > $taurusAgentPath/agent-logs/update.log";
+	private static final String UPDATE_COMMAND = "source /etc/profile; %s/script/update-agent.sh > %s/agent-logs/update.log";
 	
 	private static String krb5Path = "KRB5CCNAME=%s/%s";
 	private static String kinitCommand = "";
@@ -101,7 +102,6 @@ public class ScheduleUtility {
 			return lock;
 		}
 	}
-	
 	public static void checkAndKillTasks(Executor executor, String localIp, ScheduleInfoChannel cs, boolean addListener) {
 	    synchronized (ScheduleUtility.class) {
     		s_logger.debug("Start checkAndKillTasks");
@@ -110,11 +110,16 @@ public class ScheduleUtility {
             } 
     		Set<String> currentNew = cs.getNewKillingJobInstanceIds(localIp);
     		for(String attemptID: currentNew){
+    		    ScheduleConf conf = (ScheduleConf) cs.getConf(localIp, attemptID);
+                if(conf != null && StringUtils.isNotBlank(conf.getTaskType()) && conf.getTaskType().equalsIgnoreCase(TaskType.SPRING.name())){
+                    return;
+                }
     			Runnable killThread = new KillTaskThread(executor, localIp, cs, attemptID);
     			killThreadPool.submit(killThread);
     		}
     		s_logger.debug("End checkAndKillTasks");
 	    }
+
 	}
 
 	public static void checkAndRunTasks(Executor executor, String localIp, ScheduleInfoChannel cs, boolean addListener) {
@@ -140,9 +145,16 @@ public class ScheduleUtility {
 		Lock lock = getLock(attemptID);
 		try{
 			lock.lock();
+			
+			ScheduleConf conf = (ScheduleConf) cs.getConf(localIp, attemptID);
+			if(conf != null && StringUtils.isNotBlank(conf.getTaskType()) && conf.getTaskType().equalsIgnoreCase(TaskType.SPRING.name())){
+				return;
+			}
+			
 			cs.completeExecution(localIp, attemptID);
 			s_logger.debug(attemptID + " start schedule");
 			ScheduleStatus status = (ScheduleStatus) cs.getStatus(localIp, attemptID);
+
 			if(status == null){
 				s_logger.error("status is null");
 				return;
@@ -545,11 +557,17 @@ public class ScheduleUtility {
             if(cs.needUpdate(localIp)){
                 if(atStart) {
                     cs.completeUpdate(localIp);
-                }
-                try {
-                    executor.execute("updateAgent", null, null, UPDATE_COMMAND);
-                } catch (IOException e) {
-                    s_logger.error(e,e);
+                } else {
+                    try {
+                        CommandLine cmdLine;
+                        cmdLine = new CommandLine("bash");
+                        cmdLine.addArgument("-c");
+                        cmdLine.addArgument(String.format(UPDATE_COMMAND, agentRoot,agentRoot), false);
+                        executor.execute("updateAgent", 0, null, cmdLine, null, null);
+                        
+                    } catch (IOException e) {
+                        s_logger.error(e,e);
+                    }
                 }
             }       
         }

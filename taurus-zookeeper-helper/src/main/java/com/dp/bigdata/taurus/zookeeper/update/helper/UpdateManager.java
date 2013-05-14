@@ -38,9 +38,9 @@ public class UpdateManager {
 
     private ScheduleInfoChannel dic;
     
-    private static final int TIMEOUT = 10 * 60 *1000;
+    private static final int TIMEOUT = 5 * 60 *1000;
     
-    private static final int INTERVAL = 30 * 1000;
+    private static final int INTERVAL = 10 * 1000;
     
     public UpdateManager(){
         Injector injector = Guice.createInjector(new ScheduleInfoChanelModule());
@@ -96,6 +96,7 @@ public class UpdateManager {
                         }
                     }
                 }
+                break;
             }
             
         }
