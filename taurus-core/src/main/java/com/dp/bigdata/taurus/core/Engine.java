@@ -202,7 +202,7 @@ final public class Engine implements Scheduler {
 
 					load();
 
-					Thread.sleep(30 * 1000);
+					Thread.sleep(60 * 1000);
 				}
 			} catch (InterruptedException e) {
 				isInterrupted = true;
