@@ -8,7 +8,7 @@
 
 <%@page import="com.dp.bigdata.taurus.restlet.resource.IPoolsResource"%>
 <%@page import="com.dp.bigdata.taurus.restlet.resource.IAttemptStatusResource"%>
-<%@page import="com.dp.bigdata.taurus.restlet.resource.IUersResource"%>
+<%@page import="com.dp.bigdata.taurus.restlet.resource.IUsersResource"%>
 <%@page import="com.dp.bigdata.taurus.restlet.resource.IUserGroupsResource"%>
 	
 <%@page import="com.dp.bigdata.taurus.restlet.shared.TaskDTO"%>
@@ -18,7 +18,7 @@
 <%@page import="com.dp.bigdata.taurus.restlet.shared.UserGroupDTO"%>
 <%@page import="java.util.ArrayList"%>
 
-<% 
+<%
 	String []types={"hadoop","wormhole","spring","hive","other"};
 	ClientResource cr = new ClientResource(host + "pool");
 	IPoolsResource poolResource = cr.wrap(IPoolsResource.class);
@@ -37,7 +37,7 @@
 	ArrayList<StatusDTO> statuses = attemptResource.retrieve();
 	
 	cr = new ClientResource(host + "user");
-	IUersResource userResource = cr.wrap(IUersResource.class);
+	IUsersResource userResource = cr.wrap(IUsersResource.class);
 	cr.accept(MediaType.APPLICATION_XML);
 	ArrayList<UserDTO> users = userResource.retrieve();
 	
