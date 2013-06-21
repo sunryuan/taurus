@@ -6,11 +6,12 @@ cd ..
 set -e
 #agent path
 source /etc/profile
-kinit -r 12l -k -t ./conf/taurus.keytab taurus@DIANPING.COM;
-kinit -R
+#kinit -r 12l -k -t ./conf/taurus.keytab taurus@DIANPING.COM;
+#kinit -R
 
 
-hadoop fs -copyToLocal /user/workcron/taurus/agent/* ./
+#hadoop fs -copyToLocal /user/workcron/taurus/agent/* ./
+wget http://10.1.1.163:8000/taurus-agent.tar.gz
 tar -xzvf  taurus-agent.tar.gz
 rm taurus-agent.tar.gz
 
