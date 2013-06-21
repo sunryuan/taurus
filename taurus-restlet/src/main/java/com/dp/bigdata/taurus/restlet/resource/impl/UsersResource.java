@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.dp.bigdata.taurus.generated.mapper.UserMapper;
 import com.dp.bigdata.taurus.generated.module.User;
 import com.dp.bigdata.taurus.generated.module.UserExample;
-import com.dp.bigdata.taurus.restlet.resource.IUersResource;
+import com.dp.bigdata.taurus.restlet.resource.IUsersResource;
 import com.dp.bigdata.taurus.restlet.shared.UserDTO;
 
 /**
@@ -18,7 +18,7 @@ import com.dp.bigdata.taurus.restlet.shared.UserDTO;
  * 
  * @author damon.zhu
  */
-public class UsersResource extends ServerResource implements IUersResource {
+public class UsersResource extends ServerResource implements IUsersResource {
 
     @Autowired
     private UserMapper userMapper;
@@ -35,5 +35,19 @@ public class UsersResource extends ServerResource implements IUersResource {
         }
         return userDtos;
     }
+
+	@Override
+   public void createIfNotExist(UserDTO user) {
+		UserExample example = new UserExample();
+		example.or().andNameEqualTo(user.getName());
+		List<User> userDtos = userMapper.selectByExample(example);
+		if(userDtos == null || userDtos.size() == 0){
+			User usr = new User();
+			usr.setName(user.getName());
+			usr.setMail(user.getMail());
+			
+			userMapper.insertSelective(usr);
+		}
+   }
 
 }
