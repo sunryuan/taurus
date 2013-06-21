@@ -60,8 +60,8 @@ public class ScheduleUtility {
 	private static final String REMOVE_COMMAND = "rm -f %s";
 	
 	private static String krb5Path = "KRB5CCNAME=%s/%s";
-	private static String kinitCommand = "";
-	private static String kdestroyCommand = "";
+	//private static String kinitCommand = "";
+	//private static String kdestroyCommand = "";
     private static String command_pattern;
     private static boolean on_windows = false;
     private static TaskHelper taskLogUploader = new TaskHelper();
@@ -268,6 +268,8 @@ public class ScheduleUtility {
             }
             
             String krb5PathCommand = "";
+         	String kinitCommand = "";
+         	String kdestroyCommand = "";
 			if(needHadoopAuthority) {
 			    krb5PathCommand = String.format(krb5Path, hadoop,"krb5cc_"+attemptID);
 	            kinitCommand = String.format(KINIT_COMMAND_PATTERN,homeDir,userName,userName);
