@@ -11,7 +11,7 @@
     <%@page import="org.restlet.resource.ClientResource"%>
 	<%@page import="com.dp.bigdata.taurus.restlet.resource.IPoolsResource"%>
 	<%@page import="com.dp.bigdata.taurus.restlet.resource.IAttemptStatusResource"%>
-	<%@page import="com.dp.bigdata.taurus.restlet.resource.IUersResource"%>
+	<%@page import="com.dp.bigdata.taurus.restlet.resource.IUsersResource"%>
 	<%@page import="com.dp.bigdata.taurus.restlet.resource.IUserGroupsResource"%>
 	
     <%@page import="com.dp.bigdata.taurus.restlet.shared.PoolDTO"%> 
@@ -22,27 +22,28 @@
     <%@page import="java.util.ArrayList"%>
     <%@page import="org.restlet.data.MediaType"%>
 
-   	<% ClientResource cr = new ClientResource(host + "pool");
-   		IPoolsResource poolResource = cr.wrap(IPoolsResource.class);
-    	cr.accept(MediaType.APPLICATION_XML);
-   		ArrayList<PoolDTO> pools = poolResource.retrieve();
-   		int UNALLOCATED = 1;
-   		
-   		cr = new ClientResource(host + "status");
-		IAttemptStatusResource attemptResource = cr.wrap(IAttemptStatusResource.class);
-		cr.accept(MediaType.APPLICATION_XML);
-		ArrayList<StatusDTO> statuses = attemptResource.retrieve();
-		
-		cr = new ClientResource(host + "user");
-		IUersResource userResource = cr.wrap(IUersResource.class);
-		cr.accept(MediaType.APPLICATION_XML);
-		ArrayList<UserDTO> users = userResource.retrieve();
-		
-		cr = new ClientResource(host + "group");
-		IUserGroupsResource groupResource = cr.wrap(IUserGroupsResource.class);
-		cr.accept(MediaType.APPLICATION_XML);
-		ArrayList<UserGroupDTO> groups = groupResource.retrieve();
-    %>
+   	<%
+   		ClientResource cr = new ClientResource(host + "pool");
+   	   		IPoolsResource poolResource = cr.wrap(IPoolsResource.class);
+   	    	cr.accept(MediaType.APPLICATION_XML);
+   	   		ArrayList<PoolDTO> pools = poolResource.retrieve();
+   	   		int UNALLOCATED = 1;
+   	   		
+   	   		cr = new ClientResource(host + "status");
+   			IAttemptStatusResource attemptResource = cr.wrap(IAttemptStatusResource.class);
+   			cr.accept(MediaType.APPLICATION_XML);
+   			ArrayList<StatusDTO> statuses = attemptResource.retrieve();
+   			
+   			cr = new ClientResource(host + "user");
+   			IUsersResource userResource = cr.wrap(IUsersResource.class);
+   			cr.accept(MediaType.APPLICATION_XML);
+   			ArrayList<UserDTO> users = userResource.retrieve();
+   			
+   			cr = new ClientResource(host + "group");
+   			IUserGroupsResource groupResource = cr.wrap(IUserGroupsResource.class);
+   			cr.accept(MediaType.APPLICATION_XML);
+   			ArrayList<UserGroupDTO> groups = groupResource.retrieve();
+   	%>
 	<div class="container">
 		<div id="wizard">
 			<ol>
