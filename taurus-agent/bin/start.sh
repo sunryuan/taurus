@@ -20,6 +20,11 @@ if [ "$1" == "init" ]; then
 	mkdir -p $taurusJobPath/hadoop
 	chmod 777 $taurusJobPath/hadoop
 else
+	id=`ps -ef | grep com.dp.bigdata.taurus.agent.StartServer | grep -v grep | awk '{print $2}'`
+	if [ "$id" != "" ]; then
+		echo "An agent has already started. It will be killed."
+		kill $id
+	fi
 	/usr/local/jdk/bin/java -classpath "conf/:lib/*"  com.dp.bigdata.taurus.agent.StartServer
 fi
 #end

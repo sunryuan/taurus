@@ -4,7 +4,6 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import org.I0Itec.zkclient.ZkClient;
-import org.junit.Test;
 
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.bean.ScheduleConf;
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.bean.ScheduleStatus;

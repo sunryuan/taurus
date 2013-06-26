@@ -169,10 +169,10 @@ public class BatchTaskServlet extends HttpServlet{
 		writer.close();
 		s_logger.info(json);
 	}
-
+    @SuppressWarnings("unused")
 	private static final class Result{
 		private final String name;
-		private final boolean success;
+        private final boolean success;
 
 		public Result(String name, boolean success) {
 			super();

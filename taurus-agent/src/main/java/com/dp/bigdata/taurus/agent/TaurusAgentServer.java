@@ -3,7 +3,9 @@ package com.dp.bigdata.taurus.agent;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.dp.bigdata.taurus.agent.deploy.DeploymentUtility;
 import com.dp.bigdata.taurus.agent.exec.Executor;
+import com.dp.bigdata.taurus.agent.sheduler.ScheduleUtility;
 import com.dp.bigdata.taurus.agent.spring.JarExecutor;
 import com.dp.bigdata.taurus.agent.utils.AgentServerHelper;
 import com.dp.bigdata.taurus.zookeeper.common.MachineType;
@@ -12,7 +14,7 @@ import com.dp.bigdata.taurus.zookeeper.common.infochannel.interfaces.ScheduleInf
 import com.google.inject.Inject;
 
 public class TaurusAgentServer implements AgentServer{
-    private static final Log LOG = LogFactory.getLog(TaurusAgentServer.class);
+    private static final Log LOGGER = LogFactory.getLog(TaurusAgentServer.class);
 
 	private static final int CHECK_INTERVALS = 30*1000;
 
@@ -38,7 +40,7 @@ public class TaurusAgentServer implements AgentServer{
 	public void start(){
 		deployer.connectToCluster(MachineType.AGENT, localIp);
 		schedule.connectToCluster(MachineType.AGENT, localIp);
-	    LOG.info("Taurus agent starts.");
+	    LOGGER.info("Taurus agent starts.");
 
 		DeploymentUtility.checkAndDeployTasks(localIp, deployer,true);
 		DeploymentUtility.checkAndUndeployTasks( localIp, deployer,true);
