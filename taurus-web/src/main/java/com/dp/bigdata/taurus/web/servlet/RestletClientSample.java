@@ -1,6 +1,19 @@
 package com.dp.bigdata.taurus.web.servlet;
 
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+
+import org.restlet.data.MediaType;
+import org.restlet.resource.ClientResource;
+
+import com.dp.bigdata.taurus.restlet.resource.IAttemptsResource;
+import com.dp.bigdata.taurus.restlet.resource.ITasksResource;
+import com.dp.bigdata.taurus.restlet.resource.IUsersResource;
+import com.dp.bigdata.taurus.restlet.shared.AttemptDTO;
+import com.dp.bigdata.taurus.restlet.shared.TaskDTO;
+import com.dp.bigdata.taurus.restlet.shared.UserDTO;
+
 
 /**
  * RestletClientSample
@@ -9,7 +22,8 @@ package com.dp.bigdata.taurus.web.servlet;
  */
 public class RestletClientSample{
 
-    public static void main(String args[]){
+
+	public static void main(String args[]){
 //       ClientResource cr = new ClientResource("http://10.1.77.85:8182/api/task");
 //        ITasksResource resource = cr.wrap(ITasksResource.class);
 //         cr.accept(MediaType.APPLICATION_XML);
@@ -30,5 +44,6 @@ public class RestletClientSample{
 //            System.out.println(dto.getStartTime());
 //            System.out.println(dto.getStatus());
 //        }
+   	 
     }
 }

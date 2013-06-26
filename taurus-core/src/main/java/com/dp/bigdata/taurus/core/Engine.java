@@ -37,9 +37,9 @@ final public class Engine implements Scheduler {
 
     private static final Log LOG = LogFactory.getLog(Engine.class);
 
-    private final Map<String, Task> registedTasks; // Map<taskID, task>
-    private final Map<String, String> tasksMapCache; // Map<name, taskID>
-    private final Map<String, HashMap<String, AttemptContext>> runningAttempts; // Map<taskID,HashMap<attemptID,AttemptContext>>
+    private  Map<String, Task> registedTasks; // Map<taskID, task>
+    private  Map<String, String> tasksMapCache; // Map<name, taskID>
+    private  Map<String, HashMap<String, AttemptContext>> runningAttempts; // Map<taskID,HashMap<attemptID,AttemptContext>>
     private Runnable progressMonitor;
     @Autowired
     @Qualifier("triggle.crontab")
@@ -79,32 +79,51 @@ final public class Engine implements Scheduler {
     /**
      * load data from the database;
      */
-    public void load() {
+    public synchronized void load() {
+         Map<String, Task> tmp_registedTasks = new ConcurrentHashMap<String, Task>();
+         Map<String, String> tmp_tasksMapCache = new ConcurrentHashMap<String, String>();
+         Map<String, HashMap<String, AttemptContext>> tmp_runningAttempts = new ConcurrentHashMap<String, HashMap<String, AttemptContext>>();
+			
         // load all tasks
         TaskExample example = new TaskExample();
         example.or().andStatusEqualTo(TaskStatus.RUNNING);
         example.or().andStatusEqualTo(TaskStatus.SUSPEND);
         List<Task> tasks = taskMapper.selectByExample(example);
         for (Task task : tasks) {
-            registedTasks.put(task.getTaskid(), task);
-            tasksMapCache.put(task.getName(), task.getTaskid());
+      	  tmp_registedTasks.put(task.getTaskid(), task);
+      	  tmp_tasksMapCache.put(task.getName(), task.getTaskid());
         }
+        
         // load running attempts
         TaskAttemptExample example1 = new TaskAttemptExample();
         example1.or().andStatusEqualTo(AttemptStatus.RUNNING);
         List<TaskAttempt> attempts = taskAttemptMapper.selectByExample(example1);
         for (TaskAttempt attempt : attempts) {
-            Task task = registedTasks.get(attempt.getTaskid());
+            Task task = tmp_registedTasks.get(attempt.getTaskid());
             AttemptContext context = new AttemptContext(attempt, task);
-            registAttemptContext(context);
+            HashMap<String, AttemptContext> contexts = new HashMap<String, AttemptContext>();
+            contexts.put(context.getAttemptid(), context);
+            tmp_runningAttempts.put(context.getTaskid(), contexts);
         }
+        
+        //switch
+        registedTasks = tmp_registedTasks;
+        tasksMapCache = tmp_tasksMapCache;
+        runningAttempts = tmp_runningAttempts;
     }
 
     /**
      * start the engine;
      */
     public void start() {
-        new Thread(progressMonitor).start();
+   	 
+   	 Thread monitorThread = new Thread(progressMonitor);
+   	 monitorThread.setDaemon(true);
+   	 monitorThread.start();
+
+   	 Thread refreshThread = new RefreshThread();
+   	 refreshThread.setDaemon(true);
+   	 refreshThread.start();
 
         agentMonitor.agentMonitor(new AgentHandler() {
 
@@ -171,6 +190,32 @@ final public class Engine implements Scheduler {
 
     }
 
+	class RefreshThread extends Thread {
+
+		private boolean isInterrupted = false;
+
+		@Override
+		public void run() {
+
+			try {
+				while (isInterrupted) {
+
+					load();
+
+					Thread.sleep(60 * 1000);
+				}
+			} catch (InterruptedException e) {
+				isInterrupted = true;
+				LOG.error("RefreshThread was interrupted!", e);
+			}
+
+		}
+
+		public void shutdown() {
+			isInterrupted = true;
+		}
+	}
+    
     @Override
     public synchronized void registerTask(Task task) throws ScheduleException {
         if (!registedTasks.containsKey(task.getTaskid())) {
