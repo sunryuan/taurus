@@ -260,7 +260,7 @@
     </div>
    
     <script type="text/javascript">  
-      	var userList="",groupList="";
+      	var userList="",groupList="",ipList="";
       	<% for(UserDTO user:users) {%>
       		userList=userList+",<%=user.getName()%>";
       	<%}%>

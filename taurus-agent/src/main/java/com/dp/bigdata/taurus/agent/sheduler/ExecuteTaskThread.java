@@ -49,7 +49,7 @@ public final class ExecuteTaskThread extends BaseTaskThread{
     
     private static final Log LOGGER = LogFactory.getLog(ExecuteTaskThread.class);
     
-    private static final String COMMAND_PATTERN_WITH_SUDO = "sudo -u %s %s bash -c \"%s\"";
+    private static final String COMMAND_PATTERN_WITH_SUDO = "sudo -u %s %s bash -c \"%s\";";
     private static final String COMMAND_PATTERN_WITHOUT_SUDO = "echo %s; %s%s";
     private static final String MAIN_COMMAND_PATTERN = "echo $$ >%s; [ -f %s ] && cd %s; source %s %s; %s";
     private static final String STORE_RETURN_VALUE_PATTERN = "echo $? >%s;";
@@ -182,13 +182,15 @@ public final class ExecuteTaskThread extends BaseTaskThread{
                 if(taskType.equals("hadoop")){
                     krb5PathCommand = String.format(krb5Path, hadoop,"krb5cc_"+attemptID);
                     String kinitCommand = String.format(KINIT_COMMAND_PATTERN,homeDir,userName,userName);
+                    kinitCommand = String.format(command_pattern, userName, krb5PathCommand,
+                            kinitCommand);
+                    
+//                    String escapedCmd = finalKinitCommand.replaceAll("\\\\", "\\\\\\\\");
+//                    escapedCmd = escapedCmd.replaceAll("\"", "\\\\\\\"");
                     kdestroyCommand = KDESTROY_COMMAND;
                     cmdLine = new CommandLine("bash");
                     cmdLine.addArgument("-c");
-                    cmdLine.addArgument(String.format(command_pattern, userName, krb5PathCommand,
-                            kinitCommand));
-                    Lock lock = LockHelper.getLock("kinit");
-                    lock.lock();
+                    cmdLine.addArgument(kinitCommand);
                     int kinitRV = 0;
                     try{
                         kinitRV = executor.execute(attemptID, 0, null, cmdLine, logFileStream, errorFileStream);
@@ -196,48 +198,43 @@ public final class ExecuteTaskThread extends BaseTaskThread{
                         LOGGER.error(e,e);
                         setFailResult(status);
                         return;
-                    } finally {
-                        lock.unlock();
                     }
-                    if(kinitRV != 0){
-                        setResult(returnCode, status);
-                        return;
+                    returnCode = kinitRV;
+                }
+                if(returnCode == 0) {
+                  //execute cmd
+                    String escapedCmd = command.replaceAll("\\\\", "\\\\\\\\");
+                    escapedCmd = escapedCmd.replaceAll("\"", "\\\\\\\"");
+                    cmdLine = new CommandLine("bash");
+                    cmdLine.addArgument("-c");
+                    String mainCmd = String.format(MAIN_COMMAND_PATTERN, pidFile, path, path, env, env, escapedCmd);
+                    String sotreRvCmd = String.format(STORE_RETURN_VALUE_PATTERN, returnValueFile);
+                    mainCmd = String.format(command_pattern, userName, krb5PathCommand, mainCmd);
+                    if(!kdestroyCommand.isEmpty()){
+                        kdestroyCommand = String.format(command_pattern,userName, krb5PathCommand, kdestroyCommand);
                     }
+                    String postCmd = String.format(CLEAN_FILES_PATTERN,pidFile,kdestroyCommand);
+                   
+                    cmdLine.addArgument(mainCmd + ";" + sotreRvCmd  + postCmd, false);
                     
-                }
-                
-                //execute cmd and post cmd
-                String escapedCmd = command.replaceAll("\\\\", "\\\\\\\\");
-                escapedCmd = escapedCmd.replaceAll("\"", "\\\\\\\"");
-                cmdLine = new CommandLine("bash");
-                cmdLine.addArgument("-c");
-                String mainCmd = String.format(MAIN_COMMAND_PATTERN, pidFile, path, path, env, env, escapedCmd);
-                String sotreRvCmd = String.format(STORE_RETURN_VALUE_PATTERN, returnValueFile);
-                mainCmd = String.format(command_pattern, userName, krb5PathCommand, mainCmd);
-                if(!kdestroyCommand.isEmpty()){
-                    kdestroyCommand = String.format(command_pattern,userName, krb5PathCommand, kdestroyCommand);
-                }
-                String postCmd = String.format(CLEAN_FILES_PATTERN,pidFile,kdestroyCommand);
-               
-                cmdLine.addArgument(mainCmd + ";" + sotreRvCmd  + postCmd, false);
-                
-//              cmdLine.addArgument(String.format(command_pattern, userName, krb5PathCommand,
-//                        kinitCommand, pidFile, path, path, env, env, escapedCmd, returnValueFile,
-//                        userName, krb5PathCommand, pidFile, kdestroyCommand), false);
-                executor.execute(attemptID, 0, null, cmdLine, logFileStream, errorFileStream);
-                
-                try{
-                    BufferedReader br = new BufferedReader(new FileReader((new File(returnValueFile)))); 
-                    String returnValStr = br.readLine();
-                    br.close();
-                    returnCode = Integer.parseInt(returnValStr);
-                    new File(returnValueFile).delete();
-                } catch (NumberFormatException e){
-                    LOGGER.error(e,e);
-                    returnCode = 1;
-                } catch (IOException e){
-                    LOGGER.error(e,e);
-                    returnCode = 1;
+//                  cmdLine.addArgument(String.format(command_pattern, userName, krb5PathCommand,
+//                            kinitCommand, pidFile, path, path, env, env, escapedCmd, returnValueFile,
+//                            userName, krb5PathCommand, pidFile, kdestroyCommand), false);
+                    executor.execute(attemptID, 0, null, cmdLine, logFileStream, errorFileStream);
+                    
+                    try{
+                        BufferedReader br = new BufferedReader(new FileReader((new File(returnValueFile)))); 
+                        String returnValStr = br.readLine();
+                        br.close();
+                        returnCode = Integer.parseInt(returnValStr);
+                        new File(returnValueFile).delete();
+                    } catch (NumberFormatException e){
+                        LOGGER.error(e,e);
+                        returnCode = 1;
+                    } catch (IOException e){
+                        LOGGER.error(e,e);
+                        returnCode = 1;
+                    }
                 }
             }
             setResult( returnCode,  status);              

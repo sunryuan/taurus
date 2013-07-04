@@ -67,7 +67,7 @@
 			<thead>
 				<tr>
 					<th class="hide">ID</th>
-					<th>名称</th>
+					<th width = "5%">名称</th>
 					<th>ip</th>
 					<th>调度人</th>
 					<th>调度身份</th>

@@ -31,7 +31,6 @@ dos2unix conf/agentConf.properties
 chmod 744 bin/start.sh
 bin/start.sh init
 
-kill `ps -ef | grep com.dp.bigdata.taurus.agent.StartServer | grep -v grep | awk '{print $2}'`
 nohup bin/start.sh >/dev/null &
 
 #end
