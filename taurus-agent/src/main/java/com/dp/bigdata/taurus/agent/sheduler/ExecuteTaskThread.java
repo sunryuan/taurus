@@ -49,7 +49,7 @@ public final class ExecuteTaskThread extends BaseTaskThread{
     
     private static final Log LOGGER = LogFactory.getLog(ExecuteTaskThread.class);
     
-    private static final String COMMAND_PATTERN_WITH_SUDO = "sudo -u %s %s bash -c \"%s\";";
+    private static final String COMMAND_PATTERN_WITH_SUDO = "sudo -u %s %s bash -c \"%s\"";
     private static final String COMMAND_PATTERN_WITHOUT_SUDO = "echo %s; %s%s";
     private static final String MAIN_COMMAND_PATTERN = "echo $$ >%s; [ -f %s ] && cd %s; source %s %s; %s";
     private static final String STORE_RETURN_VALUE_PATTERN = "echo $? >%s;";
@@ -190,7 +190,7 @@ public final class ExecuteTaskThread extends BaseTaskThread{
                     kdestroyCommand = KDESTROY_COMMAND;
                     cmdLine = new CommandLine("bash");
                     cmdLine.addArgument("-c");
-                    cmdLine.addArgument(kinitCommand);
+                    cmdLine.addArgument(kinitCommand,false);
                     int kinitRV = 0;
                     try{
                         kinitRV = executor.execute(attemptID, 0, null, cmdLine, logFileStream, errorFileStream);
