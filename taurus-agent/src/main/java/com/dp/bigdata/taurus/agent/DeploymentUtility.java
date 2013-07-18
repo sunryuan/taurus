@@ -2,6 +2,7 @@ package com.dp.bigdata.taurus.agent;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -11,9 +12,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.zookeeper.WatchedEvent;
-import org.apache.zookeeper.Watcher;
-import org.apache.zookeeper.Watcher.Event.EventType;
+import org.I0Itec.zkclient.IZkChildListener;
 
 import com.dp.bigdata.taurus.agent.utils.AgentEnvValue;
 import com.dp.bigdata.taurus.agent.utils.AgentServerHelper;
@@ -53,13 +52,12 @@ public class DeploymentUtility {
 		}
 	}
 	
-	public static void checkAndUndeployTasks( String localIp, DeploymentInfoChannel cs, boolean addWatcher) {
+	public static void checkAndUndeployTasks( String localIp, DeploymentInfoChannel cs, boolean addListener) {
 		s_logger.debug("Start checkAndUndeployTasks");
-		Watcher watcher = null;
-		if(addWatcher) {
-			watcher = new TaskUndeployWatcher( localIp, cs);
-		} 
-		Set<String> currentNew = cs.getNewUnDeploymentTaskIds(localIp, watcher);
+		if(addListener) {
+            cs.setNewUndeployDirListen(new TaskUndeployListener(localIp, cs));
+        }
+		Set<String> currentNew = cs.getNewUnDeploymentTaskIds(localIp);
 		for(String task: currentNew){
 			Runnable undeploymentThread = new UndeploymentThread( localIp, cs, task);
 			threadPool.submit(undeploymentThread);
@@ -67,14 +65,12 @@ public class DeploymentUtility {
 		s_logger.debug("End checkAndUndeployTasks");
 	}
 
-	public static void checkAndDeployTasks(String localIp, DeploymentInfoChannel cs, boolean addWatcher) {
+	public static void checkAndDeployTasks(String localIp, DeploymentInfoChannel cs, boolean addListener) {
 		s_logger.debug("Start checkAndDeployTasks");
-		Watcher watcher = null;
-		if(addWatcher) {
-			watcher = new TaskDeployWatcher( localIp, cs);
-		} 
-		Set<String> currentNew = cs.getNewDeploymentTaskIds(localIp, watcher);		
-//		Set<String> newAddedJTIds = AgentServerHelper.getNewAddedJobs(previousJTs, currentNew);
+		if(addListener) {
+		    cs.setNewDeployDirListen(new TaskDeployListener(localIp, cs));
+		}
+		Set<String> currentNew = cs.getNewDeploymentTaskIds(localIp);		
 		for(String task: currentNew){
 			Runnable deploymentThread = new DeploymentThread(localIp, cs, task);
 			threadPool.submit(deploymentThread);
@@ -102,7 +98,7 @@ public class DeploymentUtility {
 			try{
 				lock.lock();
 				DeploymentConf conf = (DeploymentConf) cs.getConf(localIp, task);
-				DeploymentStatus status = (DeploymentStatus) cs.getStatus(localIp, task, null);
+				DeploymentStatus status = (DeploymentStatus) cs.getStatus(localIp, task);
 				if(status == null || status.getStatus() == DeploymentStatus.DEPLOY_SUCCESS){
 					return;
 				}
@@ -110,7 +106,9 @@ public class DeploymentUtility {
 				deployTask(conf, status);
 				cs.updateStatus(localIp, task, status);
 				cs.updateConf(localIp, task, conf);
-			} finally{
+			} catch(Exception e){
+                s_logger.error(e,e);
+            } finally{
 				lock.unlock();
 			}
 		}
@@ -150,7 +148,7 @@ public class DeploymentUtility {
 				    status.setStatus(DeploymentStatus.DEPLOY_SUCCESS);
                     s_logger.debug("Job " + taskID + " deploy successed");
 				} catch(Exception e ){
-				    s_logger.debug("Job " + taskID + " deploy failed");
+				    s_logger.debug("Job " + taskID + " deploy failed",e);
                     status.setStatus(DeploymentStatus.DEPLOY_FAILED);
                     status.setFailureInfo(stdErr.toString());
 				}
@@ -181,14 +179,16 @@ public class DeploymentUtility {
 			try{
 				lock.lock();
 				DeploymentConf conf = (DeploymentConf) cs.getConf(localIp, taskID);
-				DeploymentStatus status = (DeploymentStatus) cs.getStatus(localIp, taskID, null);
+				DeploymentStatus status = (DeploymentStatus) cs.getStatus(localIp, taskID);
 				if(status == null || status.getStatus() == DeploymentStatus.DELETE_SUCCESS){
 					return;
 				}
 
 				undeployTask(conf, status);
 				cs.updateStatus(localIp, taskID, status);
-			} finally{
+			} catch(Exception e){
+                s_logger.error(e,e);
+            } finally{
 				lock.unlock();
 			}
 		}
@@ -218,43 +218,46 @@ public class DeploymentUtility {
 		
 	}
 	
-	private static abstract class BaseTaskWatcher implements Watcher{
+	private static abstract class BaseTaskListener implements IZkChildListener{
 
 		protected String localIp;
 		protected DeploymentInfoChannel cs;
 
-		private BaseTaskWatcher( String localIp, DeploymentInfoChannel cs){
+		private BaseTaskListener( String localIp, DeploymentInfoChannel cs){
 			this.localIp = localIp;
 			this.cs = cs;
 		}
 	}
 
-	private static final class TaskDeployWatcher extends BaseTaskWatcher{
+	private static final class TaskDeployListener extends BaseTaskListener{
 
-		private TaskDeployWatcher( String localIp, DeploymentInfoChannel cs){
+		private TaskDeployListener( String localIp, DeploymentInfoChannel cs){
 			super(localIp, cs);
 		}
 
-		@Override
-		public void process(WatchedEvent event) {
-		    if(event.getType() == EventType.NodeChildrenChanged ) {
-		        checkAndDeployTasks( localIp, cs, true);
-		    }
-		}
+        /* (non-Javadoc)
+         * @see org.I0Itec.zkclient.IZkChildListener#handleChildChange(java.lang.String, java.util.List)
+         */
+        @Override
+        public void handleChildChange(String parentPath, List<String> currentChilds) throws Exception {
+            checkAndDeployTasks( localIp, cs, false);
+        }
 	}
 
-	private static final class TaskUndeployWatcher extends BaseTaskWatcher{
+	private static final class TaskUndeployListener extends BaseTaskListener {
 
-		private TaskUndeployWatcher( String localIp, DeploymentInfoChannel cs){
+		private TaskUndeployListener( String localIp, DeploymentInfoChannel cs){
 			super( localIp, cs);
 		}
 
-		@Override
-		public void process(WatchedEvent event) {
-		    if(event.getType() == EventType.NodeChildrenChanged ) {
-		        checkAndUndeployTasks( localIp, cs, true);
-		    }
-		}
+
+        /* (non-Javadoc)
+         * @see org.I0Itec.zkclient.IZkChildListener#handleChildChange(java.lang.String, java.util.List)
+         */
+        @Override
+        public void handleChildChange(String parentPath, List<String> currentChilds) throws Exception {
+            checkAndUndeployTasks( localIp, cs, false);
+        }
 	}
 
 
