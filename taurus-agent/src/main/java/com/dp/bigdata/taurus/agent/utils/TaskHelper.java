@@ -13,7 +13,7 @@
  * accordance with the terms of the license agreement you entered into
  * with dianping.com.
  */
-package com.dp.bigdata.taurus.agent;
+package com.dp.bigdata.taurus.agent.utils;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -36,8 +36,6 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.security.SecurityUtil;
 import org.apache.hadoop.security.UserGroupInformation;
 
-import com.dp.bigdata.taurus.agent.utils.AgentEnvValue;
-import com.dp.bigdata.taurus.agent.utils.FileExtractUtils;
 
 /**
  * upload task log and deploy task program file
@@ -108,7 +106,7 @@ public class TaskHelper {
     
     
     
-    protected void deployTask(String hdfsFileName, String localFileName) throws FileNotFoundException, IOException, ArchiveException{
+    public void deployTask(String hdfsFileName, String localFileName) throws FileNotFoundException, IOException, ArchiveException{
         File localFile = new File(localFileName);
         if(!localFile.exists()){
             localFile.getParentFile().mkdirs();

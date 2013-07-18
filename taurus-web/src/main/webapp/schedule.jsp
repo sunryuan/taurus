@@ -67,12 +67,13 @@
 			<thead>
 				<tr>
 					<th class="hide">ID</th>
-					<th>名称</th>
+					<th width = "5%">名称</th>
+					<th>ip</th>
 					<th>调度人</th>
 					<th>调度身份</th>
 					<th class="hide">组</th>
 					<th>创建时间</th>
-					<th>Crontab</th>
+					<th>Crontab</th>		
                     <th>状态</th>
 					<th class="center">-</th>
 					<th class="center">-</th>
@@ -100,6 +101,7 @@
                 <%}%>
                     <td class="hide"><%=dto.getTaskid()%></td>
                     <td><%=dto.getName()%></td>
+                    <td><%=dto.getHostname()%></td>
                     <td><%=dto.getCreator()%></td>
 					<td><%=dto.getProxyuser()%></td>
                     <td class="hide">arch(mock)</td>

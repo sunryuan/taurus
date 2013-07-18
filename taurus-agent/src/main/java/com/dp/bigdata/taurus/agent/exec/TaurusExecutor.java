@@ -21,13 +21,15 @@ public class TaurusExecutor implements Executor{
 	private Map<String,DefaultExecutor> executorMap = new HashMap<String,DefaultExecutor>();
 	
 	@Override
+	@SuppressWarnings("rawtypes")
 	public int execute(String id, long maxExecutionTime, Map env, OutputStream stdOut, OutputStream stdErr,
 			String cmd) throws IOException {
 		CommandLine commandLine = CommandLine.parse(cmd);
 		return execute(id, maxExecutionTime, env, commandLine, stdOut, stdErr);
 	}
 
-	@Override
+	@SuppressWarnings("rawtypes")
+    @Override
 	public int execute(String id, long maxExecutionTime, Map env, OutputStream stdOut, OutputStream stdErr,
 			String baseCmd, String... parameters) throws IOException {
 		CommandLine commandLine = new CommandLine(baseCmd);
@@ -49,7 +51,8 @@ public class TaurusExecutor implements Executor{
 		return execute(id, 0, null, stdOut, stdErr, baseCmd, parameters);
 	}
 	
-	@Override
+	@SuppressWarnings("rawtypes")
+    @Override
 	public int execute(String id, long maxExecutionTime, Map env, CommandLine cmdLine, OutputStream stdOut, OutputStream stdErr) 
 		throws IOException{
 		DefaultExecutor executor = new DefaultExecutor();

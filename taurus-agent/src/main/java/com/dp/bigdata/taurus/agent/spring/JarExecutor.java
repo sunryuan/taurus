@@ -29,10 +29,10 @@ import org.apache.log4j.Layout;
 import org.apache.log4j.PatternLayout;
 import org.springframework.context.ApplicationContext;
 
-import com.dp.bigdata.taurus.agent.TaskHelper;
-import com.dp.bigdata.taurus.agent.TaskType;
+import com.dp.bigdata.taurus.agent.common.TaskType;
 import com.dp.bigdata.taurus.agent.utils.AgentEnvValue;
 import com.dp.bigdata.taurus.agent.utils.IPUtils;
+import com.dp.bigdata.taurus.agent.utils.TaskHelper;
 import com.dp.bigdata.taurus.framework.ApplicationContextProvider;
 import com.dp.bigdata.taurus.framework.TaskBean;
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.bean.ScheduleConf;

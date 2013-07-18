@@ -9,9 +9,9 @@
 						String currentUser = (String) session.getAttribute(com.dp.bigdata.taurus.web.servlet.LoginServlet.USER_NAME);
 						if(currentUser != null){
 					%>
-                    	<a role="button" class="btn-link"><i class="icon-user icon-white"></i> <%=currentUser%></a>
+                    	<a  class="btn-link"><i class="icon-user icon-white"></i> <%=currentUser%></a>
                     <%}else{%>
-						<a href="./signin.jsp" role="button" class="btn-link" data-toggle="modal"><i class="icon-user icon-white"></i> 登陆</a>
+						<a href="./signin.jsp" class="btn-link" data-toggle="modal"><i class="icon-user icon-white"></i> 登陆</a>
                     <%}%>
 				</p>
 

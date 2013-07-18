@@ -87,7 +87,8 @@ public abstract class TaurusZKInfoChannel implements ClusterInfoChannel{
 		}
 	}
 
-	@Override
+	@SuppressWarnings("unchecked")
+    @Override
 	public List<Object> getHeartbeatInfo(MachineType mt, String ip) {
 		try{
 			return Collections.unmodifiableList(

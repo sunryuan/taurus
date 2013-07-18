@@ -45,7 +45,8 @@ public class JarClassLoader extends URLClassLoader {
 		return urls;
 	}
 
-	public Class<?> loadClass(String name) throws ClassNotFoundException {
+	@SuppressWarnings("rawtypes")
+    public Class<?> loadClass(String name) throws ClassNotFoundException {
 		Class c = findLoadedClass(name);
 		if (c == null) {
 			if (name.startsWith("org.apache.log4j")
