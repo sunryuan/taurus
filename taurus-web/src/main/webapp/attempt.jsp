@@ -84,7 +84,7 @@
 								Action<span class="caret"></span>
 							</button>
 							<ul class="dropdown-menu">
-                            	<%if(state.equals("RUNNING")){%>
+                            	<%if(state.equals("RUNNING") || state.equals("TIMEOUT")){%>
 								<li><a href="#confirm" onClick="action($(this).parents('tr').attr('id'))">Kill</a>
 								</li>
                                 <%}else {%>
