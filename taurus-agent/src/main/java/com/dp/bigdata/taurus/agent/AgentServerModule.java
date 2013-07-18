@@ -16,7 +16,7 @@ import com.google.inject.Provider;
 
 public class AgentServerModule extends DeploymentInfoChannelModule{
 	
-	private static final Log LOG = LogFactory.getLog(AgentServerModule.class);
+	private static final Log LOGGER = LogFactory.getLog(AgentServerModule.class);
 
 	@Override
 	protected void configureOthers() {
@@ -44,7 +44,7 @@ public class AgentServerModule extends DeploymentInfoChannelModule{
 				int opTimeout = Integer.parseInt(AgentEnvValue.getValue(AgentEnvValue.KEY_CHECK_INTERVALS));
 				return new TaurusAgentServer(deployer,schedule, exec, opTimeout);
 			} catch (Exception e) {
-				LOG.error(e.getMessage(),e);
+				LOGGER.error(e.getMessage(),e);
 				return null;
 			}
 		}

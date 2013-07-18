@@ -25,7 +25,6 @@ import com.dp.bigdata.taurus.core.AttemptStatus;
 import com.dp.bigdata.taurus.generated.mapper.AlertRuleMapper;
 import com.dp.bigdata.taurus.generated.mapper.TaskAttemptMapper;
 import com.dp.bigdata.taurus.generated.mapper.TaskMapper;
-import com.dp.bigdata.taurus.generated.mapper.UserGroupMapper;
 import com.dp.bigdata.taurus.generated.mapper.UserGroupMappingMapper;
 import com.dp.bigdata.taurus.generated.mapper.UserMapper;
 import com.dp.bigdata.taurus.generated.module.AlertRule;

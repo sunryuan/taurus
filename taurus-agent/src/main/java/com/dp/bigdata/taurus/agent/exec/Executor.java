@@ -8,10 +8,12 @@ import org.apache.commons.exec.CommandLine;
 
 public interface Executor {
 	
-	public int execute(String id, long maxExecutionTime, Map env, OutputStream stdOut, OutputStream stdErr, String cmd) 
+	@SuppressWarnings("rawtypes")
+    public int execute(String id, long maxExecutionTime, Map env, OutputStream stdOut, OutputStream stdErr, String cmd) 
 		throws IOException;
 	
-	public int execute(String id, long maxExecutionTime, Map env, OutputStream stdOut, OutputStream stdErr, String baseCmd, String... parameters) 
+	@SuppressWarnings("rawtypes")
+    public int execute(String id, long maxExecutionTime, Map env, OutputStream stdOut, OutputStream stdErr, String baseCmd, String... parameters) 
 		throws IOException;
 	
 	public int execute(String id, OutputStream stdOut, OutputStream stdErr, String cmd) 
@@ -20,7 +22,8 @@ public interface Executor {
 	public int execute(String id, OutputStream stdOut, OutputStream stdErr, String baseCmd, String... parameters) 
 		throws IOException;
 
-	public int execute(String id, long maxExecutionTime, Map env, CommandLine cmdLine,
+	@SuppressWarnings("rawtypes")
+    public int execute(String id, long maxExecutionTime, Map env, CommandLine cmdLine,
 			OutputStream stdOut, OutputStream stdErr) throws IOException;
 	
 	public int kill(String id);

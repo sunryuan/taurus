@@ -38,7 +38,6 @@ import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.entity.ContentType;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.restlet.resource.ClientResource;
@@ -124,9 +123,9 @@ public class CreateTaskServlet extends HttpServlet{
 
         // Copy headers from old request to new request
         // @todo not sure how this handles multiple headers with the same name
-        Enumeration<String> headers = req.getHeaderNames();
+        Enumeration<?> headers = req.getHeaderNames();
         while (headers.hasMoreElements()) {
-            String headerName = headers.nextElement();
+            String headerName = (String)headers.nextElement();
             String headerValue = req.getHeader(headerName);
             //LOG.info("header: " + headerName + " value: " + headerValue);
             // Skip Content-Length and Host

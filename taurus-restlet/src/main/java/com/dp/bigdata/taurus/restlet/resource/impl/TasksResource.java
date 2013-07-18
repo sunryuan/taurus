@@ -124,6 +124,8 @@ public class TasksResource extends ServerResource implements ITasksResource {
         }
 
         TaskExample taskExample = new TaskExample();
+//        UserGroupExample userGroupExample = new UserGroupExample();
+//        userGroupExample.
         if (!isAdmin && StringUtils.isNotBlank(creatorName)) {
             taskExample.or().andCreatorEqualTo(creatorName).andStatusEqualTo(TaskStatus.RUNNING);
             taskExample.or().andCreatorEqualTo(creatorName).andStatusEqualTo(TaskStatus.SUSPEND);
