@@ -99,7 +99,7 @@ final public class Engine implements Scheduler {
         // load running attempts
         TaskAttemptExample example1 = new TaskAttemptExample();
         example1.or().andStatusEqualTo(AttemptStatus.RUNNING);
-        //example1.or().andStatusEqualTo(AttemptStatus.TIMEOUT);
+        example1.or().andStatusEqualTo(AttemptStatus.TIMEOUT);
         List<TaskAttempt> attempts = taskAttemptMapper.selectByExample(example1);
         for (TaskAttempt attempt : attempts) {
             Task task = tmp_registedTasks.get(attempt.getTaskid());
@@ -201,7 +201,7 @@ final public class Engine implements Scheduler {
 		public void run() {
 
 			try {
-				while (isInterrupted) {
+				while (!isInterrupted) {
 
 					load();
 
