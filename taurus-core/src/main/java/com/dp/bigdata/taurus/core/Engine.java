@@ -68,7 +68,7 @@ final public class Engine implements Scheduler {
     /**
      * Maximum concurrent running attempt number
      */
-    private int maxConcurrency = 20;
+    private int maxConcurrency = 30;
 
     public Engine() {
         registedTasks = new ConcurrentHashMap<String, Task>();
@@ -80,6 +80,8 @@ final public class Engine implements Scheduler {
      * load data from the database;
      */
     public synchronized void load() {
+   	 	LOG.info("Engine trys to refresh the database...");
+   	 	
          Map<String, Task> tmp_registedTasks = new ConcurrentHashMap<String, Task>();
          Map<String, String> tmp_tasksMapCache = new ConcurrentHashMap<String, String>();
          Map<String, HashMap<String, AttemptContext>> tmp_runningAttempts = new ConcurrentHashMap<String, HashMap<String, AttemptContext>>();
@@ -97,6 +99,7 @@ final public class Engine implements Scheduler {
         // load running attempts
         TaskAttemptExample example1 = new TaskAttemptExample();
         example1.or().andStatusEqualTo(AttemptStatus.RUNNING);
+        example1.or().andStatusEqualTo(AttemptStatus.TIMEOUT);
         List<TaskAttempt> attempts = taskAttemptMapper.selectByExample(example1);
         for (TaskAttempt attempt : attempts) {
             Task task = tmp_registedTasks.get(attempt.getTaskid());
@@ -198,7 +201,7 @@ final public class Engine implements Scheduler {
 		public void run() {
 
 			try {
-				while (isInterrupted) {
+				while (!isInterrupted) {
 
 					load();
 
