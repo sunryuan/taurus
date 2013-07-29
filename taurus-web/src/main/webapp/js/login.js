@@ -19,6 +19,19 @@ function login(){
 	return false;
 }
 
+function logout(){
+	$.ajax({
+		url: 'login.do',
+		type:"get",
+		statusCode:{
+			200 : function(){
+				window.location="index.jsp";
+			}
+		}
+	});
+	return false;
+}
+
 $(document).keydown(function(event) {
 	if (event.keyCode == 13) {
 		login();

@@ -22,6 +22,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 import java.util.concurrent.locks.Lock;
 
 import org.apache.commons.exec.CommandLine;
@@ -56,6 +57,7 @@ public final class ExecuteTaskThread extends BaseTaskThread{
     private static final String CLEAN_FILES_PATTERN = "rm -f %s;%s";
     private static final String KINIT_COMMAND_PATTERN = "kinit -r 12l -k -t %s/%s/.keytab %s@DIANPING.COM;kinit -R;";
     private static final String KDESTROY_COMMAND = "kdestroy;";
+    private static final String HADOOP_NAME = "hadoopName";
     
     
     private static String command_pattern;
@@ -127,6 +129,11 @@ public final class ExecuteTaskThread extends BaseTaskThread{
         String command = conf.getCommand();
         String userName = conf.getUserName();
         String taskType = conf.getTaskType();
+        Map<String,String> extendedConfs= conf.getExtendedMap();
+        String hadoopName = "hadoop";
+        if(extendedConfs != null && extendedConfs.containsKey(HADOOP_NAME)){
+            hadoopName = conf.getExtendedMap().get(HADOOP_NAME);
+        }
         if(userName.isEmpty()) {
             userName = "nobody";
         }
@@ -181,12 +188,10 @@ public final class ExecuteTaskThread extends BaseTaskThread{
                 CommandLine cmdLine;  
                 if(taskType.equals("hadoop")){
                     krb5PathCommand = String.format(krb5Path, hadoop,"krb5cc_"+attemptID);
-                    String kinitCommand = String.format(KINIT_COMMAND_PATTERN,homeDir,userName,userName);
+                    String kinitCommand = String.format(KINIT_COMMAND_PATTERN,homeDir,hadoopName,hadoopName);
                     kinitCommand = String.format(command_pattern, userName, krb5PathCommand,
                             kinitCommand);
                     
-//                    String escapedCmd = finalKinitCommand.replaceAll("\\\\", "\\\\\\\\");
-//                    escapedCmd = escapedCmd.replaceAll("\"", "\\\\\\\"");
                     kdestroyCommand = KDESTROY_COMMAND;
                     cmdLine = new CommandLine("bash");
                     cmdLine.addArgument("-c");
@@ -217,9 +222,6 @@ public final class ExecuteTaskThread extends BaseTaskThread{
                    
                     cmdLine.addArgument(mainCmd + ";" + sotreRvCmd  + postCmd, false);
                     
-//                  cmdLine.addArgument(String.format(command_pattern, userName, krb5PathCommand,
-//                            kinitCommand, pidFile, path, path, env, env, escapedCmd, returnValueFile,
-//                            userName, krb5PathCommand, pidFile, kdestroyCommand), false);
                     executor.execute(attemptID, 0, null, cmdLine, logFileStream, errorFileStream);
                     
                     try{

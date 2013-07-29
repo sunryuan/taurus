@@ -1,0 +1,2 @@
+2013-07-24 11:41:02,509   INFO    com.dp.bigdata.taurus.zookeeper.common.infochannel.guice.ZooKeeperProvider.get(ZooKeeperProvider.java:30)       Start Connectting to zookeeper: 10.1.8.42:2181,10.1.8.51:2181,10.1.8.86:2181,10.1.8.91:2181,10.1.8.96:2181
+  

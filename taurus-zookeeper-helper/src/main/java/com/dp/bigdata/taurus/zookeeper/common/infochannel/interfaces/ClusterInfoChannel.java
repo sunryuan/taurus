@@ -11,6 +11,8 @@ public interface ClusterInfoChannel {
 	public void connectToCluster(MachineType mt, String ip);
 
 	public boolean exists(MachineType mt, String ip);
+	
+	public void updateRealtimeHeartbeatInfo(MachineType mt, String ip);
 
 	public void updateHeartbeatInfo(MachineType mt, String ip, Object info);
 

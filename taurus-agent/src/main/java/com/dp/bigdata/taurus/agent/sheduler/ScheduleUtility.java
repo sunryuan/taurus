@@ -28,11 +28,6 @@ public class ScheduleUtility {
 
 	private static ExecutorService killThreadPool = AgentServerHelper.createThreadPool(2, 4);
 	private static ExecutorService executeThreadPool = AgentServerHelper.createThreadPool(10, 10);	
-	
-//	private static final String COMMAND_PATTERN_WITHOUT_SUDO 
-//	    = "echo %s; %s %s echo $$ >%s;  [ -f %s ] && cd %s; source %s %s; %s; echo $? >%s;echo %s; %s rm -f %s; %s";
-//	private static final String COMMAND_PATTERN_WITH_SUDO 
-//	    = "sudo -u %s %s bash -c \"%s echo $$ >%s; [ -f %s ] && cd %s; source %s %s; %s\"; echo $? >%s; sudo -u %s %s bash -c \"rm -f %s; %s\"";
 	private static final String UPDATE_COMMAND = "source /etc/profile; %s/script/update-agent.sh > %s/agent-logs/update.log";
 	
 	public static void checkAndKillTasks(Executor executor, String localIp, ScheduleInfoChannel cs, boolean addListener) {

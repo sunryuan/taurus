@@ -28,7 +28,8 @@ import com.dp.bigdata.taurus.zookeeper.common.infochannel.interfaces.ClusterInfo
 import com.google.inject.Inject;
 
 public abstract class TaurusZKInfoChannel implements ClusterInfoChannel{
-	private static final Log LOG = LogFactory.getLog(TaurusZKInfoChannel.class);
+
+    private static final Log LOG = LogFactory.getLog(TaurusZKInfoChannel.class);
 
 	private static final int MAX_HEARTBEAT_LENGTH = 100;
 
@@ -60,7 +61,7 @@ public abstract class TaurusZKInfoChannel implements ClusterInfoChannel{
 			if(existPath(BASE, HEARTBEATS, mt.getName(), REALTIME, ip)){
 			    rmPath(BASE, HEARTBEATS, mt.getName(), REALTIME, ip);
 			}
-			mkPathIfNotExists(CreateMode.EPHEMERAL, BASE, HEARTBEATS, mt.getName(), REALTIME, ip);
+			mkPathIfNotExists(BASE, HEARTBEATS, mt.getName(), REALTIME, ip);
 			mkPathIfNotExists(BASE, HEARTBEATS, mt.getName(), INFO, ip);
 		} catch(Exception e){
 			throw new TaurusZKException(e);
@@ -72,6 +73,15 @@ public abstract class TaurusZKInfoChannel implements ClusterInfoChannel{
 	    return zk.exists(getFullPath(BASE, HEARTBEATS, mt.getName(), REALTIME, ip)); 
 	}
 
+    @Override
+    public void updateRealtimeHeartbeatInfo(MachineType mt, String ip) {
+        try{
+            setData(System.currentTimeMillis(), BASE, HEARTBEATS, mt.getName(), REALTIME, ip);
+        } catch(Exception e){
+            throw new TaurusZKException(e);
+        }
+    }
+    
 	@Override
 	public void updateHeartbeatInfo(MachineType mt, String ip, Object info) {
 		try{
@@ -86,6 +96,7 @@ public abstract class TaurusZKInfoChannel implements ClusterInfoChannel{
 			throw new TaurusZKException(e);
 		}
 	}
+	
 
 	@SuppressWarnings("unchecked")
     @Override

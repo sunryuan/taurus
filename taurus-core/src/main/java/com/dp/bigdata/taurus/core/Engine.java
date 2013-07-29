@@ -150,6 +150,18 @@ final public class Engine implements Scheduler {
                     hostMapper.updateByPrimaryKeySelective(newHost);
                 }
             }
+
+            @Override
+            public List<String> getConnectedFromDB() {
+                List<Host> hosts = hostMapper.selectByExample(null);
+                List<String> result = new ArrayList<String>();
+                for(Host host:hosts){
+                    if(host.getIsconnected() == true){
+                        result.add(host.getIp());
+                    }
+                }
+                return result;
+            }
         });
 
         while (true) {

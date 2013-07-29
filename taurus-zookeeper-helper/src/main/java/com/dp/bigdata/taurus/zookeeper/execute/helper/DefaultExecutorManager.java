@@ -66,6 +66,8 @@ public class DefaultExecutorManager implements ExecutorManager{
         
         ScheduleStatus status = (ScheduleStatus) dic.getStatus(agentIP, attemptID);
         if(status == null){
+            Map<String,String> otherConfs = new HashMap<String,String>();
+
             ScheduleConf conf = new ScheduleConf();
             conf.setTaskID(taskID);
             conf.setAttemptID(attemptID);
@@ -73,6 +75,7 @@ public class DefaultExecutorManager implements ExecutorManager{
             conf.setTaskType(taskType);
             conf.setUserName(proxyUser);
             conf.setTaskUrl(taskUrl);
+            conf.setExtendedMap(otherConfs);
             status = new ScheduleStatus();
             status.setStatus(ScheduleStatus.SCHEDULE_SUCCESS);
             Lock lock = getLock(attemptID);

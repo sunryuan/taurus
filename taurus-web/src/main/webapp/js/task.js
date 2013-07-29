@@ -9,12 +9,21 @@ $(document).ready(function() {
 		if($(this).val() === 'spring'){
 			isSpringType = true;
 			$("#jarAddress").show();
+			$("#hadoopName").hide();
 			$("#upfile").hide();
 			$("#mainClassCG").show();
 			$("#beanCG").show();
-		}else{
+		} else if($(this).val() === 'hadoop'){
 			isSpringType = false;
 			$("#jarAddress").hide();
+			$("#hadoopName").show();
+			$("#upfile").show();
+			$("#mainClassCG").hide();
+			$("#beanCG").hide();
+		} else{
+			isSpringType = false;
+			$("#jarAddress").hide();
+			$("#hadoopName").hide();
 			$("#upfile").show();
 			$("#mainClassCG").hide();
 			$("#beanCG").hide();

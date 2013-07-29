@@ -128,7 +128,7 @@
                         </ul>
                       </div>
                     </td>
-                    <td><button id="attempts" class="btn btn-primary btn-small"  onClick="javascript:window.location.href='attempt.jsp?taskID=<%=dto.getTaskid()%>'">运行历史</button></td>
+                    <td><a id="attempts" class="btn btn-primary btn-small"  href="attempt.jsp?taskID=<%=dto.getTaskid()%>">运行历史</a></td>
                  </tr>
                <% } %>
 			</tbody>

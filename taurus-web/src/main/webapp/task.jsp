@@ -61,9 +61,7 @@
 						<div class="controls">
    						<select  id="taskType" name="taskType"  class="input-big  field" >
    							<option>hadoop</option>
-							<option>wormhole</option>
 							<option>spring</option>
-							<option>hive</option>
 							<option>other</option>
 						</select>
                       	</div>
@@ -76,42 +74,22 @@
             				</div>
           				</div>
           			</div>
-          				
-					<div class="control-group">
-						<label class="control-label"  for="autodeploy">部署方式</label>
-						<div class="controls">
-      						<input type="checkbox"  id="autodeploy">使用Pool部署
-	      				</div>
-      				</div>
-
+          			
+					<div id="hadoopName">
+						<div class="control-group">
+            				<label class="control-label"  for="hadoopName">hadoop用户名*</label>
+            				<div class="controls">
+              					<input type="text" class="input-large field"  id="hadoopName" name="hadoopName"  placeholder="kerberos principle (wwwcron)">
+            				</div>
+          				</div>
+          			</div>
+          			
                     <div id="host"  class="control-group">
                     	<label class="control-label"  for="hostname">部署的机器*</label>
                     	<div class="controls">
     						<input type="text" id="hostname" name="hostname" class="input-big field"  placeholder="10.0.0.1">
     					</div>
 					</div>
-                    
-                    <div id="poolDeployDiv" style="display: none;">
-                    	<div class="control-group">
-                   			<label   class="control-label"  for="poolId">部署的Pool*</label>
-                            <div class="controls">
-    						<select id="poolId" name="poolId"  class="input-big  field" >
-                        		<% for(PoolDTO dto : pools){
-                        	    	if(dto.getId()!=UNALLOCATED){%>
-                            		<option><%=dto.getName()%></option>
-								<%}}%>
-							</select>
-                       		</div>
-                        </div>
-
-                        <div id="upfile" class="control-group">
-							<label class="control-label"  for="uploadFile">上传作业*</label>
-                        	<div id="fileDiv"  class="controls">
-								<input type="file" id="uploadFile" name="uploadFile" class="input-big  field"/>
-                        	</div>
-                    	</div>
-                    	
-                    </div>
                     </fieldset>
 				</form>
 			</div>
@@ -137,6 +115,7 @@
             		<label class="control-label" for="crontab">Crontab*</label>
             		<div class="controls">
               			<input type="text" class="input-xxlarge field" id="crontab" name="crontab"  value="0 0 * * ?">
+              			<a href="www.baidu.com">帮助</a>
             		</div>
           		</div>
           		

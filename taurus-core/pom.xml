@@ -53,7 +53,7 @@
 			<version>3.0.5.RELEASE</version>
 			<scope>test</scope>
 		</dependency>
-				<dependency>
+		<dependency>
 			<groupId>c3p0</groupId>
 			<artifactId>c3p0</artifactId>
 			<version>0.9.1.2</version>
@@ -75,7 +75,7 @@
 					</execution>
 				</executions>
 				<configuration>
-					<overwrite>false</overwrite>
+					<overwrite>true</overwrite>
 				</configuration>
 			</plugin>
 		</plugins>

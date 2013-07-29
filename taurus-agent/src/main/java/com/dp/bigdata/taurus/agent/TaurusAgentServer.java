@@ -60,6 +60,7 @@ public class TaurusAgentServer implements AgentServer{
 			ScheduleUtility.checkAndRunTasks(executor, localIp, schedule, false);
 			ScheduleUtility.checkAndKillTasks(executor, localIp, schedule, false);
 			ScheduleUtility.checkAndUpdate(executor, localIp, schedule,false);
+			schedule.updateRealtimeHeartbeatInfo(MachineType.AGENT, localIp);
 		}
 	}
 }
