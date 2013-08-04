@@ -63,11 +63,10 @@ public class DefaultExecutorManager implements ExecutorManager{
         String taskType = context.getType();
         String proxyUser = context.getProxyUser();
         String taskUrl = context.getTaskUrl();
+        Map<String,String> otherConfs = context.getExtendedConfs();
         
         ScheduleStatus status = (ScheduleStatus) dic.getStatus(agentIP, attemptID);
-        if(status == null){
-            Map<String,String> otherConfs = new HashMap<String,String>();
-
+        if(status == null){            
             ScheduleConf conf = new ScheduleConf();
             conf.setTaskID(taskID);
             conf.setAttemptID(attemptID);

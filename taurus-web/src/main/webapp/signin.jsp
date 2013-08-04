@@ -19,7 +19,7 @@
       <form class="form-signin">
         <h2 class="form-signin-heading">Please sign in</h2>
         <input type="text" id="username" class="input-block-level" placeholder="Domain accout">
-        <input type="password" id="password" class="input-block-level" placeholder="Password">
+        <input type="password" id="password" class="input-block-level" placeholder="Password"  onKeyPress="EnterTo()">
         <button class="btn btn-large btn-primary" type="button" onClick="login()">Sign in</button>
       </form>
 

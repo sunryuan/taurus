@@ -4,17 +4,13 @@
 
 <%@page import="org.restlet.resource.ClientResource"%>
 <%@page import="org.restlet.data.MediaType"%>
-<%@page import="com.dp.bigdata.taurus.restlet.resource.ITasksResource"%>
+<%@page import="com.dp.bigdata.taurus.restlet.resource.ITaskResource"%>
 
-<%@page import="com.dp.bigdata.taurus.restlet.resource.IPoolsResource"%>
-<%@page
-	import="com.dp.bigdata.taurus.restlet.resource.IAttemptStatusResource"%>
+<%@page	import="com.dp.bigdata.taurus.restlet.resource.IAttemptStatusResource"%>
 <%@page import="com.dp.bigdata.taurus.restlet.resource.IUsersResource"%>
-<%@page
-	import="com.dp.bigdata.taurus.restlet.resource.IUserGroupsResource"%>
+<%@page	import="com.dp.bigdata.taurus.restlet.resource.IUserGroupsResource"%>
 
 <%@page import="com.dp.bigdata.taurus.restlet.shared.TaskDTO"%>
-<%@page import="com.dp.bigdata.taurus.restlet.shared.PoolDTO"%>
 <%@page import="com.dp.bigdata.taurus.restlet.shared.StatusDTO"%>
 <%@page import="com.dp.bigdata.taurus.restlet.shared.UserDTO"%>
 <%@page import="com.dp.bigdata.taurus.restlet.shared.UserGroupDTO"%>
@@ -22,18 +18,8 @@
 
 <%
 	String []types={"hadoop","spring","other"};
-	ClientResource cr = new ClientResource(host + "pool");
-	IPoolsResource poolResource = cr.wrap(IPoolsResource.class);
-	cr.accept(MediaType.APPLICATION_XML);
-	ArrayList<PoolDTO> pools = poolResource.retrieve();
-	int UNALLOCATED = 1;
-	
-	cr = new ClientResource(host + "task");
-	ITasksResource taskResource = cr.wrap(ITasksResource.class);
-	cr.accept(MediaType.APPLICATION_XML);
-	ArrayList<TaskDTO> tasks = taskResource.retrieve();
-	
-	cr = new ClientResource(host + "status");
+
+	ClientResource cr = new ClientResource(host + "status");
 	IAttemptStatusResource attemptResource = cr.wrap(IAttemptStatusResource.class);
 	cr.accept(MediaType.APPLICATION_XML);
 	ArrayList<StatusDTO> statuses = attemptResource.retrieve();
@@ -46,81 +32,45 @@
 	cr = new ClientResource(host + "group");
 	IUserGroupsResource groupResource = cr.wrap(IUserGroupsResource.class);
 	cr.accept(MediaType.APPLICATION_XML);
-	ArrayList<UserGroupDTO> groups = groupResource.retrieve();
+	ArrayList<UserGroupDTO> groups = groupResource.retrieve(); 	
+	cr = new ClientResource(host + "task/" + request.getParameter("task_id"));
+	ITaskResource taskResource = cr.wrap(ITaskResource.class);
+	cr.accept(MediaType.APPLICATION_XML);
+	TaskDTO dto = taskResource.retrieve();
 	
-	for(TaskDTO dto : tasks){
-		String hostName = dto.getHostname();
-		boolean poolDeploy = (hostName==null || hostName.equals(""));
 %>
-<div id="detail_<%=dto.getTaskid()%>" class="modal hide fade "
-	style="width: 600px">
 	<div class="modal-header">
 		<button type="button" class="close" data-dismiss="modal">x</button>
 		<h3 id="myModalLabel">Task详细信息</h3>
 	</div>
 	<div class="modal-body">
 		<form id="form_<%=dto.getTaskid()%>" class="form-horizontal task-form">
-
 			<fieldset>
-				<% if(!poolDeploy) {%>
 				<div id="host" class="control-group">
 					<label class="control-label" for="host">部署的机器*</label>
 					<div class="controls">
 						<input type="text" id="hostname" name="hostname"
-							class="input-big field" value="<%=hostName%>" disabled>
+							class="input-big field" value="<%=dto.getHostname()%>" disabled>
 					</div>
 				</div>
-				<% } else {%>
-				<div class="control-group">
-					<label class="control-label" for="poolId">部署的Pool*</label>
-					<div class="controls">
-						<select id="poolId" name="poolId" class="input-big" disabled>
-							<% for(PoolDTO pool : pools){
-                        	    	if(pool.getId()!=UNALLOCATED){
-                        	    		if(dto.getPoolid() == pool.getId()) {%>
-							<option selected="selected"><%=pool.getName()%></option>
-							<%} else {%>
-							<option><%=pool.getName()%></option>
-							<%} %>
-							<%}}%>
-						</select>
-						<% for(PoolDTO pool : pools){
-							    if(dto.getPoolid() == pool.getId()) {%>
-						<input id="poolIdReal" name="poolId" style="display: none"
-							value="<%=pool.getName()%>">
-						<%}%>
-						<%}%>
-
-					</div>
-				</div>
-
-				<div class="control-group">
-					<label class="control-label" for="uploadFile">上传作业（不改变请不要填写该选项）*</label>
-					<div id="fileDiv" class="controls">
-						<input type="file" id="uploadFile" name="uploadFile"
-							class="input-big  field " disabled>
-					</div>
-				</div>
-
-
-				<%} %>
+				
 				<div class="control-group">
 					<label class="control-label" for="taskType">选择作业类型*</label>
 					<div class="controls">
 						<input type="text" id="taskType"
-								name="taskType" class="input-big" value="<%=dto.getType()%>"
-								readonly>
+								name="taskType" class="input-big"  value="<%=dto.getType()%>" readonly>
 					</div>
 				</div>
-				<%  if(dto.getType().equals("hadoop")) {%>
+				<% if(dto.getType() != null && dto.getType().equals("hadoop")){%>
 				<div class="control-group">
 					<label class="control-label" for="hadoopName">hadoop用户名*</label>
 					<div class="controls">
 						<input type="text" class="input-big field" id="hadoopName"
-							name="hadoopName" value="<%=dto.getName()%>" disabled>
+							name="hadoopName" value="<%=dto.getHadoopName()%>" disabled>
 					</div>
 				</div>
 				<%}%>
+				
 				<div class="control-group">
 					<label class="control-label" for="taskName">名称*</label>
 					<div class="controls">
@@ -139,7 +89,7 @@
 					<label class="control-label" for="taskCommand">命令*</label>
 					<div class="controls">
 						<input type="text" class="input-xxlarge field " id="taskCommand"
-							name="taskCommand" value="<%=dto.getCommand()%>" disabled>
+							name="taskCommand" value="<%=dto.getHtmlCommand()%>" disabled>
 					</div>
 				</div>
 				<div class="control-group">
@@ -161,8 +111,7 @@
 					<div class="controls">
 						<input type="number" class="input-small field "
 							id="maxExecutionTime" name="maxExecutionTime"
-							style="text-align: right" value=<%=dto.getExecutiontimeout()%>
-							disabled>
+							style="text-align: right" value="<%=dto.getExecutiontimeout()%>" disabled>
 					</div>
 				</div>
 				<div class="control-group">
@@ -269,9 +218,7 @@
 			data-loading-text='正在保存..'>修改</button>
 		<button class="btn" data-dismiss="modal">关闭</button>
 	</div>
-</div>
 
-<%}%>
 
 <div id="modal-confirm" class="modal hide fade">
 	<div class="modal-header">

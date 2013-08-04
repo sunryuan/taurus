@@ -186,7 +186,7 @@ public final class ExecuteTaskThread extends BaseTaskThread{
                 String kdestroyCommand = "";
                 String krb5PathCommand = "";
                 CommandLine cmdLine;  
-                if(taskType.equals("hadoop")){
+                if(taskType!=null && taskType.equals("hadoop")){
                     krb5PathCommand = String.format(krb5Path, hadoop,"krb5cc_"+attemptID);
                     String kinitCommand = String.format(KINIT_COMMAND_PATTERN,homeDir,hadoopName,hadoopName);
                     kinitCommand = String.format(command_pattern, userName, krb5PathCommand,

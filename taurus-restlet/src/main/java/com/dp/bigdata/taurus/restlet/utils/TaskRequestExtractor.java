@@ -105,9 +105,12 @@ public class TaskRequestExtractor implements RequestExtrator<TaskDTO> {
 
         for (Entry<String, String> entry : formMap.entrySet()) {
             String key = entry.getKey();
-            String value = entry.getValue() == null ? "" : entry.getValue().trim();
+            System.out.println(key);
 
-            if (key.equals(TaskDetailControlName.TASKNAME.getName())) {
+            String value = entry.getValue() == null ? "" : entry.getValue().trim();
+            if (key.equals(TaskDetailControlName.HADOOPNAME.getName())) {
+                task.setHadoopName(value);
+            } else if (key.equals(TaskDetailControlName.TASKNAME.getName())) {
                 task.setName(value);
             } else if (key.equals(TaskDetailControlName.TASKTYPE.getName())) {
                 task.setType(value);
@@ -158,6 +161,9 @@ public class TaskRequestExtractor implements RequestExtrator<TaskDTO> {
                     StringBuilder groupId = new StringBuilder();
                     for (int i = 0; i < groups.length; i++) {
                         String group = groups[i];
+                        if(group.isEmpty()){
+                            continue;
+                        }
                         UserGroupExample example = new UserGroupExample();
                         example.or().andGroupnameEqualTo(group);
                         List<UserGroup> userGroups = userGroupMapper.selectByExample(example);
@@ -178,6 +184,9 @@ public class TaskRequestExtractor implements RequestExtrator<TaskDTO> {
                     StringBuilder userId = new StringBuilder();
                     for (int i = 0; i < users.length; i++) {
                         String user = users[i];
+                        if(user.isEmpty()){
+                            continue;
+                        }
                         UserExample example = new UserExample();
                         example.or().andNameEqualTo(user);
                         List<User> userList = userMapper.selectByExample(example);
@@ -192,8 +201,7 @@ public class TaskRequestExtractor implements RequestExtrator<TaskDTO> {
                 } else {
                     task.setUserid("");
                 }
-            } 
-            else if (key.equals(TaskDetailControlName.ALERTTYPE.getName())) {
+            } else if (key.equals(TaskDetailControlName.ALERTTYPE.getName())) {
                 if (StringUtils.isNotBlank(value)) {
                     if (value.equalsIgnoreCase(MAIL_ONLY)) {
                         task.setHasmail(true);
@@ -206,10 +214,10 @@ public class TaskRequestExtractor implements RequestExtrator<TaskDTO> {
                         task.setHasmail(true);
                     }
                 }
-            }else if (key.equals(TaskDetailControlName.MAINCLASS.getName())){
-            	task.setMainClass(value);
-            }else if (key.equals(TaskDetailControlName.TASKURL.getName())){
-            	task.setTaskUrl(value);
+            } else if (key.equals(TaskDetailControlName.MAINCLASS.getName())) {
+                task.setMainClass(value);
+            } else if (key.equals(TaskDetailControlName.TASKURL.getName())) {
+                task.setTaskUrl(value);
             }
         }
         validate(task, isUpdateAction);
@@ -223,7 +231,7 @@ public class TaskRequestExtractor implements RequestExtrator<TaskDTO> {
         List<FileItem> items = upload.parseRequest(request);
         return items;
     }
-    
+
     private void validate(TaskDTO task, boolean isUpdateAction) throws Exception {
         if (StringUtils.isBlank(task.getCreator())) {
             throw new InvalidArgumentException("Cannot get creator name from request");

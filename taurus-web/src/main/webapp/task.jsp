@@ -13,11 +13,14 @@
 	<%@page import="com.dp.bigdata.taurus.restlet.resource.IAttemptStatusResource"%>
 	<%@page import="com.dp.bigdata.taurus.restlet.resource.IUsersResource"%>
 	<%@page import="com.dp.bigdata.taurus.restlet.resource.IUserGroupsResource"%>
+	<%@page import="com.dp.bigdata.taurus.restlet.resource.IHostsResource"%>
 	
     <%@page import="com.dp.bigdata.taurus.restlet.shared.PoolDTO"%> 
     <%@page import="com.dp.bigdata.taurus.restlet.shared.StatusDTO"%> 
     <%@page import="com.dp.bigdata.taurus.restlet.shared.UserDTO"%>
     <%@page import="com.dp.bigdata.taurus.restlet.shared.UserGroupDTO"%>
+    <%@page import="com.dp.bigdata.taurus.restlet.shared.HostDTO"%>
+    
     
     <%@page import="java.util.ArrayList"%>
     <%@page import="org.restlet.data.MediaType"%>
@@ -28,6 +31,11 @@
    	    	cr.accept(MediaType.APPLICATION_XML);
    	   		ArrayList<PoolDTO> pools = poolResource.retrieve();
    	   		int UNALLOCATED = 1;
+   	   		
+   	   		cr = new ClientResource(host + "host");
+	   		IHostsResource hostResource = cr.wrap(IHostsResource.class);
+	    	cr.accept(MediaType.APPLICATION_XML);
+	   		ArrayList<HostDTO> hosts = hostResource.retrieve();
    	   		
    	   		cr = new ClientResource(host + "status");
    			IAttemptStatusResource attemptResource = cr.wrap(IAttemptStatusResource.class);
@@ -189,7 +197,7 @@
             			<label class="control-label">选择何时收到报警</label>
             			<div class="controls">
             					<% for(StatusDTO status:statuses) {
-   								    if(status.getStatus().equals("FAILED")) {%>
+   								    if(status.getStatus().equals("FAILED")||status.getStatus().equals("TIMEOUT")) {%>
     									<input type="checkbox" class="input-large field alertCondition" id="alertCondition" name="<%=status.getStatus()%>" checked="checked"> <%=status.getCh_status()%>
     								<%} else {%>
     									<input type="checkbox" class="input-large field alertCondition" id="alertCondition" name="<%=status.getStatus()%>"> <%=status.getCh_status()%>
@@ -246,6 +254,10 @@
       	<% for(UserGroupDTO group:groups) {%>
       		groupList=groupList+",<%=group.getName()%>";
   		<%}%>
+  		<% for(HostDTO hostDto:hosts) {%>
+  			ipList=ipList+",<%=hostDto.getName()%>";
+		<%}%>
+		ipList = ipList.substr(1);
       	userList = userList.substr(1);
       	groupList = groupList.substr(1);
 		

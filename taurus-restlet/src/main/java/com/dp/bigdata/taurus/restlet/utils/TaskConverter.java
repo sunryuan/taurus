@@ -52,6 +52,7 @@ public class TaskConverter {
         dto.setRetrytimes(task.getRetrytimes());
         dto.setHostname(task.getHostname());
         dto.setDescription(task.getDescription());
+        dto.setHadoopName(task.getHadoopname());
         return dto;
     }
 }

@@ -32,8 +32,8 @@ function logout(){
 	return false;
 }
 
-$(document).keydown(function(event) {
-	if (event.keyCode == 13) {
+function EnterTo(){
+	if (window.event.keyCode == 13){
 		login();
 	}
-});
+}

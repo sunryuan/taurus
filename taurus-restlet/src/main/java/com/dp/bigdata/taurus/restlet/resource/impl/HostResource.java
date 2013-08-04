@@ -32,7 +32,7 @@ public class HostResource extends ServerResource implements IHostResource {
         Host host = hostMapper.selectByPrimaryKey(hostname);
         if (host != null) {
             setStatus(Status.SUCCESS_OK);
-            return new HostDTO(1, host.getName(), host.getIp(), host.getPoolid(), host.getIsconnected());
+            return new HostDTO(1, host.getName(), host.getIp(), host.getPoolid(), host.getIsconnected(),host.getIsonline());
         } else {
             return new HostDTO();
         }

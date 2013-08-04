@@ -135,6 +135,7 @@ $(document).ready(function() {
 	
 	$('#hostname').autocomplete({
         width: 448,
+        delimiter: /(,|;)\s*/,
         zIndex: 9999,
         lookup: ipList.split(',')});
 	$('#alertUser').autocomplete({
