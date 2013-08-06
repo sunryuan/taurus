@@ -25,10 +25,10 @@
 					</li>
 					<li class=""><a href="schedule.jsp">调度中心</a>
 					</li>
-					<li class=""><a href="hosts.jsp">agent管理</a>
+					<!--li class=""><a href="hosts.jsp">agent管理</a>
 					</li>
-					<li class=""><a href="about.jsp">帮助</a>
-					</li>
+					<li class=""><a href="about.jsp">帮助</a>  
+					</li>-->
 				</ul>
 			</div>
 		</div>

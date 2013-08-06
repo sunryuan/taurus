@@ -146,6 +146,7 @@ final public class Engine implements Scheduler {
                 newHost.setIp(ip);
                 newHost.setName(ip);
                 newHost.setIsconnected(true);
+                newHost.setIsonline(true);
                 if (host == null) {
                     newHost.setPoolid(1);
                     hostMapper.insert(newHost);

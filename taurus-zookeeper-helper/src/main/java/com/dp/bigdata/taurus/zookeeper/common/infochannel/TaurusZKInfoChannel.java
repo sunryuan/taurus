@@ -24,14 +24,13 @@ import org.apache.zookeeper.KeeperException;
 
 import com.dp.bigdata.taurus.zookeeper.common.MachineType;
 import com.dp.bigdata.taurus.zookeeper.common.TaurusZKException;
+import com.dp.bigdata.taurus.zookeeper.common.infochannel.bean.HeartbeatInfo;
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.interfaces.ClusterInfoChannel;
 import com.google.inject.Inject;
 
 public abstract class TaurusZKInfoChannel implements ClusterInfoChannel{
 
     private static final Log LOG = LogFactory.getLog(TaurusZKInfoChannel.class);
-
-	private static final int MAX_HEARTBEAT_LENGTH = 100;
 
 	protected static final String SEP = "/";
 	protected static final String BASE = "taurus";
@@ -83,15 +82,9 @@ public abstract class TaurusZKInfoChannel implements ClusterInfoChannel{
     }
     
 	@Override
-	public void updateHeartbeatInfo(MachineType mt, String ip, Object info) {
+	public void updateHeartbeatInfo(MachineType mt, String ip, HeartbeatInfo info) {
 		try{
-			List<Object> heartbeatInfoList = new ArrayList<Object>(getHeartbeatInfo(mt, ip));
-			if(heartbeatInfoList.size() >= MAX_HEARTBEAT_LENGTH){
-				heartbeatInfoList.remove(heartbeatInfoList.size()-1);
-			}
-			heartbeatInfoList.add(info);
-
-			setData(heartbeatInfoList, BASE, HEARTBEATS, mt.getName(), INFO, ip);
+			setData(info, BASE, HEARTBEATS, mt.getName(), INFO, ip);
 		} catch(Exception e){
 			throw new TaurusZKException(e);
 		}

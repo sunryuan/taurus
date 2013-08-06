@@ -5,6 +5,7 @@ import java.util.Set;
 
 
 import com.dp.bigdata.taurus.zookeeper.common.MachineType;
+import com.dp.bigdata.taurus.zookeeper.common.infochannel.bean.HeartbeatInfo;
 
 public interface ClusterInfoChannel {
     
@@ -14,7 +15,7 @@ public interface ClusterInfoChannel {
 	
 	public void updateRealtimeHeartbeatInfo(MachineType mt, String ip);
 
-	public void updateHeartbeatInfo(MachineType mt, String ip, Object info);
+	public void updateHeartbeatInfo(MachineType mt, String ip, HeartbeatInfo info);
 
 	public List<Object> getHeartbeatInfo(MachineType mt, String ip);
 	

@@ -105,7 +105,6 @@ public class TaskRequestExtractor implements RequestExtrator<TaskDTO> {
 
         for (Entry<String, String> entry : formMap.entrySet()) {
             String key = entry.getKey();
-            System.out.println(key);
 
             String value = entry.getValue() == null ? "" : entry.getValue().trim();
             if (key.equals(TaskDetailControlName.HADOOPNAME.getName())) {
@@ -161,7 +160,7 @@ public class TaskRequestExtractor implements RequestExtrator<TaskDTO> {
                     StringBuilder groupId = new StringBuilder();
                     for (int i = 0; i < groups.length; i++) {
                         String group = groups[i];
-                        if(group.isEmpty()){
+                        if (group.isEmpty()) {
                             continue;
                         }
                         UserGroupExample example = new UserGroupExample();
@@ -184,7 +183,7 @@ public class TaskRequestExtractor implements RequestExtrator<TaskDTO> {
                     StringBuilder userId = new StringBuilder();
                     for (int i = 0; i < users.length; i++) {
                         String user = users[i];
-                        if(user.isEmpty()){
+                        if (user.isEmpty()) {
                             continue;
                         }
                         UserExample example = new UserExample();

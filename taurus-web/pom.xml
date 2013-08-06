@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>com.dp.bigdata</groupId>
 		<artifactId>taurus-parent</artifactId>
-		<version>0.3</version>
+		<version>0.4.1</version>
 	</parent>
 	<artifactId>taurus-web</artifactId>
 	<packaging>war</packaging>
@@ -50,7 +50,7 @@
 		<dependency>
 			<groupId>com.dp.bigdata</groupId>
 			<artifactId>taurus-restlet</artifactId>
-			<version>0.3</version>
+			<version>0.4.1</version>
 			<exclusions>
 				<exclusion>
 					<groupId>*</groupId>
@@ -61,7 +61,7 @@
 		<dependency>
 			<groupId>com.dp.bigdata</groupId>
 			<artifactId>taurus-core</artifactId>
-			<version>0.3</version>
+			<version>0.4.1</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>

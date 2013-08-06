@@ -13,7 +13,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.dp.bigdata.taurus.agent.common.BaseTaskThread;
+import com.dp.bigdata.taurus.agent.common.BaseEnvManager;
 import com.dp.bigdata.taurus.agent.common.TaskType;
 import com.dp.bigdata.taurus.agent.exec.Executor;
 import com.dp.bigdata.taurus.agent.utils.AgentServerHelper;
@@ -154,7 +154,7 @@ public class ScheduleUtility {
                         CommandLine cmdLine;
                         cmdLine = new CommandLine("bash");
                         cmdLine.addArgument("-c");
-                        cmdLine.addArgument(String.format(UPDATE_COMMAND, BaseTaskThread.agentRoot, BaseTaskThread.agentRoot), false);
+                        cmdLine.addArgument(String.format(UPDATE_COMMAND, BaseEnvManager.agentRoot, BaseEnvManager.agentRoot), false);
                         executor.execute("updateAgent", 0, null, cmdLine, null, null);
                         
                     } catch (IOException e) {

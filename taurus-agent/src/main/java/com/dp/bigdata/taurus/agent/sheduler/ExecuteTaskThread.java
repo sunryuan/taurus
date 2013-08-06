@@ -29,7 +29,7 @@ import org.apache.commons.exec.CommandLine;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.dp.bigdata.taurus.agent.common.BaseTaskThread;
+import com.dp.bigdata.taurus.agent.common.BaseEnvManager;
 import com.dp.bigdata.taurus.agent.exec.Executor;
 import com.dp.bigdata.taurus.agent.utils.LockHelper;
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.bean.ScheduleConf;
@@ -41,7 +41,7 @@ import com.dp.bigdata.taurus.zookeeper.common.infochannel.interfaces.ScheduleInf
  * @author renyuan.sun
  *
  */
-public final class ExecuteTaskThread extends BaseTaskThread{
+public final class ExecuteTaskThread extends BaseEnvManager{
     Executor executor;
     String localIp;
     ScheduleInfoChannel cs;
@@ -60,8 +60,8 @@ public final class ExecuteTaskThread extends BaseTaskThread{
     private static final String HADOOP_NAME = "hadoopName";
     
     
-    private static String command_pattern;
-    private static String krb5Path = "KRB5CCNAME=%s/%s";
+    private String command_pattern;
+    private String krb5Path = "KRB5CCNAME=%s/%s";
 
     ExecuteTaskThread(Executor executor, String localIp, ScheduleInfoChannel cs, String taskAttempt){
         this.executor = executor;
@@ -176,7 +176,7 @@ public final class ExecuteTaskThread extends BaseTaskThread{
         try {
             LOGGER.debug(taskAttempt + " start execute");
             
-            if(ON_WONDOWS){
+            if(ON_WINDOWS){
                 String escapedCmd = command.replaceAll("\\\\", "\\\\\\\\");
                 escapedCmd = escapedCmd.replaceAll("\"", "\\\\\\\"");
                 returnCode = executor.execute(attemptID, logFileStream, errorFileStream, escapedCmd);

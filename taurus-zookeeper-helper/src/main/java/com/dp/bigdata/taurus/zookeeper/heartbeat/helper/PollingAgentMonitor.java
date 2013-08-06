@@ -116,7 +116,12 @@ public class PollingAgentMonitor implements AgentMonitor {
     }
 
     private boolean isConnected(String ip) {
-        Long time = zkClient.readData(WATCH_PATH + "/" + ip, true);
+        Long time = null;
+        try{
+            time = zkClient.readData(WATCH_PATH + "/" + ip, true);
+        } catch(Exception e){
+            LOGGER.error(e,e);
+        }
         long now = System.currentTimeMillis();
         if (time == null) {
             return false;

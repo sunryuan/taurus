@@ -69,6 +69,7 @@ public class TaurusZKScheduleInfoChannel extends TaurusZKInfoChannel implements 
 		try{
 			return getData(BASE, SCHEDULE, ip, attemptID, STATUS);
 		} catch(Exception e){
+		    LOGGER.error(e,e);
 			return null;
 		}
 	}

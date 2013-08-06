@@ -43,7 +43,7 @@ public class TaskConverter {
         dto.setType(task.getType());
         dto.setWaittimeout(task.getWaittimeout());
         if (task.getStatus() == TaskStatus.RUNNING) {
-            dto.setStatus("RUNNING");
+            dto.setStatus("SCHEDULED");
         } else if (task.getStatus() == TaskStatus.SUSPEND) {
             dto.setStatus("SUSPEND");
         } else {

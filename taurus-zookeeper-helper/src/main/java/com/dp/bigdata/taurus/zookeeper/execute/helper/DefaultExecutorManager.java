@@ -163,7 +163,7 @@ public class DefaultExecutorManager implements ExecutorManager{
 
     	ScheduleStatus status = (ScheduleStatus) dic.getStatus(agentIP, attemptID);
         if(status == null) {
-            LOGGER.error("Fail to get status");
+            LOGGER.error("Fail to get status for attempt " +  agentIP + " : " + attemptID);
             throw new ExecuteException("Fail to get status");
         }
         ExecuteStatus result = null;
