@@ -27,10 +27,10 @@
 			<thead>
 				<tr>
 					<th>ID</th>
-					<th>启动时间</th>
-					<th>结束时间</th>
-					<th>调度时间</th>
-                    <th>IP</th>
+					<th>实际启动时间</th>
+					<th>实际结束时间</th>
+					<th>预计调度时间</th>
+                    <!-- <th>IP</th> -->
 					<th>返回值</th>
 					<th>状态</th>
 					<th>-</th>
@@ -67,7 +67,7 @@
                     <%}else{%>
                     	<td>NULL</td>
                     <%}%> 
-                    <td><%=dto.getExecHost()%></td>
+                    <!-- <td><%=dto.getExecHost()%></td> -->
 					<td><%=dto.getReturnValue()%></td>
 					<td><%if(state.equals("RUNNING")){%>
                     	<span class="label label-info"><%=state%></span>
@@ -79,20 +79,24 @@
                     </td>
 
 					<td>
+					<!-- 
 						<div class="btn-group">
 							<button class="btn  btn-primary btn-small dropdown-toggle" data-toggle="dropdown">
 								Action<span class="caret"></span>
 							</button>
-							<ul class="dropdown-menu">
+							<ul class="dropdown-menu"> -->
                             	<%if(state.equals("RUNNING") || state.equals("TIMEOUT")){%>
-								<li><a href="#confirm" onClick="action($(this).parents('tr').attr('id'))">Kill</a>
-								</li>
+								<!-- <li> -->
+									<a href="#confirm" onClick="action($(this).parents('tr').attr('id'))">Kill</a>
+								<!-- </li> -->
                                 <%}else {%>
-								<li><a target="_blank" href="attempts.do?id=<%=dto.getAttemptID()%>&action=view-log">日志</a>
-								</li>
+								<!-- <li> -->
+									<a target="_blank" href="attempts.do?id=<%=dto.getAttemptID()%>&action=view-log">日志</a>
+								<!-- </li> -->
                                 <%}%>
-							</ul>
-						</div></td>
+							<!-- </ul>
+						</div> -->
+						</td>
 				</tr>
               <% } %>
 			</tbody>
