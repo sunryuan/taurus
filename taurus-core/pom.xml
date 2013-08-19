@@ -11,6 +11,11 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>com.dianping.cat</groupId>
+			<artifactId>cat-client</artifactId>
+			<version>0.6.2-SNAPSHOT</version>
+		</dependency>
+		<dependency>
 			<groupId>com.dp.bigdata</groupId>
 			<artifactId>taurus-zookeeper-helper</artifactId>
 			<version>0.3</version>
@@ -75,7 +80,7 @@
 					</execution>
 				</executions>
 				<configuration>
-					<overwrite>false</overwrite>
+					<overwrite>true</overwrite>
 				</configuration>
 			</plugin>
 		</plugins>

@@ -158,14 +158,20 @@ public class TaskRequestExtractor implements RequestExtrator<TaskDTO> {
                     StringBuilder groupId = new StringBuilder();
                     for (int i = 0; i < groups.length; i++) {
                         String group = groups[i];
-                        UserGroupExample example = new UserGroupExample();
-                        example.or().andGroupnameEqualTo(group);
-                        List<UserGroup> userGroups = userGroupMapper.selectByExample(example);
-                        if (userGroups != null && userGroups.size() == 1) {
-                            groupId.append(userGroups.get(0).getId());
-                        }
-                        if (i < groups.length - 1) {
-                            groupId.append(";");
+                        
+                        if(group != null && group.length() > 0){
+                        	UserGroupExample example = new UserGroupExample();
+                        	example.or().andGroupnameEqualTo(group);
+                        	
+                        	List<UserGroup> userGroups = userGroupMapper.selectByExample(example);
+                        	
+                        	if (userGroups != null && userGroups.size() == 1) {
+                        		groupId.append(userGroups.get(0).getId());
+                        		
+                        		if (i < groups.length - 1) {
+                        			groupId.append(";");
+                        		}
+                        	}
                         }
                     }
                     task.setGroupid(groupId.toString());
@@ -176,18 +182,24 @@ public class TaskRequestExtractor implements RequestExtrator<TaskDTO> {
                 if (StringUtils.isNotBlank(value)) {
                     String[] users = value.split(";");
                     StringBuilder userId = new StringBuilder();
-                    for (int i = 0; i < users.length; i++) {
-                        String user = users[i];
-                        UserExample example = new UserExample();
-                        example.or().andNameEqualTo(user);
-                        List<User> userList = userMapper.selectByExample(example);
-                        if (userList != null && userList.size() == 1) {
-                            userId.append(userList.get(0).getId());
-                        }
-                        if (i < users.length - 1) {
-                            userId.append(";");
-                        }
+                    
+							for (int i = 0; i < users.length; i++) {
+								String user = users[i];
+								if (userId != null & userId.length() > 0) {
+									UserExample example = new UserExample();
+		
+									example.or().andNameEqualTo(user);
+									List<User> userList = userMapper.selectByExample(example);
+									
+									if (userList != null && userList.size() == 1) {
+										userId.append(userList.get(0).getId());
+										if (i < users.length - 1) {
+											userId.append(";");
+										}
+									}
+								}
                     }
+                    
                     task.setUserid(userId.toString());
                 } else {
                     task.setUserid("");
@@ -259,10 +271,12 @@ public class TaskRequestExtractor implements RequestExtrator<TaskDTO> {
         if (!isUpdateAction && nameResource.isExistTaskName(task.getName())) {
             throw new DuplicatedNameException("Duplicated Name : " + task.getName());
         }
-
-        if (StringUtils.isBlank(task.getCrontab()) || !CronExpression.isValidExpression(task.getCrontab())) {
-            throw new InvalidArgumentException("Invalid crontab expression : " + task.getCrontab());
-        }
+        
+        try{
+      	  new CronExpression(task.getCrontab());
+        }catch (Exception e) {
+      	  throw e;
+		}
     }
 
 }

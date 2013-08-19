@@ -10,7 +10,7 @@
 
 	<context-param>
 		<param-name>RESTLET_SERVER</param-name>
-		<param-value>http://10.1.77.85:8182/api/</param-value>
+		<param-value>http://localhost:8182/api/</param-value>
 	</context-param>
 	<context-param>
 		<param-name>XSL_UPLOAD_TMP_DIR</param-name>

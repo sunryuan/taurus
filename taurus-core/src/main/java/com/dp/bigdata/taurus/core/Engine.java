@@ -13,6 +13,9 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import com.dianping.cat.Cat;
+import com.dianping.cat.message.Message;
+import com.dianping.cat.message.Transaction;
 import com.dp.bigdata.taurus.generated.mapper.HostMapper;
 import com.dp.bigdata.taurus.generated.mapper.TaskAttemptMapper;
 import com.dp.bigdata.taurus.generated.mapper.TaskMapper;
@@ -132,6 +135,8 @@ final public class Engine implements Scheduler {
 
             @Override
             public void disConnected(String ip) {
+            	 Cat.logEvent("DisConnected", ip);
+            	 
                 Host host = new Host();
                 host.setName(ip);
                 host.setIp(ip);
@@ -141,6 +146,8 @@ final public class Engine implements Scheduler {
 
             @Override
             public void connected(String ip) {
+            	 Cat.logEvent("Connected", ip);
+            	
                 Host host = hostMapper.selectByPrimaryKey(ip);
                 Host newHost = new Host();
                 newHost.setIp(ip);
@@ -163,6 +170,7 @@ final public class Engine implements Scheduler {
                 dependencyTriggle.triggle();
                 contexts = filter.filter(getReadyToRunAttempt());
             } catch (Exception e) {
+            	 Cat.logError(e);
                 LOG.error("Unexpected Exception", e);
             }
             if (contexts != null) {
@@ -320,19 +328,27 @@ final public class Engine implements Scheduler {
         }
         attempt.setExechost(host.getIp());
         attempt.setStarttime(new Date());
-        final long start = System.nanoTime();
+        
+        Transaction transaction = Cat.newTransaction("SubmitedAttempts", context.getName());
+        
         try {
             zookeeper.execute(context.getContext());
-        } catch (ExecuteException ee) {
-            attempt.setStatus(AttemptStatus.SUBMIT_FAIL);
+            Cat.logEvent("Attempt-Running", context.getName(),Message.SUCCESS,context.getAttemptid());
+        } catch (Exception ee) {
+      	   Cat.logError("SUBMIT_FAIL", ee);
+      	   Cat.logEvent("Attempt-Running", context.getName(),"fail",context.getAttemptid());
+      	   transaction.setStatus(ee);
+
+      	   attempt.setStatus(AttemptStatus.SUBMIT_FAIL);
             attempt.setEndtime(new Date());
             taskAttemptMapper.updateByPrimaryKeySelective(attempt);
+            
             throw new ScheduleException("Fail to execute attemptID : " + attempt.getAttemptid() + " on host : "
                     + host.getIp(),ee);
+        }finally{
+      	  transaction.complete();
         }
-        final long end = System.nanoTime();
-        LOG.info("Time (seconds) taken " + (end - start) / 1.0e9 + " to start attempt : " + context.getAttemptid());
-
+        
         // update the status for TaskAttempt
         attempt.setStatus(AttemptStatus.RUNNING);
         taskAttemptMapper.updateByPrimaryKeySelective(attempt);
@@ -361,12 +377,17 @@ final public class Engine implements Scheduler {
         }
         try {
             zookeeper.kill(context.getContext());
+            
+            Cat.logEvent("Kill-Attempt", context.getName(),Message.SUCCESS,context.getAttemptid());
         } catch (ExecuteException ee) {
             // do nothing; keep the attempt status unchanged.
+      	  	Cat.logEvent("Kill-Attempt", context.getName(),"fail",context.getAttemptid());
+      	  
             throw new ScheduleException("Fail to execute attemptID : " + attemptID + " on host : " + context.getExechost());
         }
         context.getAttempt().setStatus(AttemptStatus.KILLED);
         context.getAttempt().setEndtime(new Date());
+        context.getAttempt().setReturnvalue(-1);
         taskAttemptMapper.updateByPrimaryKeySelective(context.getAttempt());
         unregistAttemptContext(context);
     }
@@ -380,6 +401,8 @@ final public class Engine implements Scheduler {
         attempt.setStatus(AttemptStatus.SUCCEEDED);
         taskAttemptMapper.updateByPrimaryKeySelective(attempt);
         unregistAttemptContext(context);
+        
+        Cat.logEvent("Attempt-Succeeded", context.getName(),Message.SUCCESS,context.getAttemptid());
     }
 
     @Override
@@ -389,6 +412,8 @@ final public class Engine implements Scheduler {
         attempt.setEndtime(new Date());
         attempt.setStatus(AttemptStatus.TIMEOUT);
         taskAttemptMapper.updateByPrimaryKeySelective(attempt);
+        
+        Cat.logEvent("Attempt-Expired", context.getName(),Message.SUCCESS,context.getAttemptid());
     }
 
     @Override
@@ -399,6 +424,8 @@ final public class Engine implements Scheduler {
         attempt.setEndtime(new Date());
         taskAttemptMapper.updateByPrimaryKeySelective(attempt);
         unregistAttemptContext(context);
+        
+        Cat.logEvent("Attempt-Failed", context.getName(),Message.SUCCESS,context.getAttemptid());
 
         /*
          * Check whether it is necessary to retry this failed attempt. If true, insert new attempt into the database; Otherwise, do
@@ -414,6 +441,8 @@ final public class Engine implements Scheduler {
             } else if (task.getRetrytimes() == attemptsOfRecentInstance.size() - 1) {
                 //do nothing
             } else {
+            	 Cat.logEvent("Attempt-Expired-Retry", context.getName(),Message.SUCCESS,context.getAttemptid());
+            	
                 LOG.info("Attempt " + attempt.getAttemptid() + " fail, begin to retry the attempt...");
                 String instanceID = attempt.getInstanceid();
                 TaskAttempt retry = new TaskAttempt();
@@ -430,12 +459,15 @@ final public class Engine implements Scheduler {
 
     
 	public void attemptUnKonwed(String attemptID){
-		AttemptContext context = runningAttempts.get(AttemptID.getTaskID(attemptID)).get(attemptID);
+		  AttemptContext context = runningAttempts.get(AttemptID.getTaskID(attemptID)).get(attemptID);
         TaskAttempt attempt = context.getAttempt();
         attempt.setEndtime(new Date());
         attempt.setStatus(AttemptStatus.UNKNOWN);
+        attempt.setReturnvalue(-1);
         taskAttemptMapper.updateByPrimaryKeySelective(attempt);
         unregistAttemptContext(context);
+        
+        Cat.logEvent("Attempt-Unknown", context.getName(),Message.SUCCESS,context.getAttemptid());
 	}
 	
     @Override

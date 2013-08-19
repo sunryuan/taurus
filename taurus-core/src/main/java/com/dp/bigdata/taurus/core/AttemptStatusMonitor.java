@@ -47,6 +47,7 @@ public class AttemptStatusMonitor implements Runnable {
                     LOG.info("Current status for attempt " + attempt.getAttemptid() + " : " + status);
                     switch (status) {
                         case AttemptStatus.SUCCEEDED:
+                        	 attempt.getAttempt().setReturnvalue(sstatus.getReturnCode());
                             scheduler.attemptSucceed(attempt.getAttemptid());
                             break;
                         case AttemptStatus.FAILED:
