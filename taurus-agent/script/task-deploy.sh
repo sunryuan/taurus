@@ -1,5 +1,7 @@
 #!/bin/sh
 # Deploy taurus executing files
+# Discarded
+
 cd `dirname $0`
 function extract () {
    path=`dirname $1`

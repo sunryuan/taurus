@@ -124,11 +124,11 @@
                           <li><a href="#confirm" onClick="action($(this).parents('tr').find('td')[0].textContent,2)">恢复</a></li>   
                           <%}%>
                           <li><a href="#confirm" onClick="action($(this).parents('tr').find('td')[0].textContent,3)">执行</a></li>
-                          <li><a href="#confirm" onClick="action($(this).parents('tr').find('td')[0].textContent,4)">详细</a></li>
+                          <li><a class="detailBtn" href="task_form.jsp?task_id=<%=dto.getTaskid()%>">详细</a></li>
                         </ul>
                       </div>
                     </td>
-                    <td><button id="attempts" class="btn btn-primary btn-small"  onClick="javascript:window.location.href='attempt.jsp?taskID=<%=dto.getTaskid()%>'">运行历史</button></td>
+                    <td><a id="attempts" class="btn btn-primary btn-small"  href="attempt.jsp?taskID=<%=dto.getTaskid()%>">运行历史</a></td>
                  </tr>
                <% } %>
 			</tbody>
@@ -151,8 +151,10 @@
       </div>
     </div>
     
-    <jsp:include page="task_form.jsp"/>
-
+    <!-- detailModal -->
+	<div id="detailModal" class="modal hide fade" style="width: 600px">
+	</div>
+    
 	<script type="text/javascript" charset="utf-8" src="js/jquery.dataTables.js"></script>
 	<script type="text/javascript" charset="utf-8" src="js/DT_bootstrap.js"></script>
     <script type="text/javascript" charset="utf-8" src="js/schedule.js"></script>

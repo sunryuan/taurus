@@ -36,7 +36,7 @@ public class DefaultAgentMonitor implements AgentMonitor {
     }
 
     @Override
-    public void agentMonitor(final AgentHandler handler) {
+    public void agentMonitor( final AgentHandler handler) {
         lastAgentsIp = zkClient.getChildren(WATCH_PACH);
         for (String ip : lastAgentsIp) {
             handler.connected(ip);

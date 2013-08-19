@@ -153,12 +153,25 @@ final public class Engine implements Scheduler {
                 newHost.setIp(ip);
                 newHost.setName(ip);
                 newHost.setIsconnected(true);
+                newHost.setIsonline(true);
                 if (host == null) {
                     newHost.setPoolid(1);
                     hostMapper.insert(newHost);
                 } else {
                     hostMapper.updateByPrimaryKeySelective(newHost);
                 }
+            }
+
+            @Override
+            public List<String> getConnectedFromDB() {
+                List<Host> hosts = hostMapper.selectByExample(null);
+                List<String> result = new ArrayList<String>();
+                for(Host host:hosts){
+                    if(host.getIsconnected() == true){
+                        result.add(host.getIp());
+                    }
+                }
+                return result;
             }
         });
 

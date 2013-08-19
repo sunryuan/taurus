@@ -105,9 +105,11 @@ public class TaskRequestExtractor implements RequestExtrator<TaskDTO> {
 
         for (Entry<String, String> entry : formMap.entrySet()) {
             String key = entry.getKey();
-            String value = entry.getValue() == null ? "" : entry.getValue().trim();
 
-            if (key.equals(TaskDetailControlName.TASKNAME.getName())) {
+            String value = entry.getValue() == null ? "" : entry.getValue().trim();
+            if (key.equals(TaskDetailControlName.HADOOPNAME.getName())) {
+                task.setHadoopName(value);
+            } else if (key.equals(TaskDetailControlName.TASKNAME.getName())) {
                 task.setName(value);
             } else if (key.equals(TaskDetailControlName.TASKTYPE.getName())) {
                 task.setType(value);
@@ -204,8 +206,7 @@ public class TaskRequestExtractor implements RequestExtrator<TaskDTO> {
                 } else {
                     task.setUserid("");
                 }
-            } 
-            else if (key.equals(TaskDetailControlName.ALERTTYPE.getName())) {
+            } else if (key.equals(TaskDetailControlName.ALERTTYPE.getName())) {
                 if (StringUtils.isNotBlank(value)) {
                     if (value.equalsIgnoreCase(MAIL_ONLY)) {
                         task.setHasmail(true);
@@ -218,10 +219,10 @@ public class TaskRequestExtractor implements RequestExtrator<TaskDTO> {
                         task.setHasmail(true);
                     }
                 }
-            }else if (key.equals(TaskDetailControlName.MAINCLASS.getName())){
-            	task.setMainClass(value);
-            }else if (key.equals(TaskDetailControlName.TASKURL.getName())){
-            	task.setTaskUrl(value);
+            } else if (key.equals(TaskDetailControlName.MAINCLASS.getName())) {
+                task.setMainClass(value);
+            } else if (key.equals(TaskDetailControlName.TASKURL.getName())) {
+                task.setTaskUrl(value);
             }
         }
         validate(task, isUpdateAction);
@@ -235,7 +236,7 @@ public class TaskRequestExtractor implements RequestExtrator<TaskDTO> {
         List<FileItem> items = upload.parseRequest(request);
         return items;
     }
-    
+
     private void validate(TaskDTO task, boolean isUpdateAction) throws Exception {
         if (StringUtils.isBlank(task.getCreator())) {
             throw new InvalidArgumentException("Cannot get creator name from request");

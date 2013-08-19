@@ -1,6 +1,7 @@
 package com.dp.bigdata.taurus.zookeeper.common.infochannel.bean;
 
 import java.io.Serializable;
+import java.util.Map;
 
 public class ScheduleConf implements Serializable{
 	
@@ -12,6 +13,7 @@ public class ScheduleConf implements Serializable{
 	private String userName;
 	private String pid;
 	private String taskUrl;
+	private Map<String,String> extendedMap;
 	
 	public String getTaskID() {
 		return taskID;
@@ -55,4 +57,10 @@ public class ScheduleConf implements Serializable{
 	public void setTaskUrl(String taskUrl) {
 		this.taskUrl = taskUrl;
 	}
+    public Map<String, String> getExtendedMap() {
+        return extendedMap;
+    }
+    public void setExtendedMap(Map<String, String> extendedMap) {
+        this.extendedMap = extendedMap;
+    }
 }

@@ -7,7 +7,7 @@ import java.io.Serializable;
  * 
  * @author damon.zhu
  */
-public class HostDTO implements Serializable  {
+public class HostDTO implements Serializable {
 
     /**
      * 
@@ -21,16 +21,19 @@ public class HostDTO implements Serializable  {
     private String ip;
 
     private Integer poolid;
-    
+
     private boolean isConnected;
 
-    public HostDTO(Integer id, String name, String ip, Integer poolid, boolean isConnected) {
+    private boolean isOnline;
+
+    public HostDTO(Integer id, String name, String ip, Integer poolid, boolean isConnected, boolean status) {
         super();
         this.id = id;
         this.name = name;
         this.ip = ip;
         this.poolid = poolid;
         this.isConnected = isConnected;
+        this.isOnline = status;
     }
 
     public Integer getId() {
@@ -65,10 +68,9 @@ public class HostDTO implements Serializable  {
         this.poolid = poolid;
     }
 
-	public HostDTO() {
-		super();
-	}
-
+    public HostDTO() {
+        super();
+    }
 
     public boolean isConnected() {
         return isConnected;
@@ -78,10 +80,21 @@ public class HostDTO implements Serializable  {
         this.isConnected = isConnected;
     }
 
-	@Override
-	public String toString() {
-		return "HostDTO [id=" + id + ", name=" + name + ", ip=" + ip
-				+ ", poolid=" + poolid + ", isConnected=" + isConnected + "]";
-	}
+    public boolean isOnline() {
+        return isOnline;
+    }
 
+    public void setOnline(boolean status) {
+        this.isOnline = status;
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return "HostDTO [id=" + id + ", name=" + name + ", ip=" + ip + ", poolid=" + poolid + ", isConnected=" + isConnected
+                + ", status=" + isOnline + "]";
+    }
+    
 }

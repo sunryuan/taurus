@@ -1,6 +1,7 @@
 package com.dp.bigdata.taurus.web.servlet;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -50,7 +51,16 @@ public class LoginServlet extends HttpServlet {
 
 	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		doPost(request, response);
+        // 只销毁了session。在线用户库里的注销工作在session的SessionDestroyedListener里完成
+        request.getSession().invalidate(); 
+        
+        response.setContentType("text/html;charset=GBK");
+        PrintWriter out = response.getWriter();
+       
+        out.print("登出成功");
+        out.flush();
+        out.close();
+
 	}
 
 	@Override

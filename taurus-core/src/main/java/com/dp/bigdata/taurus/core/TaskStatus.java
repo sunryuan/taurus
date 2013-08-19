@@ -14,7 +14,7 @@ public class TaskStatus {
 	public static final int SUSPEND = 2;
 	public static final int DELETED = 3;
 
-	private static final String[] runStates = { "UNKNOWN", "RUNNING",
+	private static final String[] runStates = { "UNKNOWN", "SCHEDULED",
 			"SUSPEND", "DELETED"};
 
 	private int status;

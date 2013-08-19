@@ -1,5 +1,4 @@
-﻿<!DOCTYPE html>
-<%@ page contentType="text/html;charset=utf-8" %>
+﻿<%@ page contentType="text/html;charset=utf-8" %>
 <title>Taurus作业调度平台</title>
 <!-- JavaScript -->
 <script src="js/jquery.min.js" ></script>

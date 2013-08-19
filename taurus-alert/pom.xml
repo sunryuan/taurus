@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.dp.bigdata</groupId>
 		<artifactId>taurus-parent</artifactId>
-		<version>0.3</version>
+		<version>0.4.1</version>
 	</parent>
 	<artifactId>taurus-alert</artifactId>
 	<name>taurus-alert</name>

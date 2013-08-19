@@ -13,11 +13,14 @@
 	<%@page import="com.dp.bigdata.taurus.restlet.resource.IAttemptStatusResource"%>
 	<%@page import="com.dp.bigdata.taurus.restlet.resource.IUsersResource"%>
 	<%@page import="com.dp.bigdata.taurus.restlet.resource.IUserGroupsResource"%>
+	<%@page import="com.dp.bigdata.taurus.restlet.resource.IHostsResource"%>
 	
     <%@page import="com.dp.bigdata.taurus.restlet.shared.PoolDTO"%> 
     <%@page import="com.dp.bigdata.taurus.restlet.shared.StatusDTO"%> 
     <%@page import="com.dp.bigdata.taurus.restlet.shared.UserDTO"%>
     <%@page import="com.dp.bigdata.taurus.restlet.shared.UserGroupDTO"%>
+    <%@page import="com.dp.bigdata.taurus.restlet.shared.HostDTO"%>
+    
     
     <%@page import="java.util.ArrayList"%>
     <%@page import="org.restlet.data.MediaType"%>
@@ -28,6 +31,11 @@
    	    	cr.accept(MediaType.APPLICATION_XML);
    	   		ArrayList<PoolDTO> pools = poolResource.retrieve();
    	   		int UNALLOCATED = 1;
+   	   		
+   	   		cr = new ClientResource(host + "host");
+	   		IHostsResource hostResource = cr.wrap(IHostsResource.class);
+	    	cr.accept(MediaType.APPLICATION_XML);
+	   		ArrayList<HostDTO> hosts = hostResource.retrieve();
    	   		
    	   		cr = new ClientResource(host + "status");
    			IAttemptStatusResource attemptResource = cr.wrap(IAttemptStatusResource.class);
@@ -61,9 +69,7 @@
 						<div class="controls">
    						<select  id="taskType" name="taskType"  class="input-big  field" >
    							<option>hadoop</option>
-							<option>wormhole</option>
 							<option>spring</option>
-							<option>hive</option>
 							<option>other</option>
 						</select>
                       	</div>
@@ -76,42 +82,22 @@
             				</div>
           				</div>
           			</div>
-          				
-					<div class="control-group">
-						<label class="control-label"  for="autodeploy">部署方式</label>
-						<div class="controls">
-      						<input type="checkbox"  id="autodeploy">使用Pool部署
-	      				</div>
-      				</div>
-
+          			
+					<div id="hadoopName">
+						<div class="control-group">
+            				<label class="control-label"  for="hadoopName">hadoop用户名*</label>
+            				<div class="controls">
+              					<input type="text" class="input-large field"  id="hadoopName" name="hadoopName"  placeholder="kerberos principle (wwwcron)">
+            				</div>
+          				</div>
+          			</div>
+          			
                     <div id="host"  class="control-group">
                     	<label class="control-label"  for="hostname">部署的机器*</label>
                     	<div class="controls">
     						<input type="text" id="hostname" name="hostname" class="input-big field"  placeholder="10.0.0.1">
     					</div>
 					</div>
-                    
-                    <div id="poolDeployDiv" style="display: none;">
-                    	<div class="control-group">
-                   			<label   class="control-label"  for="poolId">部署的Pool*</label>
-                            <div class="controls">
-    						<select id="poolId" name="poolId"  class="input-big  field" >
-                        		<% for(PoolDTO dto : pools){
-                        	    	if(dto.getId()!=UNALLOCATED){%>
-                            		<option><%=dto.getName()%></option>
-								<%}}%>
-							</select>
-                       		</div>
-                        </div>
-
-                        <div id="upfile" class="control-group">
-							<label class="control-label"  for="uploadFile">上传作业*</label>
-                        	<div id="fileDiv"  class="controls">
-								<input type="file" id="uploadFile" name="uploadFile" class="input-big  field"/>
-                        	</div>
-                    	</div>
-                    	
-                    </div>
                     </fieldset>
 				</form>
 			</div>
@@ -137,6 +123,7 @@
             		<label class="control-label" for="crontab">Crontab*</label>
             		<div class="controls">
               			<input type="text" class="input-xxlarge field" id="crontab" name="crontab"  value="0 0 * * ?">
+              			<a href="www.baidu.com">帮助</a>
             		</div>
           		</div>
           		
@@ -210,7 +197,7 @@
             			<label class="control-label">选择何时收到报警</label>
             			<div class="controls">
             					<% for(StatusDTO status:statuses) {
-   								    if(status.getStatus().equals("FAILED")) {%>
+   								    if(status.getStatus().equals("FAILED")||status.getStatus().equals("TIMEOUT")) {%>
     									<input type="checkbox" class="input-large field alertCondition" id="alertCondition" name="<%=status.getStatus()%>" checked="checked"> <%=status.getCh_status()%>
     								<%} else {%>
     									<input type="checkbox" class="input-large field alertCondition" id="alertCondition" name="<%=status.getStatus()%>"> <%=status.getCh_status()%>
@@ -267,6 +254,10 @@
       	<% for(UserGroupDTO group:groups) {%>
       		groupList=groupList+",<%=group.getName()%>";
   		<%}%>
+  		<% for(HostDTO hostDto:hosts) {%>
+  			ipList=ipList+",<%=hostDto.getName()%>";
+		<%}%>
+		ipList = ipList.substr(1);
       	userList = userList.substr(1);
       	groupList = groupList.substr(1);
 		

@@ -42,8 +42,6 @@ $.validator.addMethod("dependencyTest",function(value,element,params){
 
 
 $.validator.addMethod("validName",function(value,element,params){
-	
-	
 	var result = false;
 
 	$.ajax({
@@ -88,7 +86,12 @@ $(document).ready(function(){
     			fileNameTest: function(element) {
                 	return ($("#autodeploy").prop("checked"));
         		}
-    		}    
+    		},
+    		hadoopName: {
+    			required:function(element) {
+                	return ($("#taskType").val() == "hadoop");
+        		}
+    		}
 		}, 
 	    highlight: function(label) {
 	    	$(label).closest('.control-group').removeClass('success').addClass('error');
@@ -175,6 +178,7 @@ $(document).ready(function(){
 		    		uploadFile: {
 		    			fileNameTest: true
 		    		},
+		    		
 			    	crontab: {
 			    		required: true,
 			    		minlength: 6
