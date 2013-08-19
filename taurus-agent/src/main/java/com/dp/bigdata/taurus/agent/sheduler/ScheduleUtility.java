@@ -13,7 +13,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.dp.bigdata.taurus.agent.common.BaseTaskThread;
+import com.dp.bigdata.taurus.agent.common.BaseEnvManager;
 import com.dp.bigdata.taurus.agent.common.TaskType;
 import com.dp.bigdata.taurus.agent.exec.Executor;
 import com.dp.bigdata.taurus.agent.utils.AgentServerHelper;
@@ -28,11 +28,6 @@ public class ScheduleUtility {
 
 	private static ExecutorService killThreadPool = AgentServerHelper.createThreadPool(2, 4);
 	private static ExecutorService executeThreadPool = AgentServerHelper.createThreadPool(10, 10);	
-	
-//	private static final String COMMAND_PATTERN_WITHOUT_SUDO 
-//	    = "echo %s; %s %s echo $$ >%s;  [ -f %s ] && cd %s; source %s %s; %s; echo $? >%s;echo %s; %s rm -f %s; %s";
-//	private static final String COMMAND_PATTERN_WITH_SUDO 
-//	    = "sudo -u %s %s bash -c \"%s echo $$ >%s; [ -f %s ] && cd %s; source %s %s; %s\"; echo $? >%s; sudo -u %s %s bash -c \"rm -f %s; %s\"";
 	private static final String UPDATE_COMMAND = "source /etc/profile; %s/script/update-agent.sh > %s/agent-logs/update.log";
 	
 	public static void checkAndKillTasks(Executor executor, String localIp, ScheduleInfoChannel cs, boolean addListener) {
@@ -159,7 +154,7 @@ public class ScheduleUtility {
                         CommandLine cmdLine;
                         cmdLine = new CommandLine("bash");
                         cmdLine.addArgument("-c");
-                        cmdLine.addArgument(String.format(UPDATE_COMMAND, BaseTaskThread.agentRoot, BaseTaskThread.agentRoot), false);
+                        cmdLine.addArgument(String.format(UPDATE_COMMAND, BaseEnvManager.agentRoot, BaseEnvManager.agentRoot), false);
                         executor.execute("updateAgent", 0, null, cmdLine, null, null);
                         
                     } catch (IOException e) {

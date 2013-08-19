@@ -3,42 +3,83 @@ package com.dp.bigdata.taurus.zookeeper.common.infochannel.bean;
 import java.io.Serializable;
 import java.util.Date;
 
-public class HeartbeatInfo implements Serializable{
+public class HeartbeatInfo implements Serializable {
+    
+    private static final long serialVersionUID = 5912013362307439731L;
+    
+    private String agentVersion;
+    private String configs;
+    private String user;
+    private boolean isLinux;
+    private Date time;
 
-	private static final long serialVersionUID = -4202863977946309890L;
-	
-	private Date time;
+    /**
+     * @return the agentVersion
+     */
+    public String getAgentVersion() {
+        return agentVersion;
+    }
 
-	public Date getTime() {
-		return time;
-	}
+    /**
+     * @return the isLinux
+     */
+    public boolean isLinux() {
+        return isLinux;
+    }
 
-	public void setTime(Date time) {
-		this.time = time;
-	}
+    /**
+     * @param isLinux the isLinux to set
+     */
+    public void setLinux(boolean isLinux) {
+        this.isLinux = isLinux;
+    }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((time == null) ? 0 : time.hashCode());
-		return result;
-	}
+    /**
+     * @return the configs
+     */
+    public String getConfigs() {
+        return configs;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		HeartbeatInfo other = (HeartbeatInfo) obj;
-		if (time == null) {
-			if (other.time != null)
-				return false;
-		} else if (!time.equals(other.time))
-			return false;
-		return true;
-	}
+    /**
+     * @return the user
+     */
+    public String getUser() {
+        return user;
+    }
+
+    /**
+     * @return the time
+     */
+    public Date getTime() {
+        return time;
+    }
+
+    /**
+     * @param agentVersion the agentVersion to set
+     */
+    public void setAgentVersion(String agentVersion) {
+        this.agentVersion = agentVersion;
+    }
+
+    /**
+     * @param configs the configs to set
+     */
+    public void setConfigs(String configs) {
+        this.configs = configs;
+    }
+
+    /**
+     * @param user the user to set
+     */
+    public void setUser(String user) {
+        this.user = user;
+    }
+
+    /**
+     * @param time the time to set
+     */
+    public void setTime(Date time) {
+        this.time = time;
+    }
 }

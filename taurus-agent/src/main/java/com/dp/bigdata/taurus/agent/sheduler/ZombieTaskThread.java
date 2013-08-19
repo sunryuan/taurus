@@ -27,7 +27,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.dp.bigdata.taurus.agent.common.BaseTaskThread;
+import com.dp.bigdata.taurus.agent.common.BaseEnvManager;
 import com.dp.bigdata.taurus.agent.utils.TaskHelper;
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.bean.ScheduleStatus;
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.interfaces.ScheduleInfoChannel;
@@ -38,7 +38,7 @@ import com.dp.bigdata.taurus.zookeeper.common.infochannel.interfaces.ScheduleInf
  * @author renyuan.sun
  *
  */
-public final class ZombieTaskThread  extends BaseTaskThread{
+public final class ZombieTaskThread  extends BaseEnvManager{
     
     String localIp;
     ScheduleInfoChannel cs;

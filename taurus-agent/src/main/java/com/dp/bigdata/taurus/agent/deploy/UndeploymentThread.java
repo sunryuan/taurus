@@ -22,7 +22,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.dp.bigdata.taurus.agent.common.BaseTaskThread;
+import com.dp.bigdata.taurus.agent.common.BaseEnvManager;
 import com.dp.bigdata.taurus.agent.utils.LockHelper;
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.bean.DeploymentConf;
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.bean.DeploymentStatus;
@@ -33,7 +33,7 @@ import com.dp.bigdata.taurus.zookeeper.common.infochannel.interfaces.DeploymentI
  * @author renyuan.sun
  *
  */
-public class UndeploymentThread extends BaseTaskThread {
+public class UndeploymentThread extends BaseEnvManager {
 
     private String localIp;
     private DeploymentInfoChannel cs;

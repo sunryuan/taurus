@@ -23,7 +23,7 @@ import java.util.concurrent.locks.Lock;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.dp.bigdata.taurus.agent.common.BaseTaskThread;
+import com.dp.bigdata.taurus.agent.common.BaseEnvManager;
 import com.dp.bigdata.taurus.agent.exec.Executor;
 import com.dp.bigdata.taurus.agent.utils.LockHelper;
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.bean.ScheduleConf;
@@ -35,7 +35,7 @@ import com.dp.bigdata.taurus.zookeeper.common.infochannel.interfaces.ScheduleInf
  * @author renyuan.sun
  *
  */
-public class KillTaskThread extends BaseTaskThread{
+public class KillTaskThread extends BaseEnvManager{
     
     private static final Log LOGGER = LogFactory.getLog(KillTaskThread.class);
     private static final String KILL_COMMAND = "%s %s %s";

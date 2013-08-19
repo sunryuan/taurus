@@ -18,6 +18,8 @@ rm taurus-agent.tar.gz
 rm -f taurus-agent/conf/agentConf.properties
 rm -f taurus-agent/script/agent-env.sh
 
+rm -f ./lib/*
+
 mv -f taurus-agent/lib/* ./lib/
 mv -f taurus-agent/script/* ./script/
 mv -f taurus-agent/conf/* ./conf/
@@ -29,7 +31,6 @@ dos2unix bin/start.sh
 dos2unix conf/agentConf.properties
 
 chmod 744 bin/start.sh
-bin/start.sh init
 
 nohup bin/start.sh >/dev/null &
 

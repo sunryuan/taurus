@@ -1,12 +1,32 @@
 var taskID;
 var action_chinese;
+$(document).ready(function() {
+	$(document).delegate('.detailBtn', 'click', function(e){
+		var anchor = this;
+		if(e.ctrlKey || e.metaKey){
+			return true;
+		}else{
+			e.preventDefault();
+		}
+		$.ajax({
+			type: "get",
+			url: anchor.href,
+			error: function(){
+				$("#alertContainer").html('<div id="alertContainer" class="alert alert-error"><button type="button" class="close" data-dismiss="alert">&times;</button> <strong>获取详情失败</strong></div>');
+				$(".alert").alert();
+			},
+			success: function(response, textStatus) {
+				$("#detailModal").html(response);
+				$("#detailModal").modal();
+			}
+		});
+	});
+});
+
 function action(id, index) {
 	action_chinese = $("#" + id + " .dropdown-menu li:nth-child(" + index + ") a").html();
 	taskID = id;
-	if (action_chinese == '详细') {
-		$("#detail_"+id).modal('toggle');
-	}
-	else {
+	
 		if (action_chinese == '删除') {
 			$("#id_header").html("删除");
 			$("#id_body").html("确定要删除任务<strong>" + id + "</strong>");
@@ -21,14 +41,11 @@ function action(id, index) {
 			$("#id_body").html("确定要恢复任务<strong>" + id + "</strong>");
 		}
 		$("#confirm").modal('toggle');
-	}
 }
 
 
-
-
 function action_update(id) {
-	var btn = $('#updateBtn',$('#detail_'+id));
+	var btn = $('#updateBtn',$('#detailModal'));
 	var form =  $("#form_"+id);
 	if(btn.text() == "修改"){
 		btn.html("保存");
@@ -176,8 +193,12 @@ function action_ok() {
 			$('#confirm').modal("hide");
 		},
 		success: function(){
-			$("#alertContainer").html('<div id="alertContainer" class="alert alert-success"><button type="button" class="close" data-dismiss="alert">&times;</button> <strong>'
-					+ action_chinese + '成功</strong></div>');
+			if(action_chinese == '执行') {
+				$("#alertContainer").html('<div id="alertContainer" class="alert alert-success"><button type="button" class="close" data-dismiss="alert">&times;</button> <strong>开始执行..</strong></div>');
+			} else {
+				$("#alertContainer").html('<div id="alertContainer" class="alert alert-success"><button type="button" class="close" data-dismiss="alert">&times;</button> <strong>'
+						+ action_chinese + '成功</strong></div>');
+			}
 			$(".alert").alert();
 			$('#confirm').modal("hide");
 			if(action_chinese == '删除'){
@@ -198,7 +219,7 @@ function action_ok() {
 }
 
 function toAction(chinese){
-	var action;
+	var action = null;
 	if(chinese == "删除"){
 		action = "delete";
 	}else if(chinese == "暂停"){

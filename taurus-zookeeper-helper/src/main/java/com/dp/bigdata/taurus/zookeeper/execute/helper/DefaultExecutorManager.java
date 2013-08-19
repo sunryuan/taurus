@@ -63,9 +63,10 @@ public class DefaultExecutorManager implements ExecutorManager{
         String taskType = context.getType();
         String proxyUser = context.getProxyUser();
         String taskUrl = context.getTaskUrl();
+        Map<String,String> otherConfs = context.getExtendedConfs();
         
         ScheduleStatus status = (ScheduleStatus) dic.getStatus(agentIP, attemptID);
-        if(status == null){
+        if(status == null){            
             ScheduleConf conf = new ScheduleConf();
             conf.setTaskID(taskID);
             conf.setAttemptID(attemptID);
@@ -73,6 +74,7 @@ public class DefaultExecutorManager implements ExecutorManager{
             conf.setTaskType(taskType);
             conf.setUserName(proxyUser);
             conf.setTaskUrl(taskUrl);
+            conf.setExtendedMap(otherConfs);
             status = new ScheduleStatus();
             status.setStatus(ScheduleStatus.SCHEDULE_SUCCESS);
             Lock lock = getLock(attemptID);
@@ -161,7 +163,7 @@ public class DefaultExecutorManager implements ExecutorManager{
 
     	ScheduleStatus status = (ScheduleStatus) dic.getStatus(agentIP, attemptID);
         if(status == null) {
-            LOGGER.error("Fail to get status");
+            LOGGER.error("Fail to get status for attempt " +  agentIP + " : " + attemptID);
             throw new ExecuteException("Fail to get status");
         }
         ExecuteStatus result = null;

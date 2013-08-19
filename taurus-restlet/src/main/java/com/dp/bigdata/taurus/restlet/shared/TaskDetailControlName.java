@@ -31,7 +31,8 @@ public enum TaskDetailControlName {
     ALERTGROUP("alertGroup"),
     ALERTUSER("alertUser"),
     TASKURL("taskUrl"),
-    MAINCLASS("mainClass");
+    MAINCLASS("mainClass"),
+    HADOOPNAME("hadoopName");
     
     private String name;
     

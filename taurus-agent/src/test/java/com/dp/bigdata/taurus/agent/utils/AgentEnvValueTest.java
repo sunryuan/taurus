@@ -30,6 +30,8 @@ public class AgentEnvValueTest {
     public void testGetValue(){
         assertEquals(AgentEnvValue.getValue(AgentEnvValue.KEY_CHECK_INTERVALS, ""),"30000");
         assertEquals(AgentEnvValue.getValue("key_not_exists", ""),"");
+        System.out.println( AgentEnvValue.getConfigs());
+        System.out.println(         AgentEnvValue.getVersion());
 
     }
 }

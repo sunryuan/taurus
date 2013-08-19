@@ -1,6 +1,8 @@
 package com.dp.bigdata.taurus.core;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -33,12 +35,20 @@ public class AttemptContext {
     }
 
     public ExecuteContext getContext() {
+        Map<String,String> extendedConfs = new HashMap<String,String>();
+        if(StringUtils.isNotBlank(task.getType()) && task.getType().equalsIgnoreCase("hadoop")){
+            extendedConfs.put("hadoopName", getHadoopName());
+        }
         if (StringUtils.isNotBlank(task.getType()) && task.getType().equalsIgnoreCase("spring")) {
         	String taskUrl = getFilename();
-            return new ExecuteContext(JarID.getID(taskUrl), getAttemptid(), getExechost(), getProxyuser(), getType(), getCommand(),taskUrl);
+            return new ExecuteContext(JarID.getID(taskUrl), getAttemptid(), getExechost(), getProxyuser(), getType(), getCommand(),taskUrl,extendedConfs);
         } else {
-            return new ExecuteContext(getTaskid(), getAttemptid(), getExechost(), getProxyuser(), getType(), getCommand(),null);
+            return new ExecuteContext(getTaskid(), getAttemptid(), getExechost(), getProxyuser(), getType(), getCommand(),null,extendedConfs);
         }
+    }
+
+    private String getHadoopName() {
+        return task.getHadoopname();
     }
 
     public void setAttempt(TaskAttempt attempt) {

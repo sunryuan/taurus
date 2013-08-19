@@ -72,6 +72,8 @@ public class TaskDTO implements Serializable {
     
     private String taskUrl;
     
+    private String hadoopName;
+    
     public Task getTask() {
         Task task = new Task();
         task.setAddtime(addtime);
@@ -106,6 +108,7 @@ public class TaskDTO implements Serializable {
         task.setType(type);
         task.setUpdatetime(updatetime);
         task.setWaittimeout(waittimeout);
+        task.setHadoopname(hadoopName);
         return task;
     }
 
@@ -352,6 +355,18 @@ public class TaskDTO implements Serializable {
 
 	public void setTaskUrl(String taskUrl) {
 		this.taskUrl = taskUrl;
+	}
+
+    public String getHadoopName() {
+        return hadoopName;
+    }
+
+    public void setHadoopName(String hadoopName) {
+        this.hadoopName = hadoopName;
+    }
+	
+	public String getHtmlCommand(){
+	    return command.replaceAll("\"", "&quot;");
 	}
 
 }

@@ -1,6 +1,7 @@
 package com.dp.bigdata.taurus.web.servlet;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -13,6 +14,8 @@ import org.restlet.resource.ClientResource;
 
 import com.dp.bigdata.taurus.restlet.resource.IManualTaskResource;
 import com.dp.bigdata.taurus.restlet.resource.ITaskResource;
+import com.dp.bigdata.taurus.restlet.shared.TaskDTO;
+import com.google.gson.Gson;
 
 /**
  * 
@@ -31,6 +34,7 @@ public class TaskProxyServlet extends HttpServlet {
     private static final String SUSPEND = "suspend";
     private static final String EXECUTE = "execute";
     private static final String RESUME = "resume";
+    private static final String DETAIL = "detail";
 
     private String RESTLET_URL_BASE;
 
@@ -73,6 +77,18 @@ public class TaskProxyServlet extends HttpServlet {
             manualResource.resume();
             System.out.println("Resume result code : " + manualCr.getStatus().getCode());
             response.setStatus(manualCr.getStatus().getCode());
+        } else if (action.equals(DETAIL)){
+            TaskDTO task = taskResource.retrieve();
+            response.setContentType("application/json");
+            Gson gson = new Gson();  
+            String json = gson.toJson(task);    
+           
+            // Get the printwriter object from response to write the required json object to the output stream      
+            PrintWriter out = response.getWriter();
+            // Assuming your json object is **jsonObject**, perform the following, it will return your json object  
+            out.write(json);
+            out.flush();
+            response.setStatus(200);
         }
     }
 
