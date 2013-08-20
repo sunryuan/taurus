@@ -140,11 +140,15 @@
 					</div>
 				</div>
 				<div class="control-group">
-					<label class="control-label">允许同时执行实例个数*</label>
-					<div class="controls">
-						<input type="number" class="input-small field " id="multiInstance"
-							name="multiInstance" style="text-align: right"
-							value=<%=dto.getAllowmultiinstances()%> disabled>
+					<label class="control-label">自动kill timeout实例*</label>
+					<div class="controls field" id="isAutoKill">
+						<% if(dto.isAutoKill()){%>
+						<input type="radio" value="1" name="isAutoKill" checked>是
+						<input type="radio" value="0" name="isAutoKill">否
+						<%}else {%>
+						<input type="radio" value="1" name="isAutoKill">是
+						<input type="radio" value="0" name="isAutoKill" checked>否
+						<%} %>
 					</div>
 				</div>
 				<div class="control-group">

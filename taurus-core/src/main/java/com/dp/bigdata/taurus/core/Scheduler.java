@@ -152,5 +152,7 @@ public interface Scheduler {
 	 *         false otherwise.
 	 */
 	 public boolean isRuningAttempt(String attemptID); 
+	 
+	 public String getRecentFiredAttemptByTaskID(String taskID);
 
 }

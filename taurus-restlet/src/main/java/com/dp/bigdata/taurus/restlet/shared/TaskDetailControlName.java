@@ -15,7 +15,7 @@ public enum TaskDetailControlName {
     TAKSSTATE("taskState"),
     TASKFILE("taskFile"),
     TASKCOMMAND("taskCommand"),
-    MULTIINSTANCE("multiInstance"),
+    ISAUTOKILL("isAutoKill"),
     CRONTAB("crontab"),
     DEPENDENCY("dependency"),
     PROXYUSER("proxyUser"),

@@ -33,10 +33,6 @@ public class FilterTest extends AbstractDaoTest{
     private TaskAttemptMapper attemptMapper;
     
     @Autowired
-    @Qualifier("filter.isAllowMutilInstance")
-    private MultiInstanceFilter filter1;
-    
-    @Autowired
     @Qualifier("filter.maxConcurrency")
     private MaximumConcurrentTaskFilter filter2;
     
@@ -51,21 +47,18 @@ public class FilterTest extends AbstractDaoTest{
         task1.setTaskid(TASKID1);
         task1.setName("test1");
         task1.setStatus(TaskStatus.RUNNING);
-        task1.setAllowmultiinstances(1);
         taskMapper.insertSelective(task1);
 
         Task task2 = new Task();
         task2.setTaskid(TASKID2);
         task2.setName("test2");
         task2.setStatus(TaskStatus.RUNNING);
-        task2.setAllowmultiinstances(2);
         taskMapper.insertSelective(task2);
 
         Task task3 = new Task();
         task3.setTaskid(TASKID3);
         task3.setName("test3");
         task3.setStatus(TaskStatus.RUNNING);
-        task3.setAllowmultiinstances(3);
         taskMapper.insertSelective(task3);
 
         
@@ -105,7 +98,7 @@ public class FilterTest extends AbstractDaoTest{
         /*
          * set next to null
          */
-        filter1.setNext(null);
+        filter2.setNext(null);
         
         /*
          * load attemptcontext
@@ -156,22 +149,14 @@ public class FilterTest extends AbstractDaoTest{
     @Test
     public void testFilter(){
         
-        List<AttemptContext> _context = filter1.filter(contexts);
-        assertEquals(3, _context.size());
+        List<AttemptContext> _context = filter2.filter(contexts);
+        assertEquals(2, _context.size());
         
         AttemptContext context0 = _context.get(0);
         assertEquals(TASKID3, context0.getTaskid());
 
         AttemptContext context1 = _context.get(1);
         assertEquals(TASKID3, context1.getTaskid());
-        
-        AttemptContext context2 = _context.get(2);
-        assertEquals(TASKID2, context2.getTaskid());
-        
-        List<AttemptContext> _context2 = filter2.filter(_context);
-        assertEquals(2, _context2.size());
-        
-        
     }
 
 }

@@ -26,12 +26,12 @@
 		addTime TIMESTAMP, lastScheduleTime TIMESTAMP,
 		updateTime TIMESTAMP, crontab
 		VARCHAR(100), status INT,
-		allowMultiInstances INT, proxyUser
+		isAutoKill INT, proxyUser
 		VARCHAR(50), waitTimeout INT,
 		executionTimeout INT, isAutoRetry INT,
 		retryTimes INT,
 		command VARCHAR(255), poolID
-		INT,hostName VARCHAR(100),
+		INT,hostName VARCHAR(100),hadoopName VARCHAR(100),
 		type VARCHAR(100),fileName VARCHAR(200), description VARCHAR(255), PRIMARY KEY (taskID))
 	</update>
 

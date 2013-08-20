@@ -35,8 +35,7 @@ public class HostsResource extends ServerResource implements IHostsResource {
         ArrayList<HostDTO> hosts = new ArrayList<HostDTO>();
         Form form = getRequest().getResourceRef().getQueryAsForm();
         if (form.size() == 0) {
-            HostExample example = null;
-            ArrayList<Host> _hosts = (ArrayList<Host>) hostMapper.selectByExample(example);
+            ArrayList<Host> _hosts = (ArrayList<Host>) hostMapper.selectByExample(null);
             int i = 1;
             for (Host _host : _hosts) {
                 hosts.add(new HostDTO(i++, _host.getName(), _host.getIp(), _host.getPoolid(), _host.getIsconnected(), _host
