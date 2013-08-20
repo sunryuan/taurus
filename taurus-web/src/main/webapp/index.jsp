@@ -1,46 +1,70 @@
 <!DOCTYPE html>
-<%@ page contentType="text/html;charset=utf-8" %>
+<%@ page contentType="text/html;charset=utf-8"%>
 <html lang="en">
 <head>
-    <%@ include file="jsp/common-header.jsp"%>
-	<link href="css/index.css" rel="stylesheet" type="text/css" >
+<%@ include file="jsp/common-header.jsp"%>
+<link href="css/index.css" rel="stylesheet" type="text/css">
+<link href="css/docs.css" rel="stylesheet">
 </head>
-<body  data-spy="scroll">
+<body data-spy="scroll" data-target=".bs-docs-sidebar">
 
- <%@ include file="jsp/common-nav.jsp" %>
- <%@ include file="jsp/common-api.jsp"%>
-<div id="myCarousel" class="carousel slide">
-      <div class="carousel-inner">
-        <div class="item active">
-          <img src="img/taurus_os.png" alt="">
-          <div class="container">
-            <div class="carousel-caption">
-              <h1>Taurus Job Managerment System</h1>
-              <p class="lead">Cras justo odio, dapibus ac facilisis in, egestas eget quam. Donec id elit non mi porta gravida at eget metus. Nullam id dolor id nibh ultricies vehicula ut id elit.</p>
-            </div>
-          </div>
-        </div>
-        <div class="item">
-          <img src="img/hadoop.png" alt="">
-          <div class="container">
-            <div class="carousel-caption">
-              <h1 style="color:#000">Hadoop Job Supported</h1>
-              <p class="lead" style="color:#000">Cras justo odio, dapibus ac facilisis in, egestas eget quam.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-      <a class="left carousel-control" href="#myCarousel" data-slide="prev">&lsaquo;</a>
-      <a class="right carousel-control" href="#myCarousel" data-slide="next">&rsaquo;</a>
-    </div><!-- /.carousel -->
-   
-<script>	
-      !function ($) {
-        $(function(){
-          // carousel demo
-          $('#myCarousel').carousel()
-        })
-      }(window.jQuery)
-    </script>
+	<%@ include file="jsp/common-nav.jsp"%>
+	<%@ include file="jsp/common-api.jsp"%>
+	<div class="container">
+		<div class="row">
+			<div class="span3 bs-docs-sidebar">
+				<ul class="nav nav-list bs-docs-sidenav affix">
+					<li class="active"><a href="#updated"><i
+							class="icon-chevron-right"></i> 服务器更新日志</a></li>
+					<li><a href="#author"><i class="icon-chevron-right"></i>开发人员</a></li>
+				</ul>
+			</div>
+
+			<div class="span9">
+				<section id="updated">
+					<h1>服务器更新日志</h1>
+					<table class="table table-striped table-bordered table-condensed">
+						<tbody>
+							<tr class="text-success">
+								<th width="90%">最新发布功能描述</th>
+								<th width="10%">发布时间</th>
+							</tr>
+							<tr>
+								<td>支持自动杀死Timeout作业。具体细节请看<a href="about.jsp#autokill">帮助</a></td>
+								<td>2013-8-20</td>
+							</tr>
+							<tr>
+								<td>修正Bugs。对杀死的作业设置返回值为-1。</td>
+								<td>2013-8-20</td>
+							</tr>
+							<tr>
+								<td>增加Cat打点</a></td>
+								<td>2013-8-20</td>
+							</tr>
+						</tbody>
+					</table>
+				</section>
+
+				<section id="author">
+					<h1>开发者</h1>
+					<table class="table table-striped table-bordered table-condensed">
+						<tbody>
+							<tr>
+								<td>孙任远</td>
+								<td>renyuan.sun@dianping.com</td>
+								<td>1815</td>
+							</tr>
+							<tr>
+								<td>朱浩</td>
+								<td>hao.zhu@dianping.com</td>
+								<td>1815</td>
+							</tr>
+						</tbody>
+					</table>
+				</section>
+
+			</div>
+		</div>
+	</div>
 </body>
 </html>

@@ -3,6 +3,7 @@
 <html lang="en">
 <head>
 <%@ include file="jsp/common-header.jsp"%>
+<link href="css/docs.css" rel="stylesheet">
 </head>
 <body data-spy="scroll" data-target=".bs-docs-sidebar">
 	<%@ include file="jsp/common-nav.jsp"%>
@@ -10,20 +11,23 @@
 
 	<div class="container">
 		<div class="row">
-			<div class="span2 bs-docs-sidebar">
+			<div class="span3 bs-docs-sidebar">
 				<ul class="nav nav-list bs-docs-sidenav affix">
 					<li class="active"><a href="#crontab"><i
 							class="icon-chevron-right"></i> Crontab</a></li>
 					<li><a href="#status"><i class="icon-chevron-right"></i>
 							Status</a></li>
+					<li><a href="#autokill"><i class="icon-chevron-right"></i>
+							AutoKill</a></li>
 				</ul>
 			</div>
 
-			<div class="span10">
+			<div class="span9">
 				<section id="crontab">
 					<div class="page-header">
 						<h1>Crontab表达式</h1>
 					</div>
+					<h3>Taurus会在填写的5位的cron表达式前自动加0，成为能够被解析的6位表达式。以下是表达式的规范文档。</h3>
 					<P>Cron expressions are comprised of 6 required fields and one
 						optional field separated by white space. The fields respectively
 						are described as follows:
@@ -193,56 +197,50 @@
 					<div class="page-header">
 						<h1>状态说明</h1>
 					</div>
-					<table cellspacing="8">
+					<table  class="table table-striped table-bordered table-condensed">
 						<tr>
 							<th align="left">状态名</th>
-							<th align="left">&nbsp;&nbsp;</th>
 							<th align="left">解释</th>
-							<th align="left">&nbsp;&nbsp;</th>
 						</tr>
 						<tr>
 							<td align="left">RUNNING</td>
-							<td align="left">&nbsp;&nbsp;</td>
 							<td align="left">这个实例正在运行</td>
-							<td align="left">&nbsp;&nbsp;</td>
 						</tr>
 						<tr>
 							<td align="left">DEPENDENCY_PASS</td>
-							<td align="left">&nbsp;&nbsp;</td>
 							<td align="left">这个实例等待被调度运行</td>
-							<td align="left">&nbsp;&nbsp;</td>
 						</tr>
 						<tr>
 							<td align="left">DEPENDENCY_TIMEOUT</td>
-							<td align="left">&nbsp;&nbsp;</td>
 							<td align="left">实例等待被调度超时，但它依然可被调度。只要当它依赖的作业完成，或者它的前一次实例完成，即可被调度执行</td>
-							<td align="left">&nbsp;&nbsp;</td>
 						</tr>
 						<tr>
 							<td align="left">SUCCEEDED</td>
-							<td align="left">&nbsp;&nbsp;</td>
 							<td align="left">这个实例已经成功执行</td>
-							<td align="left">&nbsp;&nbsp;</td>
 						</tr>
 						<tr>
 							<td align="left">FAILED</td>
-							<td align="left">&nbsp;&nbsp;</td>
 							<td align="left">这个实例因为返回值不为0而被系统认为执行失败</td>
-							<td align="left">&nbsp;&nbsp;</td>
 						</tr>
 						<tr>
 							<td align="left">KILLED</td>
-							<td align="left">&nbsp;&nbsp;</td>
 							<td align="left">这个实例被杀死</td>
-							<td align="left">&nbsp;&nbsp;</td>
 						</tr>
 						<tr>
 							<td align="left">TIMEOUT</td>
-							<td align="left">&nbsp;&nbsp;</td>
 							<td align="left">当运行的实例执行时间超过配置的最大执行时间时，将被认为超时，但这个实例依然继续运行</td>
-							<td align="left">&nbsp;&nbsp;</td>
 						</tr>
 					</table>
+				</section>
+				
+				<section id="autokill">
+					<h1>自动杀死Timeout实例</h1>
+					<p>如果有实例执行超时了，并且已经有新的实例在等待执行，那么系统将自动将这个Timeout的实例杀死。</p>
+					
+					<p>
+					Note: 对每个作业，系统的默认配置是开启这个功能的。如需要修改，请在配置时设置<span class="label label-info">自动kill timeout实例
+					</span>为否。</p>
+					
 				</section>
 			</div>
 

@@ -17,8 +17,6 @@
 				</p>
 
 				<ul class="nav">
-					<li class=""><a href="index.jsp">Home</a>
-					</li>
 					<li class=""><a href="task.jsp">新建任务</a>
 					</li>
 					<li class=""><a href="batch-task.jsp">批量设置</a>
