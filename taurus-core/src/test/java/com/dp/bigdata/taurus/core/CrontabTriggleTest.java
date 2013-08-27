@@ -56,6 +56,7 @@ public class CrontabTriggleTest extends AbstractDaoTest{
         Calendar cal = Calendar.getInstance();
         cal.set(2012, Calendar.OCTOBER, 14, 19, 9, 0);
         task1.setLastscheduletime(cal.getTime());
+        task1.setUpdatetime(cal.getTime());
         taskMapper.insertSelective(task1);
         
         Task task2 = new Task();
@@ -66,6 +67,7 @@ public class CrontabTriggleTest extends AbstractDaoTest{
         Calendar ca2 = Calendar.getInstance();
         ca2.set(2012, Calendar.OCTOBER, 17, 10, 18, 0);
         task2.setLastscheduletime(ca2.getTime());
+        task2.setUpdatetime(ca2.getTime());
         taskMapper.insertSelective(task2);
         
         engine.load();

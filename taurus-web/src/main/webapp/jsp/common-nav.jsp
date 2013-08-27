@@ -17,8 +17,6 @@
 				</p>
 
 				<ul class="nav">
-					<li class=""><a href="index.jsp">Home</a>
-					</li>
 					<li class=""><a href="task.jsp">新建任务</a>
 					</li>
 					<li class=""><a href="batch-task.jsp">批量设置</a>
@@ -26,9 +24,9 @@
 					<li class=""><a href="schedule.jsp">调度中心</a>
 					</li>
 					<!--li class=""><a href="hosts.jsp">agent管理</a>
-					</li>
-					<li class=""><a href="about.jsp">帮助</a>  
 					</li>-->
+					<li class=""><a href="about.jsp">帮助</a>  
+					</li>
 				</ul>
 			</div>
 		</div>

@@ -47,6 +47,10 @@ public class DependencyTriggle implements Triggle {
         final Map<String, Task> tasks = scheduler.getAllRegistedTask();
         for (TaskAttempt attempt : attempts) {
             Task task = tasks.get(attempt.getTaskid());
+            
+            if(task == null){
+            	continue;
+            }
             String expression = task.getDependencyexpr();
             boolean isDepencyFinish = false;
             boolean hasDependency = true;

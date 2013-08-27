@@ -39,9 +39,9 @@
 	<bean id="statusMonitor" class="com.dp.bigdata.taurus.core.AttemptStatusMonitor" />
 	<bean id="triggle.crontab" class="com.dp.bigdata.taurus.core.CrontabTriggle" />
 	<bean id="triggle.dependency" class="com.dp.bigdata.taurus.core.DependencyTriggle" />
-	<bean id="filter.isAllowMutilInstance" class="com.dp.bigdata.taurus.core.MultiInstanceFilter">
+<!-- 	<bean id="filter.isAllowMutilInstance" class="com.dp.bigdata.taurus.core.MultiInstanceFilter">
 		<property name="next" ref="filter.maxConcurrency" />
-	</bean>
+	</bean> -->
 	<bean id="filter.maxConcurrency" class="com.dp.bigdata.taurus.core.MaximumConcurrentTaskFilter" />
 	<bean id="assignPolicy" class="com.dp.bigdata.taurus.core.RoundRobinTaskAssignPolicy" />
 	<bean id="zookeeper" class="com.dp.bigdata.taurus.zookeeper.execute.helper.DefaultExecutorManager" />

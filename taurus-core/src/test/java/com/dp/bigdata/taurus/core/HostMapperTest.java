@@ -45,7 +45,9 @@ public class HostMapperTest extends AbstractDaoTest {
         hostMapper.insertSelective(record);
     }
     
- 
-      
-    
+    @Test
+    public void insertTaskData(){
+        //List<Task> tasks = taskMapper.selectByCreatorInSameGroup("renyuan.sun");
+        //System.out.println(tasks.size());
+    }
 }

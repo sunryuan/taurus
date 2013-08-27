@@ -188,7 +188,11 @@ $(document).ready(function() {
 					params[element.id] = result.substr(0,result.length-1);
 				else
 					params[element.id] = element.value;
-			} else {
+			} else if(element.id == "isAutoKill"){
+				var checked = $('input[type=radio]:checked','#isAutoKill').val();
+				
+				params[element.id] = checked;
+			}else {
 				params[element.id] = element.value;
 			}
 		}

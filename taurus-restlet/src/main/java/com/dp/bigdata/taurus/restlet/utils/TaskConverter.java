@@ -30,13 +30,13 @@ public class TaskConverter {
         dto.setAddtime(task.getAddtime());
         dto.setLastscheduletime(task.getLastscheduletime());
         dto.setUpdatetime(task.getUpdatetime());
-        dto.setAllowmultiinstances(task.getAllowmultiinstances());
         dto.setCommand(task.getCommand());
         dto.setCreator(task.getCreator());
         dto.setCrontab(task.getCrontab().substring(2));
         dto.setDependencyexpr(task.getDependencyexpr());
         dto.setExecutiontimeout(task.getExecutiontimeout());
         dto.setIsautoretry(task.getIsautoretry());
+        dto.setAutoKill(task.getIsautokill());
         dto.setName(task.getName());
         dto.setPoolid(task.getPoolid());
         dto.setProxyuser(task.getProxyuser());

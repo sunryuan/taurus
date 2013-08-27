@@ -26,12 +26,20 @@ public class AttemptContext {
         this.task = task;
     }
 
+    public Date getAddtime() {
+        return task.getAddtime();
+    }
+
     public TaskAttempt getAttempt() {
         return attempt;
     }
 
-    public Task getTask() {
-        return task;
+    public String getAttemptid() {
+        return attempt.getAttemptid();
+    }
+
+    public String getCommand() {
+        return task.getCommand();
     }
 
     public ExecuteContext getContext() {
@@ -47,124 +55,123 @@ public class AttemptContext {
         }
     }
 
-    private String getHadoopName() {
-        return task.getHadoopname();
-    }
-
-    public void setAttempt(TaskAttempt attempt) {
-        this.attempt = attempt;
-    }
-
-    public void setTask(Task task) {
-        this.task = task;
-    }
-
-    public String getAttemptid() {
-        return attempt.getAttemptid();
-    }
-
-    public String getInstanceid() {
-        return attempt.getInstanceid();
-    }
-
-    public Date getStarttime() {
-        return attempt.getStarttime();
-    }
-
-    public Date getEndtime() {
-        return attempt.getEndtime();
-    }
-
-    public Date getScheduletime() {
-        return attempt.getScheduletime();
-    }
-
-    public Integer getStatus() {
-        return attempt.getStatus();
-    }
-
-    public Integer getReturnvalue() {
-        return attempt.getReturnvalue();
-    }
-
-    public String getExechost() {
-        return attempt.getExechost();
-    }
-
-    public String getTaskid() {
-        return task.getTaskid();
-    }
-
-    public String getName() {
-        return task.getName();
-    }
-
     public String getCreator() {
         return task.getCreator();
-    }
-
-    public String getDependencyexpr() {
-        return task.getDependencyexpr();
-    }
-
-    public Date getAddtime() {
-        return task.getAddtime();
-    }
-
-    public Date getLastscheduletime() {
-        return task.getLastscheduletime();
-    }
-
-    public Date getUpdatetime() {
-        return task.getUpdatetime();
     }
 
     public String getCrontab() {
         return task.getCrontab();
     }
 
-    public int getAllowmultiinstances() {
-        return task.getAllowmultiinstances();
+    public String getDependencyexpr() {
+        return task.getDependencyexpr();
     }
 
-    public String getProxyuser() {
-        return task.getProxyuser();
+    public Date getEndtime() {
+        return attempt.getEndtime();
     }
 
-    public Integer getWaittimeout() {
-        return task.getWaittimeout();
+    public String getExechost() {
+        return attempt.getExechost();
     }
 
     public Integer getExecutiontimeout() {
         return task.getExecutiontimeout();
     }
 
+    public String getFilename() {
+		return task.getFilename();
+	}
+
+    private String getHadoopName() {
+        return task.getHadoopname();
+    }
+
+    public String getInstanceid() {
+        return attempt.getInstanceid();
+    }
+
+    public Boolean getIsautokill() {
+	   return task.getIsautokill();
+   }
+
     public Boolean getIsautoretry() {
         return task.getIsautoretry();
     }
 
-    public Integer getRetrytimes() {
-        return task.getRetrytimes();
+    public Date getLastscheduletime() {
+        return task.getLastscheduletime();
     }
 
-    public String getCommand() {
-        return task.getCommand();
+    public String getName() {
+        return task.getName();
     }
 
     public Integer getPoolid() {
         return task.getPoolid();
     }
 
+    public String getProxyuser() {
+        return task.getProxyuser();
+    }
+
+    public Integer getRetrytimes() {
+        return task.getRetrytimes();
+    }
+
+    public Integer getReturnvalue() {
+        return attempt.getReturnvalue();
+    }
+
+
+    public Date getScheduletime() {
+        return attempt.getScheduletime();
+    }
+
+    public Date getStarttime() {
+        return attempt.getStarttime();
+    }
+
+    public Integer getStatus() {
+        return attempt.getStatus();
+    }
+
+    public Task getTask() {
+        return task;
+    }
+
+    public String getTaskid() {
+        return task.getTaskid();
+    }
+
+    
     public String getType() {
         return task.getType();
     }
 
-    public void setStatus(int status) {
+	public Date getUpdatetime() {
+        return task.getUpdatetime();
+    }
+
+	public Integer getWaittimeout() {
+        return task.getWaittimeout();
+    }
+
+    public void setAttempt(TaskAttempt attempt) {
+        this.attempt = attempt;
+    }
+
+    public void setIsautokill(Boolean isautokill) {
+	   task.setIsautokill(isautokill);
+   }
+
+
+	public void setStatus(int status) {
         attempt.setStatus(status);
     }
 
-	public String getFilename() {
-		return task.getFilename();
-	}
+	public void setTask(Task task) {
+        this.task = task;
+    }
 
 }

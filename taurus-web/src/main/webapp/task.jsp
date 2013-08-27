@@ -123,7 +123,7 @@
             		<label class="control-label" for="crontab">Crontab*</label>
             		<div class="controls">
               			<input type="text" class="input-xxlarge field" id="crontab" name="crontab"  value="0 0 * * ?">
-              			<a href="www.baidu.com">帮助</a>
+              			<a href="about.jsp#crontab">帮助</a>
             		</div>
           		</div>
           		
@@ -188,9 +188,10 @@
             			</div>
           			</div>
           			<div class="control-group">
-            			<label class="control-label" for="multiInstance">允许同时执行实例个数*</label>
-            			<div class="controls">
-              				<input type="number" class="input-small field" id="multiInstance" name="multiInstance" style="text-align:right" value=1>
+            			<label class="control-label" for="multiInstance">自动kill timeout实例*</label>
+            			<div class="controls field" id="isAutoKill">
+				            <input type="radio" value="1" name="isAutoKill" checked> 是
+				            <input type="radio" value="0" name="isAutoKill"> 否
             			</div>
           			</div>
           			<div class="control-group">
