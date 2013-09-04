@@ -69,7 +69,7 @@ public class AttemptsResource extends ServerResource implements IAttemptsResourc
 
         TaskAttemptExample example = new TaskAttemptExample();
         example.or().andTaskidEqualTo(taskID);
-        String orderByClause = "startTime desc limit " + index * pageSize + "," + pageSize;
+        String orderByClause = "scheduleTime desc, startTime desc limit " + index * pageSize + "," + pageSize;
         example.setOrderByClause(orderByClause);
         List<TaskAttempt> ats = taskAttemptMapper.selectByExample(example);
         toDtoList(ats);

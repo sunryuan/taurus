@@ -234,11 +234,13 @@
 				</section>
 				
 				<section id="autokill">
-					<h1>自动杀死Timeout实例</h1>
+					<div class="page-header">
+						<h1>自动杀死Timeout实例</h1>
+					</div>
 					<p>如果有实例执行超时了，并且已经有新的实例在等待执行，那么系统将自动将这个Timeout的实例杀死。</p>
 					
 					<p>
-					Note: 对每个作业，系统的默认配置是开启这个功能的。如需要修改，请在配置时设置<span class="label label-info">自动kill timeout实例
+					Note: 对每个作业，系统的默认配置是<span class="label label-info">开启</span>这个功能的。如需要修改，请在配置时设置<span class="label label-info">自动kill timeout实例
 					</span>为否。</p>
 					
 				</section>
