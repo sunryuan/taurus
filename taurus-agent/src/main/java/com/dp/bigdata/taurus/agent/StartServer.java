@@ -9,16 +9,16 @@ public class StartServer {
 		AgentServer as = injector.getInstance(AgentServer.class);
 		as.start();		
 	}
-	@Override
-	public  StartServer clone() {
-		StartServer result = null;
-			try {
-				result = (StartServer) super.clone();
-			} catch (CloneNotSupportedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			return result;
-		
-	}
+
+    @Override
+    public StartServer clone() {
+        StartServer result = null;
+        try {
+            result = (StartServer) super.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        return result;
+
+    }
 }

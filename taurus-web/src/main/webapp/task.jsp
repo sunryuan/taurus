@@ -192,7 +192,9 @@
             			<div class="controls field" id="isAutoKill">
 				            <input type="radio" value="1" name="isAutoKill" checked> 是
 				            <input type="radio" value="0" name="isAutoKill"> 否
+				            <a href="about.jsp#autokill">帮助</a>
             			</div>
+            			
           			</div>
           			<div class="control-group">
             			<label class="control-label">选择何时收到报警</label>

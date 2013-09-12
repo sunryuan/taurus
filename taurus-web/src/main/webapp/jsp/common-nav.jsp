@@ -27,6 +27,8 @@
 					</li>-->
 					<li class=""><a href="about.jsp">帮助</a>  
 					</li>
+					<li class=""><a href="user.jsp">用户设置</a>  
+					</li>
 				</ul>
 			</div>
 		</div>

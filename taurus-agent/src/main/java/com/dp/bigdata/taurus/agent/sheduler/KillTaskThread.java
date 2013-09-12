@@ -17,6 +17,7 @@ package com.dp.bigdata.taurus.agent.sheduler;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.concurrent.locks.Lock;
 
@@ -86,10 +87,14 @@ public class KillTaskThread extends BaseEnvManager{
                 try {
                     new File(fileName).delete();
                 } catch(Exception e) {
-                    //do nothing
+                    LOGGER.error("Fail to delete file for " + attemptID);
                 }
             }
-        } catch(Exception e) {
+        } catch(FileNotFoundException e){
+            LOGGER.debug(attemptID + " is over when been killed.");
+            returnCode = 0;
+        }
+        catch(Exception e) {
             LOGGER.error(e,e);
             returnCode = 1;
         }
