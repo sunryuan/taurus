@@ -27,30 +27,30 @@
 
    	<%
    		ClientResource cr = new ClientResource(host + "pool");
-   	   		IPoolsResource poolResource = cr.wrap(IPoolsResource.class);
-   	    	cr.accept(MediaType.APPLICATION_XML);
-   	   		ArrayList<PoolDTO> pools = poolResource.retrieve();
-   	   		int UNALLOCATED = 1;
-   	   		
-   	   		cr = new ClientResource(host + "host");
-	   		IHostsResource hostResource = cr.wrap(IHostsResource.class);
-	    	cr.accept(MediaType.APPLICATION_XML);
-	   		ArrayList<HostDTO> hosts = hostResource.retrieve();
-   	   		
-   	   		cr = new ClientResource(host + "status");
-   			IAttemptStatusResource attemptResource = cr.wrap(IAttemptStatusResource.class);
-   			cr.accept(MediaType.APPLICATION_XML);
-   			ArrayList<StatusDTO> statuses = attemptResource.retrieve();
-   			
-   			cr = new ClientResource(host + "user");
-   			IUsersResource userResource = cr.wrap(IUsersResource.class);
-   			cr.accept(MediaType.APPLICATION_XML);
-   			ArrayList<UserDTO> users = userResource.retrieve();
-   			
-   			cr = new ClientResource(host + "group");
-   			IUserGroupsResource groupResource = cr.wrap(IUserGroupsResource.class);
-   			cr.accept(MediaType.APPLICATION_XML);
-   			ArrayList<UserGroupDTO> groups = groupResource.retrieve();
+   	   	   	   	   	   	   	   		IPoolsResource poolResource = cr.wrap(IPoolsResource.class);
+   	   	   	   	   	   	   	    	cr.accept(MediaType.APPLICATION_XML);
+   	   	   	   	   	   	   	   		ArrayList<PoolDTO> pools = poolResource.retrieve();
+   	   	   	   	   	   	   	   		int UNALLOCATED = 1;
+   	   	   	   	   	   	   	   		
+   	   	   	   	   	   	   	   		cr = new ClientResource(host + "host");
+   	   	   	   	   	   		   		IHostsResource hostResource = cr.wrap(IHostsResource.class);
+   	   	   	   	   	   		    	cr.accept(MediaType.APPLICATION_XML);
+   	   	   	   	   	   		   		ArrayList<HostDTO> hosts = hostResource.retrieve();
+   	   	   	   	   	   	   	   		
+   	   	   	   	   	   	   	   		cr = new ClientResource(host + "status");
+   	   	   	   	   	   	   			IAttemptStatusResource attemptResource = cr.wrap(IAttemptStatusResource.class);
+   	   	   	   	   	   	   			cr.accept(MediaType.APPLICATION_XML);
+   	   	   	   	   	   	   			ArrayList<StatusDTO> statuses = attemptResource.retrieve();
+   	   	   	   	   	   	   			
+   	   	   	   	   	   	   			cr = new ClientResource(host + "user");
+   	   	   	   	   	   	   			IUsersResource userResource = cr.wrap(IUsersResource.class);
+   	   	   	   	   	   	   			cr.accept(MediaType.APPLICATION_XML);
+   	   	   	   	   	   	   			ArrayList<UserDTO> users = userResource.retrieve();
+   	   	   	   	   	   	   			
+   	   	   	   	   	   	   			cr = new ClientResource(host + "group");
+   	   	   	   	   	   	   			IUserGroupsResource groupResource = cr.wrap(IUserGroupsResource.class);
+   	   	   	   	   	   	   			cr.accept(MediaType.APPLICATION_XML);
+   	   	   	   	   	   	   			ArrayList<UserGroupDTO> groups = groupResource.retrieve();
    	%>
 	<div class="container">
 		<div id="wizard">
@@ -199,12 +199,18 @@
           			<div class="control-group">
             			<label class="control-label">选择何时收到报警</label>
             			<div class="controls">
-            					<% for(StatusDTO status:statuses) {
-   								    if(status.getStatus().equals("FAILED")||status.getStatus().equals("TIMEOUT")) {%>
+            					<%
+            						for(StatusDTO status:statuses) {
+            					            					            					            					   								    if(status.getStatus().equals("FAILED")||status.getStatus().equals("TIMEOUT")) {
+            					%>
     									<input type="checkbox" class="input-large field alertCondition" id="alertCondition" name="<%=status.getStatus()%>" checked="checked"> <%=status.getCh_status()%>
-    								<%} else {%>
+    								<%
+    									} else {
+    								%>
     									<input type="checkbox" class="input-large field alertCondition" id="alertCondition" name="<%=status.getStatus()%>"> <%=status.getCh_status()%>
-    							<%}}%>
+    							<%
+    								}}
+    							%>
             			</div>
           			</div>
           			
@@ -251,10 +257,10 @@
    
     <script type="text/javascript">  
       	var userList="",groupList="",ipList="";
-      	<% for(UserDTO user:users) {%>
+      	<%for(UserDTO user:users) {%>
       		userList=userList+",<%=user.getName()%>";
       	<%}%>
-      	<% for(UserGroupDTO group:groups) {%>
+      	<%for(UserGroupDTO group:groups) {%>
       		groupList=groupList+",<%=group.getName()%>";
   		<%}%>
   		<% for(HostDTO hostDto:hosts) {%>

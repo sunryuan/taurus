@@ -1,6 +1,7 @@
 package com.dp.bigdata.taurus.restlet.resource.impl;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -78,8 +79,8 @@ public class TaskResource extends ServerResource implements ITaskResource {
             LOG.error(e.getMessage());
             return dto;
         }
-
-        Task task = scheduler.getAllRegistedTask().get(taskID);
+        Map<String ,Task> map = scheduler.getAllRegistedTask();
+        Task task = map.get(taskID);
         if (task == null) {
             setStatus(Status.CLIENT_ERROR_NOT_FOUND);
             LOG.info("Cannot find the task by taskID = " + taskID);

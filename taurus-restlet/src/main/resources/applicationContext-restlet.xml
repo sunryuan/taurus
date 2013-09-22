@@ -51,6 +51,8 @@
 		class="com.dp.bigdata.taurus.restlet.resource.impl.UsersResource" />
 	<bean name="/api/group" id="groupsResource" autowire="byName" scope="prototype"
 		class="com.dp.bigdata.taurus.restlet.resource.impl.UserGroupsResource" />
+	<bean name="/api/usergroup" id="userGroupResource" autowire="byName" scope="prototype"
+		class="com.dp.bigdata.taurus.restlet.resource.impl.UserGroupMappingsResource" />
 	<bean name="/api/user/{user_name}" id="userResource" autowire="byName" scope="prototype"
 		class="com.dp.bigdata.taurus.restlet.resource.impl.UserResource" />
 			

@@ -8,7 +8,6 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.dp.bigdata.taurus.generated.mapper.HostMapper;
-import com.dp.bigdata.taurus.generated.mapper.TaskMapper;
 import com.dp.bigdata.taurus.generated.module.Host;
 
 /**
@@ -21,8 +20,8 @@ public class HostMapperTest extends AbstractDaoTest {
 
     @Autowired
     private HostMapper hostMapper;
-    @Autowired
-    private TaskMapper taskMapper;
+//    @Autowired
+//    private TaskMapper taskMapper;
     
     @Test
     public void insertHostData(){

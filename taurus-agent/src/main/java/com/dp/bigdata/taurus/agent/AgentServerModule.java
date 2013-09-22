@@ -31,6 +31,7 @@ public class AgentServerModule extends DeploymentInfoChannelModule{
 		ScheduleInfoChannel schedule;
 		Executor exec;
 		
+		@SuppressWarnings("unused")
 		@Inject
 		AgentServerProvider(DeploymentInfoChannel deployer, ScheduleInfoChannel schedule, Executor exec){
 			this.deployer = deployer;

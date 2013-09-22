@@ -53,6 +53,8 @@
 		class="com.dp.bigdata.taurus.restlet.resource.impl.UserGroupsResource" />
 	<bean name="/api/user/{user_name}" id="userResource" autowire="byName" scope="prototype"
 		class="com.dp.bigdata.taurus.restlet.resource.impl.UserResource" />
+	<bean name="/api/usergroup" id="userGroupResource" autowire="byName" scope="prototype"
+		class="com.dp.bigdata.taurus.restlet.resource.impl.UserGroupMappingsResource" />
 			
 	<!-- Core Service -->
 	<bean id="hdfsUtils" class="com.dp.bigdata.taurus.restlet.utils.DefaultHdfsUtils"
