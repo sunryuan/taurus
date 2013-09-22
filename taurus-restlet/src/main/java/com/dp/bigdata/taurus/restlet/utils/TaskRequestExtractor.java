@@ -193,7 +193,7 @@ public class TaskRequestExtractor implements RequestExtrator<TaskDTO> {
 
 					for (int i = 0; i < users.length; i++) {
 						String user = users[i];
-						if (userId != null & userId.length() > 0) {
+						if (user != null & user.length() > 0) {
 							UserExample example = new UserExample();
 
 							example.or().andNameEqualTo(user);

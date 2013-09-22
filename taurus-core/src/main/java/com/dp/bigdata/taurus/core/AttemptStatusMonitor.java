@@ -26,6 +26,8 @@ public class AttemptStatusMonitor implements Runnable {
 
 	private final Scheduler scheduler;
 
+	private long count = 0;
+
 	@Autowired
 	public AttemptStatusMonitor(Scheduler scheduler) {
 		this.scheduler = scheduler;
@@ -81,7 +83,6 @@ public class AttemptStatusMonitor implements Runnable {
 							} catch (ScheduleException e) {
 								Cat.logError(e);
 							}
-
 						}
 						break;
 					}
@@ -92,9 +93,17 @@ public class AttemptStatusMonitor implements Runnable {
 					}
 				}
 				Thread.sleep(Engine.SCHDUELE_INTERVAL);
+
+				count++;
+
+				if (count % 30 == 0) {
+					Cat.logEvent("Thread-monitor", "live");
+				}
 			}
 		} catch (InterruptedException ie) {
 			LOG.error(ie);
+			
+			Cat.logError(ie);
 		}
 	}
 

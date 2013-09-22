@@ -120,7 +120,6 @@ public class DefaultExecutorManager implements ExecutorManager{
     public void kill(ExecuteContext context) throws ExecuteException {
     	String agentIP = context.getAgentIP();
     	String attemptID = context.getAttemptID();
-
     	
     	ScheduleStatus status = new ScheduleStatus();
     	status = (ScheduleStatus) dic.getStatus(agentIP, attemptID);
