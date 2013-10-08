@@ -2,6 +2,7 @@ package com.dp.bigdata.taurus.web.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -12,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
+import org.restlet.data.MediaType;
 import org.restlet.resource.ClientResource;
 
 import com.dp.bigdata.taurus.restlet.resource.IUserResource;
@@ -90,8 +92,13 @@ public class LoginServlet extends HttpServlet {
 			if (hasRegister) {
 				HttpSession session = request.getSession();
 				session.setAttribute(USER_NAME, userName);
-				response.setStatus(200);
-				System.out.println("login in database success!");
+				if(isInfoCompleted(userName)){
+					response.setStatus(200);
+				} else{
+					System.out.println("login in database success!");
+					System.out.println(201);
+					response.setStatus(201);
+				}
 			} else {
 				response.setStatus(401);
 				System.out.println("longin fail!");
@@ -107,9 +114,30 @@ public class LoginServlet extends HttpServlet {
 			dto.setName(userName);
 			dto.setMail(String.format("%s@dianping.com", userName));
 			resource.createIfNotExist(dto);
-
-			response.setStatus(200);
+			if(isInfoCompleted(userName)){
+				response.setStatus(200);
+			} else{
+				response.setStatus(201);
+			}
 		}
+	}
+	
+	private boolean isInfoCompleted(String userName){
+		ClientResource cr = new ClientResource(RESTLET_URL_BASE + "user");
+  	    IUsersResource userResource = cr.wrap(IUsersResource.class);
+  	    cr.accept(MediaType.APPLICATION_XML);
+  	    ArrayList<UserDTO> users = userResource.retrieve();
+  	    for(UserDTO user:users){
+  	    	if(userName.equals(user.getName())){
+  	    		if(user.getGroup() == null || user.getMail() == null || user.getTel() == null 
+  						|| user.getGroup().equals("") || user.getMail().equals("") || user.getTel().equals("") ){
+  	    			return false;
+  	    		} else{
+  	    			return true;
+  	    		}
+  	    	}
+  	    }
+  	    return false;
 	}
 
 	public static void main(String[] args) throws Exception {

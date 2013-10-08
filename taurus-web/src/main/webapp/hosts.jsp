@@ -3,19 +3,19 @@
 <html lang="en">
 <head>
 <%@ include file="jsp/common-header.jsp"%>
+<%@ include file="jsp/common-nav.jsp"%>
 </head>
 <body data-spy="scroll">
-	<%@ include file="jsp/common-nav.jsp"%>
-	<%@ include file="jsp/common-api.jsp"%>
 	
 	<%@page import="org.restlet.resource.ClientResource"%>
 	<%@page import="com.dp.bigdata.taurus.restlet.resource.IHostsResource"%>
 	<%@page import="com.dp.bigdata.taurus.restlet.shared.HostDTO"%>
-	<%@page import="java.util.ArrayList"%>
+	<%@page import="java.util.Map"%>
+	<%@page import="java.util.HashMap"%>
 	<%@page import="org.restlet.data.MediaType"%>
 	<%@page import="java.text.SimpleDateFormat"%>
 	<%
-	ClientResource cr = new ClientResource(host + "host");
+	cr = new ClientResource(host + "host");
 	IHostsResource hostResource = cr.wrap(IHostsResource.class);
 	cr.accept(MediaType.APPLICATION_XML);
 	ArrayList<HostDTO> hosts = hostResource.retrieve();
@@ -26,8 +26,29 @@
       		<%@include file="hostList.jsp"%>
       	</div>
 	  	<div class="span10">
-	  		<% for (HostDTO dto : hosts) {
-	  			if(request.getParameter("hostName")!= null && request.getParameter("hostName").equals(dto.getName())){
+	  		<%
+	  			String statusCode = (String)(request.getAttribute("statusCode"));
+	  			String hostName = request.getParameter("hostName");
+	  			String op = request.getParameter("op");
+	  			Map<String,String> maps = new HashMap<String,String>();
+	  			maps.put("up","上线");
+	  			maps.put("dowan","下线");
+	  			maps.put("restart","重启");
+	  			maps.put("update","升级");
+	  			String opChs = maps.get(op);
+				if(opChs == null){
+					opChs = "操作";
+				}
+	  			if("200".equals(statusCode)){
+	  		%>
+	  				<div id="alertContainer" class="container"><div id="alertContainer" class="alert alert-success"><button type="button" class="close" data-dismiss="alert">×</button> <%=opChs %>成功</div></div>
+	  		<%
+	  			} else if("500".equals(statusCode)){
+	  		%>
+	  				<div id="alertContainer" class="container"><div id="alertContainer" class="alert alert-error"><button type="button" class="close" data-dismiss="alert">×</button> <%=opChs %>失败</div></div>
+	  		<%  }
+	  		for (HostDTO dto : hosts) {
+	  			if(dto.getName()!= null && dto.getName().equals(hostName)){
 	  		%>
 	  		<ul  class="nav nav-tabs">
             	<li class="active"><a href="#state" data-toggle="tab">状态</a></li>
@@ -50,7 +71,7 @@
                 <tr class="success">
                   <td>1</td>
                   <td>机器IP</td>
-                  <td><%=dto.getName() %></td>
+                  <td><%=hostName%></td>
                   <td></td>
                 </tr>
                 <tr class="error">
@@ -58,17 +79,17 @@
                   <td>机器状态</td>
                   <%if(dto.isOnline()){%>
                   	<td>在线</td>
-                  	<td><a id="down" class="btn btn-primary btn-small" href="hosts?hostName=192.168.7.80&op=down">下线</a></td>
+                  	<td><a id="down" class="btn btn-primary btn-small" href="updateHost?hostName=<%=hostName%>&op=down">下线</a></td>
                   <%} %><%else{%>
                   	<td>下线</td>
-                  	<td><a id="up" class="btn btn-primary btn-small" href="hosts?hostName=192.168.7.80&op=up">上线</a></td>
+                  	<td><a id="up" class="btn btn-primary btn-small" href="updateHost?hostName=<%=hostName%>&op=up">上线</a></td>
                   <%} %>
                 </tr>
                 <tr class="warning">
                   <td>3</td>
                   <td>心跳状态</td>
                   <%if(dto.isConnected()){%><td>正常</td>
-                  	<td><a id="restart" class="btn btn-primary btn-small" href="hosts?hostName=192.168.7.80&op=restart">重启</a></td>
+                  	<td><a id="restart" class="btn btn-primary btn-small" href="updateHost?hostName=<%=hostName%>&op=restart">重启</a></td>
                   <%} else{%>   <td>异常  </td>
                   <td></td>
                   <%} %>
@@ -77,7 +98,7 @@
                   <td>4</td>
                   <td>版本</td>
                   <td><%=dto.getName() %></td>
-                  <td><a id="restart" class="btn btn-primary btn-small" href="hosts?hostName=192.168.7.80&op=update">升级</a></td>
+                  <td><a id="restart" class="btn btn-primary btn-small" href="updateHost?hostName=<%=hostName%>&op=update">升级</a></td>
                 </tr>
               </tbody>
             </table>

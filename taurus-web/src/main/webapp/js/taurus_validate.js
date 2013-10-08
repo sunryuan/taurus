@@ -1,7 +1,3 @@
-// 
-//	jQuery Validate for task.jsp
-//
-
 $.validator.addMethod("fileNameTest",function(value,element,params){
 	 var p = /\s/;
 	 var q = /(.*)[\u4E00-\u9FA5]+(.*)/; 
@@ -14,13 +10,14 @@ $.validator.addMethod("alertWho",function(value,element,params){
 	 if(p.test(value)) return true; 
 	 return false; 
 },"不能包含空格、逗号和其他非法字符");
-  
+
 $.validator.addMethod("notRoot",function(value,element,params){
 	 if(value=="root")
 		 return false;
 	 else 
 		 return true;
 },"ProxyUser不能使root");	 
+
 
 $.validator.addMethod("validIP",function(value,element,params){
 	var p = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/;
@@ -67,10 +64,8 @@ $.validator.addMethod("validName",function(value,element,params){
 	return result;
 },"该名字已经存在！");	 
 
-
 $(document).ready(function(){
 	// Validate
-	
 	$('#deploy-form').validate({
 		rules: {
     		hostname: {
@@ -117,9 +112,7 @@ $(document).ready(function(){
 	    		required: true
 	    	},
 			proxyUser: {
-				notRoot: function(element) {
-                	return ($("#creator").val()!="renyuan.sun");
-        		},
+				notRoot: $("#creator").val()!="renyuan.sun"
 			},
 	    	description: {
 	    		required: true,
@@ -223,5 +216,6 @@ $(document).ready(function(){
 			    		.closest('.control-group').removeClass('error').addClass('success');
 			    },
 		  });
-	  }	  
-}); // end document.ready
+	  }
+		  
+}); 

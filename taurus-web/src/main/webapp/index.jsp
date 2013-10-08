@@ -2,14 +2,13 @@
 <%@ page contentType="text/html;charset=utf-8"%>
 <html lang="en">
 <head>
-<%@ include file="jsp/common-header.jsp"%>
-<link href="css/index.css" rel="stylesheet" type="text/css">
-<link href="css/docs.css" rel="stylesheet">
+	<%@ include file="jsp/common-header.jsp"%>
+	<%@ include file="jsp/common-nav.jsp"%>
+
+	<link href="css/index.css" rel="stylesheet" type="text/css">
+	<link href="css/docs.css" rel="stylesheet">
 </head>
 <body data-spy="scroll" data-target=".bs-docs-sidebar">
-
-	<%@ include file="jsp/common-nav.jsp"%>
-	<%@ include file="jsp/common-api.jsp"%>
 	<div class="container">
 		<div class="row">
 			<div class="span3 bs-docs-sidebar">
@@ -30,16 +29,32 @@
 								<th width="10%">发布时间</th>
 							</tr>
 							<tr>
-								<td>支持自动杀死Timeout作业。具体细节请看<a href="about.jsp#autokill">帮助</a></td>
-								<td>2013-8-20</td>
+								<td>重新组织了<a href="about.jsp">帮助</a>页面</td>
+								<td>2013-09-27</td>
+							</tr>
+							<tr>
+								<td>增加了<a href="user.jsp">用户设置</a>页面</td>
+								<td>2013-09-27</td>
+							</tr>
+							<tr>
+								<td>用户可以看到同组的所有人的作业</td>
+								<td>2013-09-27</td>
+							</tr>
+							<tr>
+								<td>修复了description显示为null和修改告警人的bug</td>
+								<td>2013-09-27</td>
+							</tr>
+							<tr>
+								<td>支持自动杀死Timeout作业。具体细节请看<a href="about.jsp#config">帮助</a></td>
+								<td>2013-08-20</td>
 							</tr>
 							<tr>
 								<td>修正Bugs。对杀死的作业设置返回值为-1。</td>
-								<td>2013-8-20</td>
+								<td>2013-08-20</td>
 							</tr>
 							<tr>
 								<td>增加Cat打点</a></td>
-								<td>2013-8-20</td>
+								<td>2013-08-20</td>
 							</tr>
 						</tbody>
 					</table>

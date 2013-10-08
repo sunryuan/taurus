@@ -28,5 +28,6 @@ if [ "$id" != "" ]; then
 fi
 
 #start agent
-/usr/local/jdk/bin/java -classpath "conf/:lib/*"  com.dp.bigdata.taurus.agent.StartServer
+nohup /usr/local/jdk/bin/java -classpath "conf/:lib/*"  com.dp.bigdata.taurus.agent.StartServer >/dev/null &
+echo "start success"
 #end

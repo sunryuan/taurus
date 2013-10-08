@@ -1,33 +1,23 @@
 <%@ page contentType="text/html;charset=utf-8"%>
 <%@ include file="jsp/common-nav.jsp"%>
-<%@ include file="jsp/common-api.jsp"%>
 
-<%@page import="org.restlet.resource.ClientResource"%>
-<%@page import="org.restlet.data.MediaType"%>
 <%@page import="com.dp.bigdata.taurus.restlet.resource.ITaskResource"%>
-
 <%@page	import="com.dp.bigdata.taurus.restlet.resource.IAttemptStatusResource"%>
 <%@page import="com.dp.bigdata.taurus.restlet.resource.IUsersResource"%>
 <%@page	import="com.dp.bigdata.taurus.restlet.resource.IUserGroupsResource"%>
 
 <%@page import="com.dp.bigdata.taurus.restlet.shared.TaskDTO"%>
 <%@page import="com.dp.bigdata.taurus.restlet.shared.StatusDTO"%>
-<%@page import="com.dp.bigdata.taurus.restlet.shared.UserDTO"%>
 <%@page import="com.dp.bigdata.taurus.restlet.shared.UserGroupDTO"%>
 <%@page import="java.util.ArrayList"%>
 
 <%
 	String []types={"hadoop","spring","other"};
 
-	ClientResource cr = new ClientResource(host + "status");
+	cr = new ClientResource(host + "status");
 	IAttemptStatusResource attemptResource = cr.wrap(IAttemptStatusResource.class);
 	cr.accept(MediaType.APPLICATION_XML);
 	ArrayList<StatusDTO> statuses = attemptResource.retrieve();
-	
-	cr = new ClientResource(host + "user");
-	IUsersResource userResource = cr.wrap(IUsersResource.class);
-	cr.accept(MediaType.APPLICATION_XML);
-	ArrayList<UserDTO> users = userResource.retrieve();
 	
 	cr = new ClientResource(host + "group");
 	IUserGroupsResource groupResource = cr.wrap(IUserGroupsResource.class);
@@ -37,7 +27,6 @@
 	ITaskResource taskResource = cr.wrap(ITaskResource.class);
 	cr.accept(MediaType.APPLICATION_XML);
 	TaskDTO dto = taskResource.retrieve();
-	
 %>
 	<div class="modal-header">
 		<button type="button" class="close" data-dismiss="modal">x</button>
@@ -61,7 +50,9 @@
 								name="taskType" class="input-big"  value="<%=dto.getType()%>" readonly>
 					</div>
 				</div>
-				<% if(dto.getType() != null && dto.getType().equals("hadoop")){%>
+				<%
+					if(dto.getType() != null && dto.getType().equals("hadoop")){
+				%>
 				<div class="control-group">
 					<label class="control-label" for="hadoopName">hadoop用户名*</label>
 					<div class="controls">
@@ -69,7 +60,9 @@
 							name="hadoopName" value="<%=dto.getHadoopName()%>" disabled>
 					</div>
 				</div>
-				<%}%>
+				<%
+					}
+				%>
 				
 				<div class="control-group">
 					<label class="control-label" for="taskName">名称*</label>
@@ -142,30 +135,42 @@
 				<div class="control-group">
 					<label class="control-label">自动kill timeout实例*</label>
 					<div class="controls field" id="isAutoKill">
-						<% if(dto.isAutoKill()){%>
+						<%
+							if(dto.isAutoKill()){
+						%>
 						<input type="radio" value="1" name="isAutoKill" checked>是
 						<input type="radio" value="0" name="isAutoKill">否
-						<%}else {%>
+						<%
+							}else {
+						%>
 						<input type="radio" value="1" name="isAutoKill">是
 						<input type="radio" value="0" name="isAutoKill" checked>否
-						<%} %>
+						<%
+							}
+						%>
 					</div>
 				</div>
 				<div class="control-group">
 					<label class="control-label">选择何时收到报警</label>
 					<div class="controls">
-						<%String conditionStr = dto.getAlertRule().getConditions();
-            					for(StatusDTO status:statuses) {
-   								    if(conditionStr != null && conditionStr.contains(status.getStatus())) {%>
+						<%
+							String conditionStr = dto.getAlertRule().getConditions();
+							for(StatusDTO status:statuses) {
+								if(conditionStr != null && conditionStr.contains(status.getStatus())) {
+						%>
 						<input type="checkbox" class="input-large field alertCondition"
 							id="alertCondition" name="<%=status.getStatus()%>"
 							checked="checked" disabled>
 						<%=status.getCh_status()%>
-						<%} else {%>
+						<%
+							} else {
+						%>
 						<input type="checkbox" class="input-large field alertCondition"
 							id="alertCondition" name="<%=status.getStatus()%>" disabled>
 						<%=status.getCh_status()%>
-						<%}}%>
+						<%
+							}}
+						%>
 					</div>
 				</div>
 
@@ -174,19 +179,27 @@
 					<div class="controls">
 						<select class="input-small field" id="alertType" name="alertType"
 							disabled>
-							<% if(dto.getAlertRule().getHasmail() && dto.getAlertRule().getHassms()) {%>
+							<%
+								if(dto.getAlertRule().getHasmail() && dto.getAlertRule().getHassms()) {
+							%>
 							<option id="1">邮件</option>
 							<option id="2">短信</option>
 							<option id="3" selected="selected">邮件和短信</option>
-							<% } else if(!dto.getAlertRule().getHasmail() && dto.getAlertRule().getHassms()) {%>
+							<%
+								} else if(!dto.getAlertRule().getHasmail() && dto.getAlertRule().getHassms()) {
+							%>
 							<option id="1">邮件</option>
 							<option id="2" selected="selected">短信</option>
 							<option id="3">邮件和短信</option>
-							<%} else {%>
+							<%
+								} else {
+							%>
 							<option id="1" selected="selected">邮件</option>
 							<option id="2">短信</option>
 							<option id="3">邮件和短信</option>
-							<%}%>
+							<%
+								}
+							%>
 						</select>
 					</div>
 				</div>
@@ -196,7 +209,7 @@
 					<label class="control-label" for="alertUser">选择报警接收人(分号分隔)</label>
 					<div class="controls">
 						<input type="text" class="input-large field" id="alertUser"
-							name="alertUser" <% if(dto.getAlertRule().getUserid() != null){%>
+							name="alertUser" <%if(dto.getAlertRule().getUserid() != null){%>
 							value="<%=dto.getAlertRule().getUserid()%>" <%}%> disabled>
 					</div>
 				</div>
@@ -206,13 +219,13 @@
 					<div class="controls">
 						<input type="text" class="input-large field" id="alertGroup"
 							name="alertGroup"
-							<% if(dto.getAlertRule().getGroupid() != null){%>
+							<%if(dto.getAlertRule().getGroupid() != null){%>
 							value="<%=dto.getAlertRule().getGroupid()%>" <%}%> disabled>
 					</div>
 				</div>
 				<input type="text" class="field" style="display: none" id="creator"
 					name="creator"
-					value="<%=(String)session.getAttribute(com.dp.bigdata.taurus.web.servlet.LoginServlet.USER_NAME)%>">
+					value="<%=currentUser%>">
 			</fieldset>
 		</form>
 	</div>
@@ -239,10 +252,10 @@
 </div>
 <script type="text/javascript">  
       	var userList="",groupList="";
-      	<% for(UserDTO user:users) {%>
+      	<%for(UserDTO user:users) {%>
       		userList=userList+",<%=user.getName()%>";
       	<%}%>
-      	<% for(UserGroupDTO group:groups) {%>
+      	<%for(UserGroupDTO group:groups) {%>
       		groupList=groupList+",<%=group.getName()%>";
 <%}%>
 	userList = userList.substr(1);

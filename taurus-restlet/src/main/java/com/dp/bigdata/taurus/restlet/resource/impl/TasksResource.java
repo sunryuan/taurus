@@ -92,6 +92,8 @@ public class TasksResource extends ServerResource implements ITasksResource {
 
         Form form = getRequest().getResourceRef().getQueryAsForm();
         String creatorName = null;
+        int userId = 0;
+        
         for (Parameter parameter : form) {
             String parameterName = parameter.getName();
             if (parameterName.equals(USER_FILTER)) {
@@ -105,8 +107,9 @@ public class TasksResource extends ServerResource implements ITasksResource {
             List<User> queryUsers = userMapper.selectByExample(uExample);
             if (queryUsers != null && queryUsers.size() == 1) {
                 User user = queryUsers.get(0);
+                userId = user.getId();
                 UserGroupMappingExample ugmExample = new UserGroupMappingExample();
-                ugmExample.or().andUseridEqualTo(user.getId());
+                ugmExample.or().andUseridEqualTo(userId);
                 List<UserGroupMapping> ugmapping = userGroupMappingMapper.selectByExample(ugmExample);
                 if (ugmapping != null) {
                     for (UserGroupMapping ugm : ugmapping) {
@@ -124,17 +127,16 @@ public class TasksResource extends ServerResource implements ITasksResource {
         }
 
         TaskExample taskExample = new TaskExample();
-//        UserGroupExample userGroupExample = new UserGroupExample();
-//        userGroupExample.
+        List<String> sameGroupUsers = getSameGroupUsers(userId,creatorName);
         if (!isAdmin && StringUtils.isNotBlank(creatorName)) {
-            taskExample.or().andCreatorEqualTo(creatorName).andStatusEqualTo(TaskStatus.RUNNING);
-            taskExample.or().andCreatorEqualTo(creatorName).andStatusEqualTo(TaskStatus.SUSPEND);
+            taskExample.or().andCreatorIn(sameGroupUsers).andStatusEqualTo(TaskStatus.RUNNING);
+            taskExample.or().andCreatorIn(sameGroupUsers).andStatusEqualTo(TaskStatus.SUSPEND);
         } else {
             taskExample.or().andStatusEqualTo(TaskStatus.RUNNING);
             taskExample.or().andStatusEqualTo(TaskStatus.SUSPEND);
         }
 
-        List<Task> tasks = taskMapper.selectByExampleWithBLOBs(taskExample);
+        List<Task> tasks = taskMapper.selectByExample(taskExample);
 
 		for (Task task : tasks) {
 			TaskDTO dto = TaskConverter.toDto(task);
@@ -188,6 +190,31 @@ public class TasksResource extends ServerResource implements ITasksResource {
 
 		}
 		return (ArrayList<TaskDTO>) result;
+	}
+
+	private List<String> getSameGroupUsers(int userID,String userName) {			
+		List<String> userNames = new ArrayList<String>();
+		userNames.add(userName);
+		UserGroupMappingExample example = new UserGroupMappingExample();
+		example.or().andUseridEqualTo(userID);
+		List<UserGroupMapping> queryMappings = userGroupMappingMapper.selectByExample(example);
+		if(queryMappings.size()>0){
+			int groupID = queryMappings.get(0).getGroupid();
+			example = new UserGroupMappingExample();
+			example.or().andGroupidEqualTo(groupID);
+			queryMappings = userGroupMappingMapper.selectByExample(example);
+			List<Integer> userIDs = new ArrayList<Integer>();
+			for(UserGroupMapping mapping:queryMappings){
+				userIDs.add(mapping.getUserid());
+			}
+			UserExample userExample = new UserExample();
+			userExample.or().andIdIn(userIDs);
+			List<User> users = userMapper.selectByExample(userExample);
+			for(User user:users){
+				userNames.add(user.getName());
+			}
+		}
+		return userNames;
 	}
 
 	@Post

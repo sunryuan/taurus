@@ -5,6 +5,7 @@ src/*
 /*/.*/*
 /*/.*
 
+# taurus-core/src/main/java/com/dp/bigdata/taurus/generated/ #
 taurus-core/src/main/resources/com
 taurus-core/derby.log
 
@@ -21,8 +22,4 @@ taurus-core/derby.log
 /*/.*
 
 taurus-web/src/main/webapp/WEB-INF/lib/*
-
-
-
-
 

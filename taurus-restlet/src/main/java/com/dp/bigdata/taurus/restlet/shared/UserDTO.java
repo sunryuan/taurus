@@ -2,6 +2,8 @@ package com.dp.bigdata.taurus.restlet.shared;
 
 import java.io.Serializable;
 
+import com.dp.bigdata.taurus.generated.module.User;
+
 /**
  * UserDTO
  * 
@@ -17,6 +19,7 @@ public class UserDTO implements Serializable {
     private String name;
     private String mail;
     private String tel;
+    private String group;
     
     public UserDTO(){
     }
@@ -57,4 +60,27 @@ public class UserDTO implements Serializable {
         this.tel = tel;
     }
 
+	public String getGroup() {
+		return group;
+	}
+
+	public void setGroup(String group) {
+		this.group = group;
+	}
+	
+	
+	
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public User getUser(){
+		User user = new User();
+		user.setId(id);
+		user.setMail(mail);
+		user.setName(name);
+		user.setTel(tel);
+		return user;
+	}
+    
 }

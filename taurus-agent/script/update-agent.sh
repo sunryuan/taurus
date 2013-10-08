@@ -32,6 +32,6 @@ dos2unix conf/agentConf.properties
 
 chmod 744 bin/start.sh
 
-nohup bin/start.sh >/dev/null &
+bin/start.sh
 
 #end
