@@ -157,6 +157,7 @@ if ( $.fn.DataTable.TableTools ) {
 $(document).ready(function() {
 	$('#example').dataTable( {
 		"sPaginationType": "bootstrap",
+		"iDisplayLength": 25,
 		"oLanguage": {
             "sProcessing": "正在加载中......",
             "sLengthMenu": "每页显示 _MENU_ 条记录",
