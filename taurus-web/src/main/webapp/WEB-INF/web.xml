@@ -84,6 +84,13 @@
 		<servlet-name>UserServlet</servlet-name>
 		<servlet-class>com.dp.bigdata.taurus.web.servlet.UserServlet</servlet-class>
 	</servlet>
+	
+	<servlet>
+		<description />
+		<display-name>Update Host</display-name>
+		<servlet-name>HostServlet</servlet-name>
+		<servlet-class>com.dp.bigdata.taurus.web.servlet.HostServlet</servlet-class>
+	</servlet>
 
 	<servlet-mapping>
 		<servlet-name>BatchTaskServlet</servlet-name>
@@ -111,4 +118,9 @@
 	<servlet-mapping>
 		<servlet-name>UserServlet</servlet-name>
 		<url-pattern>/saveUser</url-pattern>
-	</servlet-mapping></web-app>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>HostServlet</servlet-name>
+		<url-pattern>/updateHost</url-pattern>
+	</servlet-mapping>
+</web-app>

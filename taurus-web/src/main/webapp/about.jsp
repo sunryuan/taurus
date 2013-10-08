@@ -2,27 +2,171 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<%@ include file="jsp/common-header.jsp"%>
-<link href="css/docs.css" rel="stylesheet">
+	<%@ include file="jsp/common-header.jsp"%>
+	<%@ include file="jsp/common-nav.jsp"%>
+	<link href="css/docs.css" rel="stylesheet">
 </head>
 <body data-spy="scroll" data-target=".bs-docs-sidebar">
-	<%@ include file="jsp/common-nav.jsp"%>
-	<%@ include file="jsp/common-api.jsp"%>
-
 	<div class="container">
 		<div class="row">
 			<div class="span3 bs-docs-sidebar">
 				<ul class="nav nav-list bs-docs-sidenav affix">
-					<li class="active"><a href="#crontab"><i
-							class="icon-chevron-right"></i> Crontab</a></li>
+					<li class="active"><a href="#config"><i class="icon-chevron-right"></i>
+							Config</a></li>
 					<li><a href="#status"><i class="icon-chevron-right"></i>
 							Status</a></li>
-					<li><a href="#autokill"><i class="icon-chevron-right"></i>
-							AutoKill</a></li>
+					<li><a href="#crontab"><i
+							class="icon-chevron-right"></i> Crontab</a></li>
 				</ul>
 			</div>
 
 			<div class="span9">
+			
+				<section id="config">
+					<div class="page-header">
+						<h1>配置说明</h1>
+					</div>
+					<div id="content">
+					
+					<table  class="table table-striped table-bordered table-condensed">
+						<tr>
+							<th align="left" width="12%">配置项</th>
+							<th align="left" width="88%">说明</th>
+						</tr>
+						<tr>
+							<td align="left">作业类型</td>
+							<td align="left">hadoop: 需要访问hadoop的作业。这种类型的作业，taurus会管理作业的hadoop ticket的申请和销毁。<br/>
+											 spring: 在spring容器中运行的作业，较特殊，一般用不到。<br/>
+											 other:  所有其他类型。
+							</td>
+						</tr>
+						<tr>
+							<td align="left">hadoop用户名</td>
+							<td align="left">hadoop类型的作业，需要提供一个用于访问hadoop的principle name。<br/>
+								为此，taurus需要读取这个principle的keytab文件，一般情况下这个keytab已经放到相应的目录。<br/>
+								如果你不确定这一点，请联系我们。
+							</td>
+						</tr>
+						<tr>
+							<td align="left">最长执行时间</td>
+							<td align="left">作业正常情况下预计最长的执行时间，超过这个时间，作业的状态会变为TIMEOUT，但是仍然会继续执行。<br/>
+							有相应告警设置的作业人会收到报警。</td>
+						</tr>
+						<tr>
+							<td align="left">依赖</td>
+							<td align="left">用于配置依赖的作业，形式为依赖表达式：[作业名][作业的倒数第几次执行][作业返回值]。<br/>
+								比如：[A][1][0]表示当前作业在被触发的时间点上，依赖作业名为A的作业的前一次执行，并且这一次返回值为0。<br/>
+								可以用&或者|来连接依赖表达式，例如：[A][1][0] & [B][1][0] & [C][1][0]。
+							</td>
+						</tr>
+						<tr>
+							<td align="left">最长等待时间</td>
+							<td align="left">与依赖联合起来使用，表示对依赖的作业最长的等待时间。<br/>
+								超过这个时间，作业的状态变为DEPENDENCY_TIMEOUT，相关人员会收到报警。<br/>
+								但是作业会继续等待，一旦依赖的作业完成，该作业会立即执行。<br/>
+								对于没有依赖的作业，该选项无效。
+							</td>
+						</tr>
+						<tr>
+							<td align="left">重试次数</td>
+							<td align="left">作业在执行失败的情况下，重新执行的次数。<br/>
+								默认为0，表示不重试。</td>
+						</tr>
+						<tr>
+							<td align="left">自动kill timeout实例</td>
+							<td align="left">系统中同一个作业在同一时间只能有一个实例执行。因此当有实例执行超时时，后续的实例是无法执行的。<br/>
+								选择是，如果有实例执行超时了，并且已经有新的实例在等待执行，那么系统将自动将这个Timeout的实例杀死。
+							</td>
+						</tr>
+						<tr>
+							<td align="left">组名</td>
+							<td align="left">你所属的组的名字。<br/>
+								如果提示中没有合适的选项，你可以填写一个合适的组名，这个组名请尽可能地细化。<br/>
+								这个选项的重要性在于，你可以在作业的通知选项中，选择通知一个组的人。<br/>
+								并且你可以看到并操作同组人员的作业。
+							</td>
+						</tr>
+					</table>
+					</div>
+					<br/>
+					<br/>
+					<br/>
+					<br/>
+					<br/>
+					<br/>
+					<br/>
+					<br/>
+					<br/>
+					<br/>
+				</section>
+				<section id="status">
+					<div class="page-header">
+						<h1>状态说明</h1>
+					</div>
+					<table  class="table table-striped table-bordered table-condensed">
+						<tr>
+							<th align="left">状态名</th>
+							<th align="left">解释</th>
+						</tr>
+						<tr>
+							<td align="left">RUNNING</td>
+							<td align="left">这个实例正在运行</td>
+						</tr>
+						<tr>
+							<td align="left">DEPENDENCY_PASS</td>
+							<td align="left">这个实例等待被调度运行</td>
+						</tr>
+						<tr>
+							<td align="left">DEPENDENCY_TIMEOUT</td>
+							<td align="left">实例等待被调度超时，但它依然可被调度。只要当它依赖的作业完成，或者它的前一次实例完成，即可被调度执行</td>
+						</tr>
+						<tr>
+							<td align="left">SUCCEEDED</td>
+							<td align="left">这个实例已经成功执行</td>
+						</tr>
+						<tr>
+							<td align="left">FAILED</td>
+							<td align="left">这个实例因为返回值不为0而被系统认为执行失败</td>
+						</tr>
+						<tr>
+							<td align="left">KILLED</td>
+							<td align="left">这个实例被杀死</td>
+						</tr>
+						<tr>
+							<td align="left">TIMEOUT</td>
+							<td align="left">当运行的实例执行时间超过配置的最大执行时间时，将被认为超时，但这个实例依然继续运行</td>
+						</tr>
+					</table>
+					<br/>
+					<br/>
+					<br/>
+					<br/>
+					<br/>
+					<br/>
+					<br/>
+					<br/>
+					<br/>
+					<br/>
+					<br/>
+					<br/>
+					<br/>
+					<br/>
+					<br/>
+					<br/>
+					<br/>
+					<br/>
+					<br/>
+					<br/>
+					<br/>
+					<br/>
+					<br/>
+					<br/>
+					<br/>
+					<br/>
+					<br/>
+					<br/>
+				</section>
+		
 				<section id="crontab">
 					<div class="page-header">
 						<h1>Crontab表达式</h1>
@@ -298,74 +442,6 @@ L</span> 连起来表示月份的最后一个星期 X。例如，表达式 <span
 </tbody>
 </table>
 <br>
-
-				</section>
-				<section id="status">
-					<div class="page-header">
-						<h1>状态说明</h1>
-					</div>
-					<table  class="table table-striped table-bordered table-condensed">
-						<tr>
-							<th align="left">状态名</th>
-							<th align="left">解释</th>
-						</tr>
-						<tr>
-							<td align="left">RUNNING</td>
-							<td align="left">这个实例正在运行</td>
-						</tr>
-						<tr>
-							<td align="left">DEPENDENCY_PASS</td>
-							<td align="left">这个实例等待被调度运行</td>
-						</tr>
-						<tr>
-							<td align="left">DEPENDENCY_TIMEOUT</td>
-							<td align="left">实例等待被调度超时，但它依然可被调度。只要当它依赖的作业完成，或者它的前一次实例完成，即可被调度执行</td>
-						</tr>
-						<tr>
-							<td align="left">SUCCEEDED</td>
-							<td align="left">这个实例已经成功执行</td>
-						</tr>
-						<tr>
-							<td align="left">FAILED</td>
-							<td align="left">这个实例因为返回值不为0而被系统认为执行失败</td>
-						</tr>
-						<tr>
-							<td align="left">KILLED</td>
-							<td align="left">这个实例被杀死</td>
-						</tr>
-						<tr>
-							<td align="left">TIMEOUT</td>
-							<td align="left">当运行的实例执行时间超过配置的最大执行时间时，将被认为超时，但这个实例依然继续运行</td>
-						</tr>
-					</table>
-				</section>
-				<br/>
-				<br/>
-				<br/>
-				<br/>
-				<br/>
-				<br/>
-				<br/>
-				<br/>
-				<br/>
-				<br/>
-				<br/>
-				<br/>
-				<br/>
-				<br/>
-				<section id="autokill">
-					<div class="page-header">
-						<h1>自动杀死Timeout实例</h1>
-					</div>
-					<div id="content">
-					<p>如果有实例执行超时了，并且已经有新的实例在等待执行，那么系统将自动将这个Timeout的实例杀死。</p>
-					<p>
-					Note: 对每个作业，系统的默认配置是开启这个功能的。如需要修改，请在配置时设置<span class="label label-info">自动kill timeout实例
-					</span>为否。</p>
-					
-					</div>
-					
-					
 				</section>
 			</div>
 

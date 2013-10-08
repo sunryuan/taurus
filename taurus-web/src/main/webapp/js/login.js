@@ -13,6 +13,9 @@ function login(){
 			},
 			200 : function(){
 				window.location="index.jsp";
+			},
+			201 : function(){
+				window.location="user.jsp";
 			}
 		}
 	});
@@ -26,7 +29,8 @@ function logout(){
 		statusCode:{
 			200 : function(){
 				window.location="index.jsp";
-			}
+			},
+			
 		}
 	});
 	return false;

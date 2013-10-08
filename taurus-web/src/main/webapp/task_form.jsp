@@ -1,33 +1,23 @@
 <%@ page contentType="text/html;charset=utf-8"%>
 <%@ include file="jsp/common-nav.jsp"%>
-<%@ include file="jsp/common-api.jsp"%>
 
-<%@page import="org.restlet.resource.ClientResource"%>
-<%@page import="org.restlet.data.MediaType"%>
 <%@page import="com.dp.bigdata.taurus.restlet.resource.ITaskResource"%>
-
 <%@page	import="com.dp.bigdata.taurus.restlet.resource.IAttemptStatusResource"%>
 <%@page import="com.dp.bigdata.taurus.restlet.resource.IUsersResource"%>
 <%@page	import="com.dp.bigdata.taurus.restlet.resource.IUserGroupsResource"%>
 
 <%@page import="com.dp.bigdata.taurus.restlet.shared.TaskDTO"%>
 <%@page import="com.dp.bigdata.taurus.restlet.shared.StatusDTO"%>
-<%@page import="com.dp.bigdata.taurus.restlet.shared.UserDTO"%>
 <%@page import="com.dp.bigdata.taurus.restlet.shared.UserGroupDTO"%>
 <%@page import="java.util.ArrayList"%>
 
 <%
 	String []types={"hadoop","spring","other"};
 
-	ClientResource cr = new ClientResource(host + "status");
+	cr = new ClientResource(host + "status");
 	IAttemptStatusResource attemptResource = cr.wrap(IAttemptStatusResource.class);
 	cr.accept(MediaType.APPLICATION_XML);
 	ArrayList<StatusDTO> statuses = attemptResource.retrieve();
-	
-	cr = new ClientResource(host + "user");
-	IUsersResource userResource = cr.wrap(IUsersResource.class);
-	cr.accept(MediaType.APPLICATION_XML);
-	ArrayList<UserDTO> users = userResource.retrieve();
 	
 	cr = new ClientResource(host + "group");
 	IUserGroupsResource groupResource = cr.wrap(IUserGroupsResource.class);
@@ -165,8 +155,8 @@
 					<div class="controls">
 						<%
 							String conditionStr = dto.getAlertRule().getConditions();
-																		            					for(StatusDTO status:statuses) {
-																		   								    if(conditionStr != null && conditionStr.contains(status.getStatus())) {
+							for(StatusDTO status:statuses) {
+								if(conditionStr != null && conditionStr.contains(status.getStatus())) {
 						%>
 						<input type="checkbox" class="input-large field alertCondition"
 							id="alertCondition" name="<%=status.getStatus()%>"
@@ -235,7 +225,7 @@
 				</div>
 				<input type="text" class="field" style="display: none" id="creator"
 					name="creator"
-					value="<%=(String)session.getAttribute(com.dp.bigdata.taurus.web.servlet.LoginServlet.USER_NAME)%>">
+					value="<%=currentUser%>">
 			</fieldset>
 		</form>
 	</div>

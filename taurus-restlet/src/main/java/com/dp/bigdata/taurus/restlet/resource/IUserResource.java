@@ -9,6 +9,6 @@ public interface IUserResource {
 	public boolean hasRegister();
 
 	@Post
-	public boolean update(Representation re);
+	public void update(Representation re);
 
 }

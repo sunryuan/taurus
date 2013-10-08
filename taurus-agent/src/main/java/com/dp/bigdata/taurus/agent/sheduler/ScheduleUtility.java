@@ -22,6 +22,7 @@ import com.dp.bigdata.taurus.agent.utils.LockHelper;
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.bean.ScheduleConf;
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.bean.ScheduleStatus;
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.interfaces.ScheduleInfoChannel;
+import com.dp.bigdata.taurus.zookeeper.common.infochannel.interfaces.ScheduleInfoChannel.Operate;
 
 public class ScheduleUtility {
 	private static final Log LOGGER = LogFactory.getLog(ScheduleUtility.class);
@@ -29,7 +30,8 @@ public class ScheduleUtility {
 	private static ExecutorService killThreadPool = AgentServerHelper.createThreadPool(2, 4);
 	private static ExecutorService executeThreadPool = AgentServerHelper.createThreadPool(10, 10);	
 	private static final String UPDATE_COMMAND = "source /etc/profile; %s/script/update-agent.sh > %s/agent-logs/update.log";
-	
+	private static final String RESTART_COMMAND = "source /etc/profile; %s/bin/start.sh";
+
 	public static void checkAndKillTasks(Executor executor, String localIp, ScheduleInfoChannel cs, boolean addListener) {
 	    synchronized (ScheduleUtility.class) {
     		LOGGER.debug("Start checkAndKillTasks");
@@ -144,24 +146,32 @@ public class ScheduleUtility {
      * @param localIp
      * @param schedule
      */
-    public static void checkAndUpdate(Executor executor, String localIp, ScheduleInfoChannel cs,boolean atStart) {
+    public static void checkAndOperate(Executor executor, String localIp, ScheduleInfoChannel cs,boolean atStart) {
         synchronized (ScheduleUtility.class) {
-            if(cs.needUpdate(localIp)){
-                if(atStart) {
-                    cs.completeUpdate(localIp);
-                } else {
-                    try {
-                        CommandLine cmdLine;
-                        cmdLine = new CommandLine("bash");
-                        cmdLine.addArgument("-c");
-                        cmdLine.addArgument(String.format(UPDATE_COMMAND, BaseEnvManager.agentRoot, BaseEnvManager.agentRoot), false);
-                        executor.execute("updateAgent", 0, null, cmdLine, null, null);
-                        
-                    } catch (IOException e) {
-                        LOGGER.error(e,e);
+        	for(Operate op:Operate.values()){
+        		String opStr = op.name().toLowerCase();
+				if(!cs.operateCompleted(localIp, opStr)){
+                    if(atStart) {
+                    	LOGGER.info(opStr + " " + localIp + " success");
+                        cs.completeOperate(localIp, opStr);
+                    } else {
+                        try {
+                            CommandLine cmdLine;
+                            cmdLine = new CommandLine("bash");
+                            cmdLine.addArgument("-c");
+                            if(Operate.UPDATE.equals(op)){
+                            	cmdLine.addArgument(String.format(UPDATE_COMMAND, BaseEnvManager.agentRoot, BaseEnvManager.agentRoot), false);
+                            	executor.execute("updateAgent", 0, null, cmdLine, null, null);
+                            } else if(Operate.RESTART.equals(op)){
+                            	cmdLine.addArgument(String.format(RESTART_COMMAND, BaseEnvManager.agentRoot), false);
+                            	executor.execute("restartAgent", 0, null, cmdLine, null, null);
+                            } 
+                        } catch (IOException e) {
+                            LOGGER.error(e,e);
+                        }
                     }
                 }
-            }       
+        	}
         }
     }
 }

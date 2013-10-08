@@ -3,16 +3,14 @@
 <html lang="en">
 <head>
 	<%@ include file="jsp/common-header.jsp"%>
+	<%@ include file="jsp/common-nav.jsp"%>
     <link rel="stylesheet" type="text/css" href="css/DT_bootstrap.css">
 </head>
 <body data-spy="scroll">
-	<%@ include file="jsp/common-nav.jsp"%>
-    <%@ include file="jsp/common-api.jsp"%>
     <%@page import="org.restlet.data.MediaType, org.restlet.resource.ClientResource,
 		com.dp.bigdata.taurus.restlet.resource.IAttemptsResource,
 		com.dp.bigdata.taurus.restlet.shared.AttemptDTO,
-		java.text.SimpleDateFormat,
-		java.util.ArrayList"%>
+		java.text.SimpleDateFormat"%>
 
 	<div class="container" style="margin-top: 10px">
         <div id="alertContainer" class="container">
@@ -40,7 +38,7 @@
 				<%
 					String taskID = request.getParameter("taskID");
 					String url =  host + "attempt?task_id=" + taskID; 
-					ClientResource cr = new ClientResource(url);
+					cr = new ClientResource(url);
 					cr.setRequestEntityBuffering(true);
 					IAttemptsResource resource = cr.wrap(IAttemptsResource.class);
 					cr.accept(MediaType.APPLICATION_XML);

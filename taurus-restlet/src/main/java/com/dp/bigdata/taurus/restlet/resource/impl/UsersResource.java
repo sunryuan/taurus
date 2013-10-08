@@ -45,7 +45,7 @@ public class UsersResource extends ServerResource implements IUsersResource {
         	UserDTO userDto = new UserDTO(user.getId(), user.getName(), user.getMail(), user.getTel());
             userDtos.add(userDto);
             UserGroupMappingExample mappingExample = new UserGroupMappingExample();
-            mappingExample.or();
+            mappingExample.or().andUseridEqualTo(user.getId());
             List<UserGroupMapping> userGroups = userGroupMappingMapper.selectByExample(mappingExample);
             if(userGroups.size() == 0){
             	userDto.setGroup("");

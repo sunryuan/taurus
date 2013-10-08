@@ -10,6 +10,8 @@ import org.apache.commons.logging.LogFactory;
 import org.restlet.data.Form;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
+import org.restlet.resource.Get;
+import org.restlet.resource.Post;
 import org.restlet.resource.ServerResource;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -46,10 +48,10 @@ public class UserResource extends ServerResource implements IUserResource {
 	private static final String USER_ID="id";
 	private static final String TEL="tel";
 	private static final String EMAIL="email";
-	private static final String GROUP="group";
-	private static final String NAME="name";
+	private static final String GROUP="groupName";
+	private static final String NAME="userName";
 	
-	
+	@Get
 	@Override
 	public boolean hasRegister() {
 		String userName = (String) getRequest().getAttributes().get("user_name");
@@ -63,15 +65,15 @@ public class UserResource extends ServerResource implements IUserResource {
 		}
 	}
 
+	@Post
 	@Override
-	public boolean update(Representation re) {
+	public void update(Representation re) {
 		try{ 
 			updateInternal(re);
 		} catch(Exception e){
 			LOG.error(e,e);
-			return false;
+			getResponse().setStatus(Status.SERVER_ERROR_INTERNAL);
 		}
-		return true;
 		
 	}
 	
@@ -122,7 +124,11 @@ public class UserResource extends ServerResource implements IUserResource {
 			userGroup.setUserid(userID);
 			mappingMapper.insert(userGroup);
 		} else if(size == 1){
-			//do nothing
+			UserGroupMapping userGroup = new UserGroupMapping();
+			userGroup.setId(mappings.get(0).getId());
+			userGroup.setGroupid(groupID);
+			userGroup.setUserid(userID);
+			mappingMapper.updateByPrimaryKey(userGroup);
 		} else {
 			throw new RuntimeException("Found user " + userID + " belongs to diffrent groups");
 		} 

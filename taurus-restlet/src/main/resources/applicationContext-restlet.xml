@@ -68,6 +68,8 @@
 	<bean id="poolManager" class="com.dp.bigdata.taurus.restlet.utils.PoolManager"
 		init-method="init" />
 	<bean id="filePathManager" class="com.dp.bigdata.taurus.restlet.utils.FilePathManager" />
+	<bean id="hostManager" class="com.dp.bigdata.taurus.zookeeper.host.helper.DefaultHostManager"/>
+	
 </beans>
 
 	

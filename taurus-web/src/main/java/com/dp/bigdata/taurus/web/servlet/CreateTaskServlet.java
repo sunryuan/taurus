@@ -56,7 +56,7 @@ public class CreateTaskServlet extends HttpServlet{
     private static final long serialVersionUID = 2348545179764589572L;
     private static String targetUri = "task";
     private static String nameUri = "name?task_name=";
-    private static final Log LOG = LogFactory.getLog(HttpServlet.class);
+    private static final Log LOG = LogFactory.getLog(CreateTaskServlet.class);
 
     private String RESTLET_URL_BASE;
 

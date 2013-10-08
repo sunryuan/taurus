@@ -3,39 +3,38 @@
 <html lang="en">
 <head>
 	<%@ include file="jsp/common-header.jsp"%>
+	<%@ include file="jsp/common-nav.jsp"%>
 	<link href="css/bwizard.min.css" rel="stylesheet" />
 </head>
 <body>
-	<%@ include file="jsp/common-nav.jsp"%>
-    <%@ include file="jsp/common-api.jsp"%>
-    <%@page import="org.restlet.resource.ClientResource"%>
-	<%@page import="com.dp.bigdata.taurus.restlet.resource.IUsersResource"%>
+    <%@page import="java.util.Map"%>
+    <%@page import="java.util.HashMap"%>
+    
 	<%@page import="com.dp.bigdata.taurus.restlet.resource.IUserGroupsResource"%>
 	<%@page import="com.dp.bigdata.taurus.restlet.resource.IUserGroupMappingsResource"%>
 	
-    <%@page import="com.dp.bigdata.taurus.restlet.shared.UserDTO"%>
     <%@page import="com.dp.bigdata.taurus.restlet.shared.UserGroupDTO"%>
     <%@page import="com.dp.bigdata.taurus.restlet.shared.UserGroupMappingDTO"%>
-    
-    
-    <%@page import="java.util.ArrayList"%>
-    <%@page import="org.restlet.data.MediaType"%>
-    
-      	<%
-          		ClientResource cr = new ClientResource(host + "user");
-          	    IUsersResource userResource = cr.wrap(IUsersResource.class);
-          	    cr.accept(MediaType.APPLICATION_XML);
-          	    ArrayList<UserDTO> users = userResource.retrieve();
-          	          	   			
+   
+      	<%          	          	   			
           	    cr = new ClientResource(host + "group");
           	    IUserGroupsResource groupResource = cr.wrap(IUserGroupsResource.class);
           	    cr.accept(MediaType.APPLICATION_XML);
           	    ArrayList<UserGroupDTO> groups = groupResource.retrieve();
-          	          	   			
-          	    String userName = (String)session.getAttribute(com.dp.bigdata.taurus.web.servlet.LoginServlet.USER_NAME);
-          	          	   			
+          	          	   			          	   	
+          	    Map<String,String> map = new HashMap<String,String>();
+          	    
           	    for(UserDTO user:users){
-          	        if(user.getName().equals(userName)){
+          	    	String group = user.getGroup();
+          	    	if(group == null || group.equals("")){
+          	    		group = "未分组";
+          	    	}
+          	    	if(map.containsKey(group)){
+      	    			map.put(group,map.get(group) + ", " + user.getName() );
+      	    		} else {
+      	    			map.put(group,user.getName());
+      	    		}
+          	        if(user.getName().equals(currentUser)){
           				if(user.getGroup() == null || user.getMail() == null || user.getTel() == null 
           						|| user.getGroup().equals("") || user.getMail().equals("") || user.getTel().equals("") ){
           	%>
@@ -43,7 +42,10 @@
      		<%}  else{%>
      			<div id="alertContainer" class="container"></div>
      		<%} %>
-    <form id="user_form" class="form-horizontal">
+     <div class="container" style="margin-top: 10px">
+     <div class="row">
+     <div class="span5">
+    	<form id="user-form" class="form-horizontal">
 			<fieldset>
 				<div style="display:none">
 					<input type="text" class="input-large field"  id="id" name="id" value="<%=user.getId()%>">
@@ -51,7 +53,7 @@
              	<div class="control-group">
             		<label class="control-label"  for="userName">用户名</label>
             		<div class="controls">
-              			<input type="text" readonly class="input-large field"  id="userName" name="userName" value="<%=userName%>">
+              			<input type="text" readonly class="input-large field"  id="userName" name="userName" value="<%=currentUser%>">
             		</div>
           		</div>
           		<div class="control-group">
@@ -69,12 +71,16 @@
           			<div class="control-group">
             		<label class="control-label"  for="tel">手机号码</label>
             		<div class="controls">
-              			<input type="text" class="input-large field"  id="tel" name="tel"  value="<%=user.getTel()%>">
+            			<% if(user.getTel()==null){%>
+            				<input type="text" class="input-large field"  id="tel" name="tel"  value="">
+            			<%} else{ %>
+              				<input type="text" class="input-large field"  id="tel" name="tel"  value="<%=user.getTel()%>">
+            			<%} %>
             		</div>
           		</div>
 				 <div class="control-group">
     				<div class="controls">
-          				<button type="submit" class="btn btn-primary">保存</button>
+          				<button type="submit" id="submit" class="btn btn-primary">保存</button>
     				</div>
   				</div>
           		
@@ -82,6 +88,49 @@
 	</form>    
     			<%}
    			}%>
+   		</div>
+   		         <div class="span7"  style="opacity: 0.5">
+   		
+   			
+   				分组情况请参考下面的列表：<br/>
+   				<ul>
+   				<li>如果列表中没有你想要的分组，你可以填写一个组名，这个组名请尽可能地细化。</li>
+				<li>这个选项的重要性在于，你可以在作业的通知选项中，选择通知一个组的人。</li>
+				<li>并且同组的人可以操作彼此的作业。</li>
+				</ul>
+   			
+   			<table  class="table table-striped table-bordered table-condensed">
+				<tr>
+					<th align="left" width="15%">组名</th>
+					<th align="left" width="85%">成员</th>
+				</tr>
+				<%
+   					for(String group:map.keySet()){
+   				%>
+					<tr>
+						<td align="left"><%=group%></td>
+						<td align="left"><%=map.get(group)%></td>
+					</tr>
+   				<%  }%>
+   			
+   			</table>
+   			</div>
+   		</div>
+   	</div>
+   	<script type="text/javascript">  
+      	var userList="",groupList="",isAdmin;
+      	<%for(UserDTO user:users) {%>
+      		userList=userList+",<%=user.getName()%>";
+      	<%}%>
+      	<%for(UserGroupDTO group:groups) {%>
+      		groupList=groupList+",<%=group.getName()%>";
+	<%}%>
+	isAdmin = <%=isAdmin%>;
+	userList = userList.substr(1);
+	groupList = groupList.substr(1);
+	</script>
+	<script src="js/jquery.validate.min.js" type="text/javascript"></script>
+	<script src="js/jquery.autocomplete.min.js" type="text/javascript"></script>
     <script src="js/user.js" type="text/javascript" ></script>
 
 </body>

@@ -3,18 +3,15 @@
 <html lang="en">
 <head>
 	<%@ include file="jsp/common-header.jsp"%>
+	<%@ include file="jsp/common-nav.jsp"%>
     <link rel="stylesheet" type="text/css" href="css/DT_bootstrap.css">
+    <style type="text/css">.fixLength-table{table-layout:fixed}
+		.fixLength-td{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}</style>
 </head>
 <body data-spy="scroll">
-	<%@ include file="jsp/common-nav.jsp"%>
-    <%@ include file="jsp/common-api.jsp"%>
-    <%@page import="org.restlet.resource.ClientResource"%>
 	<%@page import="com.dp.bigdata.taurus.restlet.resource.ITasksResource"%>
     <%@page import="com.dp.bigdata.taurus.restlet.shared.TaskDTO"%>
-    <%@page import="java.util.ArrayList"%>
-    <%@page import="org.restlet.data.MediaType"%>
     <%@page import="java.text.SimpleDateFormat"%>
-
 	<div class="container" style="margin-top: 10px">
         <div id="alertContainer" class="container"></div>
           <div class="row">
@@ -63,11 +60,11 @@
 				<li><a href="#" class="active">调度中心</a> <span class="divider">/</span></li>
 		 </ul>
 		<table cellpadding="0" cellspacing="0" border="0"
-			class="table table-striped table-format table-hover" id="example">
+			class="fixLength-table table table-striped table-format table-hover" id="example">
 			<thead>
 				<tr>
 					<th class="hide">ID</th>
-					<th width = "5%">名称</th>
+					<th width = "15%">名称</th>
 					<th>IP</th>
 					<th>调度人</th>
 					<th>调度身份</th>
@@ -84,7 +81,7 @@
 					if(currentUser != null){
 						task_api = task_api + "?user=" + currentUser;
 					}
-					ClientResource cr = new ClientResource(task_api);
+					cr = new ClientResource(task_api);
                     ITasksResource resource = cr.wrap(ITasksResource.class);
                     cr.accept(MediaType.APPLICATION_XML);
                     ArrayList<TaskDTO> tasks = resource.retrieve();
@@ -100,7 +97,7 @@
                 <tr id="<%=dto.getTaskid()%>" class="error" >
                 <%}%>
                     <td class="hide"><%=dto.getTaskid()%></td>
-                    <td><%=dto.getName()%></td>
+                    <td class="fixLength-td" ><%=dto.getName()%></td>
                     <td><%=dto.getHostname()%></td>
                     <td><%=dto.getCreator()%></td>
 					<td><%=dto.getProxyuser()%></td>
