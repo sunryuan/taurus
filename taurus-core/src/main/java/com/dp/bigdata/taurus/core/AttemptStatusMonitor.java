@@ -100,7 +100,7 @@ public class AttemptStatusMonitor implements Runnable {
 					Cat.logEvent("Thread-monitor", "live");
 				}
 			}
-		} catch (InterruptedException ie) {
+		} catch (Exception ie) {
 			LOG.error(ie);
 			
 			Cat.logError(ie);
