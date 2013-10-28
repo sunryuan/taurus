@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.dianping.cat.Cat;
+
 /**
  * MaximumConcurrentTaskFilter
  * 
@@ -26,6 +28,8 @@ public class MaximumConcurrentTaskFilter implements Filter {
 
         if (max <= 0) {
             results = new ArrayList<AttemptContext>();
+            
+            Cat.logEvent("Exception", "Capacity-Error");
         } else if (max >= contexts.size()) {
             results = contexts;
         } else {

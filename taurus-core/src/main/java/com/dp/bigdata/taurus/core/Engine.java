@@ -84,7 +84,7 @@ final public class Engine implements Scheduler {
 	/**
 	 * Maximum concurrent running attempt number
 	 */
-	private int maxConcurrency = 30;
+	private int maxConcurrency = 50;
 
 	public Engine() {
 		registedTasks = new ConcurrentHashMap<String, Task>();
