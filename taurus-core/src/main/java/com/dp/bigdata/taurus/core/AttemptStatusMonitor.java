@@ -20,13 +20,12 @@ import com.dianping.cat.Cat;
  */
 public class AttemptStatusMonitor implements Runnable {
 
-	private static final Log LOG = LogFactory.getLog(AttemptStatusMonitor.class);
+	private static final Log LOG = LogFactory
+			.getLog(AttemptStatusMonitor.class);
 
 	private final AtomicBoolean isInterrupt = new AtomicBoolean(false);
 
 	private final Scheduler scheduler;
-
-	private long count = 0;
 
 	@Autowired
 	public AttemptStatusMonitor(Scheduler scheduler) {
@@ -34,7 +33,8 @@ public class AttemptStatusMonitor implements Runnable {
 	}
 
 	public static void main(String args[]) {
-		ApplicationContext context = new FileSystemXmlApplicationContext("classpath:applicationContext.xml");
+		ApplicationContext context = new FileSystemXmlApplicationContext(
+				"classpath:applicationContext.xml");
 		Engine engine = (Engine) context.getBean("engine");
 		Runnable runnable = new AttemptStatusMonitor(engine);
 		Thread t = new Thread(runnable);
@@ -44,13 +44,14 @@ public class AttemptStatusMonitor implements Runnable {
 	@Override
 	public void run() {
 		LOG.info("Starting to monitor attempts status");
-		try {
-			while (!isInterrupt.get()) {
+		while (!isInterrupt.get()) {
+			try {
 				List<AttemptContext> runningAttempts = scheduler.getAllRunningAttempt();
 				for (AttemptContext attempt : runningAttempts) {
 					AttemptStatus sstatus = scheduler.getAttemptStatus(attempt.getAttemptid());
 					int status = sstatus.getStatus();
 					LOG.info("Current status for attempt " + attempt.getAttemptid() + " : " + status);
+					
 					switch (status) {
 					case AttemptStatus.SUCCEEDED:
 						attempt.getAttempt().setReturnvalue(sstatus.getReturnCode());
@@ -66,7 +67,7 @@ public class AttemptStatusMonitor implements Runnable {
 							Date start = attempt.getStarttime();
 							long now = System.currentTimeMillis();
 							if (now > start.getTime() + timeout * 1000 * 60) {
-								LOG.info("attempt " + attempt.getAttemptid() + " executing timeout ");
+								LOG.info("attempt " + attempt.getAttemptid()+ " executing timeout ");
 								scheduler.attemptExpired(attempt.getAttemptid());
 							}
 						} else {
@@ -89,21 +90,15 @@ public class AttemptStatusMonitor implements Runnable {
 					case AttemptStatus.UNKNOWN: {
 						scheduler.attemptUnKonwed(attempt.getAttemptid());
 					}
-
 					}
 				}
 				Thread.sleep(Engine.SCHDUELE_INTERVAL);
 
-				count++;
+			} catch (Exception ie) {
+				LOG.error(ie);
 
-				if (count % 30 == 0) {
-					Cat.logEvent("Thread-monitor", "live");
-				}
+				Cat.logError(ie);
 			}
-		} catch (InterruptedException ie) {
-			LOG.error(ie);
-			
-			Cat.logError(ie);
 		}
 	}
 

@@ -202,13 +202,13 @@ public class JarExecutor {
 			@Override
 			public void handleChildChange(String parentPath, List<String> currentChilds) throws Exception {
 				for (String child : currentChilds) {
-					LOG.info("detect new attempt : " + child);
 					Object object = zkClient.readData(SCHEDULE_PATH + "/" + child + "/" + CONF);
 					String attemptPath = SCHEDULE_PATH + "/" + child + "/" + STATUS;
 					if (object instanceof ScheduleConf) {
 						final ScheduleConf conf = (ScheduleConf) object;
 						if (StringUtils.isNotBlank(conf.getTaskType())
 						      && conf.getTaskType().equalsIgnoreCase(TaskType.getString(TaskType.SPRING))) {
+							LOG.info("detect new spring attempt : " + child);
 							// delete zookeeper node first
 							zkClient.delete(SCHEDULE_NEW_PATH + "/" + child);
 							// update attempt status
@@ -365,17 +365,17 @@ public class JarExecutor {
 
 			@Override
 			public void handleChildChange(String parentPath, List<String> currentChilds) throws Exception {
-				for (String child : currentChilds) {
-					ScheduleConf conf = (ScheduleConf) zkClient.readData(SCHEDULE_DELETE_PATH + "/" + child + "/" + CONF);
-					if (conf.getTaskType().equalsIgnoreCase(TaskType.SPRING.name())) {
-						Future<Integer> futureAttempt = futureMap.get(child);
-						if (!futureAttempt.isDone()) {
-							futureAttempt.cancel(true);
+				if(currentChilds != null){
+					for (String child : currentChilds) {
+						ScheduleConf conf = (ScheduleConf) zkClient.readData(SCHEDULE_DELETE_PATH + "/" + child + "/" + CONF);
+						if (conf.getTaskType().equalsIgnoreCase(TaskType.SPRING.name())) {
+							Future<Integer> futureAttempt = futureMap.get(child);
+							if (!futureAttempt.isDone()) {
+								futureAttempt.cancel(true);
+							}
 						}
 					}
-
 				}
-
 			}
 		});
 	}

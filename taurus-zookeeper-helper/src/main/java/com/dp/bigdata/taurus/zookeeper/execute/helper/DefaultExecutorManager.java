@@ -144,7 +144,7 @@ public class DefaultExecutorManager implements ExecutorManager{
                 dic.completeKill(agentIP, attemptID, listener);
             } catch(InterruptedException e){
                 LOGGER.error("Delete " + attemptID + " failed" ,e);
-                throw new ExecuteException("Delete " + attemptID + " failed");
+                throw new ExecuteException("Delete " + attemptID + " failed",e);
             }
             finally{
                 lock.unlock();
