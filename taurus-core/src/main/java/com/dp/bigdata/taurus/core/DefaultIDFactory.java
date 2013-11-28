@@ -23,8 +23,7 @@ public class DefaultIDFactory implements IDFactory {
     private TaskIDCounterMapper taskIDMapper;
     @Autowired
     private InstanceIDCounterMapper instanceIDMapper;
-
-
+    
     public void setIdentity(String identity) {
         IDENTITY = identity;
     }
