@@ -16,6 +16,7 @@ import org.apache.commons.lang.StringUtils;
 import org.restlet.data.MediaType;
 import org.restlet.resource.ClientResource;
 
+import com.dp.bigdata.taurus.generated.module.User;
 import com.dp.bigdata.taurus.restlet.resource.IUserResource;
 import com.dp.bigdata.taurus.restlet.resource.IUsersResource;
 import com.dp.bigdata.taurus.restlet.shared.UserDTO;
@@ -76,16 +77,15 @@ public class LoginServlet extends HttpServlet {
 		}
 
 		LDAPAuthenticationService authService = new LDAPAuthenticationService();
-		boolean isAuthenticated = false;
+		User user = null;
 
 		try {
-			isAuthenticated = authService.authenticate(userName, password);
+			user = authService.authenticate(userName, password);
 		} catch (Exception e) {
-			isAuthenticated = false;
 			e.printStackTrace();
 		}
 
-		if (!isAuthenticated) {
+		if (user == null) {
 			ClientResource cr = new ClientResource(String.format("%s/%s", USER_API, userName));
 			IUserResource resource = cr.wrap(IUserResource.class);
 			boolean hasRegister = resource.hasRegister();
@@ -95,13 +95,10 @@ public class LoginServlet extends HttpServlet {
 				if(isInfoCompleted(userName)){
 					response.setStatus(200);
 				} else{
-					System.out.println("login in database success!");
-					System.out.println(201);
 					response.setStatus(201);
 				}
 			} else {
 				response.setStatus(401);
-				System.out.println("longin fail!");
 			}
 		} else {
 			HttpSession session = request.getSession();
@@ -112,7 +109,7 @@ public class LoginServlet extends HttpServlet {
 			IUsersResource resource = cr.wrap(IUsersResource.class);
 			UserDTO dto = new UserDTO();
 			dto.setName(userName);
-			dto.setMail(String.format("%s@dianping.com", userName));
+			dto.setMail(user.getMail());
 			resource.createIfNotExist(dto);
 			if(isInfoCompleted(userName)){
 				response.setStatus(200);
@@ -138,10 +135,5 @@ public class LoginServlet extends HttpServlet {
   	    	}
   	    }
   	    return false;
-	}
-
-	public static void main(String[] args) throws Exception {
-		LDAPAuthenticationService authService = new LDAPAuthenticationService();
-		System.out.println(authService.authenticate("damon.zhu", "Kellyzxy321d"));
 	}
 }

@@ -191,8 +191,12 @@ final public class Engine implements Scheduler {
 			}
 		});
 
+		long logCounter = 0;
 		while (true) {
-			LOG.info("Engine trys to scan the database...");
+			if(logCounter % 6 == 0){ // every minute
+				LOG.info("Engine trys to scan the database...");
+			}
+
 			List<AttemptContext> contexts = null;
 			try {
 				crontabTriggle.triggle();

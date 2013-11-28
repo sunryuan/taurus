@@ -14,127 +14,127 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.log4j.Logger;
 
+import com.dp.bigdata.taurus.generated.module.User;
+
 public class LDAPAuthenticationService {
-
 	private static Logger logger = Logger.getLogger(LDAPAuthenticationService.class);
-
 	private static String loginAttribute = "sAMAccountName";
-
-	public static final String USER_NAME = "taurus-user";
-
-	public static final String USER_GROUP = "taurus-group";
-
-	public static final String USER_POWER = "taurus-user-power";
-
+	
 	private String ldapUrl = "ldap://192.168.50.11:389/DC=dianpingoa,DC=com";
-
-	private String ldapBaseDN = "OU=Technolog Department,OU=shoffice,DC=dianpingoa,DC=com";
-
-	private String ldapFactory = "com.sun.jndi.ldap.LdapCtxFactory";
+	private String ldapFactory = "com.sun.jndi.ldap.LdapCtxFactory"; 
 
 	private Control[] connCtls = null;
-
+	
 	private String solidDN = "cn=Users,DC=dianpingoa,DC=com";
-
 	private String solidUsername = "lionauth";
-
 	private String solidPwd = "bxHxXopGJOy78Jze3LWi";
-
-	/**
-	 * @throws Exception
-	 * @throws AuthenticationException
-	 * @throws NamingException
-	 * @return if authentication succeeded, return user info; otherwise, return null;
-	 * @throws
-	 */
-	public boolean authenticate(String userName, String password) throws Exception {
+	
+	public User authenticate(String userName, String password) throws Exception {
+		User user = null;
 		LdapContext ctx = null;
 		Hashtable<String, String> env = null;
-		String shortName = null;
+		String fullName = null;
 		try {
-			shortName = getShortName(userName);
+			fullName = getFullName(userName);
 		} catch (NamingException e1) {
-			logger.error(userName + " doesn't exist.", e1);
+			logger.error(userName+" doesn't exist.", e1);
 		}
-		if (shortName != null) {
+		if(fullName != null) {
 			env = new Hashtable<String, String>();
-			env.put(Context.INITIAL_CONTEXT_FACTORY, ldapFactory);
-			env.put(Context.PROVIDER_URL, ldapUrl);// LDAP server
-			env.put(Context.SECURITY_AUTHENTICATION, "simple");
-			env.put(Context.SECURITY_PRINCIPAL, "cn=" + shortName + "," + ldapBaseDN);
-			env.put(Context.SECURITY_CREDENTIALS, password);
-			try {
-				ctx = new InitialLdapContext(env, connCtls);
-			} catch (javax.naming.AuthenticationException e) {
-				logger.info("Authentication faild: " + e.toString());
-				throw e;
-			} catch (Exception e) {
-				logger.error("Something wrong while authenticating: " + e.toString());
-				throw e;
-			}
-			if (ctx != null) {
-				return true;
-			}
+	        env.put(Context.INITIAL_CONTEXT_FACTORY,ldapFactory);
+	        env.put(Context.PROVIDER_URL, ldapUrl);//LDAP server
+	        env.put(Context.SECURITY_AUTHENTICATION, "simple");
+	        env.put(Context.SECURITY_PRINCIPAL, fullName);
+	        env.put(Context.SECURITY_CREDENTIALS, password);
+	        try{
+	            ctx = new InitialLdapContext(env,connCtls);
+	        }catch(javax.naming.AuthenticationException e){
+	            logger.info("Authentication faild: "+e.toString());
+	            throw e;
+	        }catch(Exception e){
+	        	logger.error("Something wrong while authenticating: "+e.toString());
+	        	throw e;
+	        }
+	        if(ctx != null) {
+	        	user = getUserInfo(fullName, ctx, userName);
+	        }
 		}
-		return false;
+		return user;
 	}
 
 	@SuppressWarnings("rawtypes")
-	private String getShortName(String sAMAccountName) throws NamingException {
-		String shortName = null;
-
+	public User getUserInfo(String cn, LdapContext ctx, String userName) {
+		User user = new User();
+		try {
+			SearchControls constraints = new SearchControls();
+			constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
+			NamingEnumeration en = ctx.search("", cn.substring(0, cn.indexOf(',')), constraints);
+			if (en == null || !en.hasMoreElements()) {
+				logger.warn("Have no NamingEnumeration.");
+			}
+			while (en != null && en.hasMoreElements()) {
+				Object obj = en.nextElement();
+				if (obj instanceof SearchResult) {
+					SearchResult sr = (SearchResult) obj;
+					logger.debug(sr);
+					Attributes attrs = sr.getAttributes();
+					
+					
+					user.setName(userName);
+//					if(attrs.get("displayName")!=null) {
+//						user.setName((String)attrs.get("displayName").get());
+//					} else {
+//						user.setName(userName);
+//					}
+					
+					if(attrs.get("mail") != null) {
+						user.setMail((String)attrs.get("mail").get());
+					} else {
+						user.setMail(userName+"@dianping.com");
+					}
+					
+//					NamingEnumeration<String> xxx = attrs.getIDs();
+//					while(xxx.hasMore()){
+//						System.out.println(xxx.next());
+//					}
+				}
+			}
+		} catch (Exception e) {
+			logger.error("Exception in search():" + e);
+		}
+		return user;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	private String getFullName(String sAMAccountName) throws NamingException {
+		String fullName = null;
+		
 		Hashtable<String, String> solidEnv = new Hashtable<String, String>();
 		solidEnv.put(Context.INITIAL_CONTEXT_FACTORY, ldapFactory);
 		solidEnv.put(Context.PROVIDER_URL, ldapUrl);// LDAP server
 		solidEnv.put(Context.SECURITY_AUTHENTICATION, "simple");
-		solidEnv.put(Context.SECURITY_PRINCIPAL, "cn=" + solidUsername + "," + solidDN);
+		solidEnv.put(Context.SECURITY_PRINCIPAL, "cn=" + solidUsername + ","+ solidDN);
 		solidEnv.put(Context.SECURITY_CREDENTIALS, solidPwd);
-		LdapContext solidContext = new InitialLdapContext(solidEnv, connCtls);
+		LdapContext solidContext = new InitialLdapContext(solidEnv,connCtls);
 		SearchControls constraints = new SearchControls();
 		constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
-		NamingEnumeration en = solidContext.search("", loginAttribute + "=" + sAMAccountName, constraints);
+		NamingEnumeration en = solidContext.search("", loginAttribute+"=" + sAMAccountName, constraints);
 		if (en == null) {
 			logger.warn("Have no NamingEnumeration.");
-			return shortName;
+			return fullName;
 		}
 		if (!en.hasMoreElements()) {
 			logger.warn("Have no element.");
-			return shortName;
+			return fullName;
 		}
 		while (en != null && en.hasMoreElements()) {
 			Object obj = en.nextElement();
 			if (obj instanceof SearchResult) {
 				SearchResult sr = (SearchResult) obj;
 				logger.debug(sr);
-				Attributes attrs = sr.getAttributes();
-				shortName = (String) attrs.get("cn").get();
+				fullName = sr.getNameInNamespace();
 			}
 		}
-		return shortName;
+		return fullName;
 	}
-
-	public void setLdapUrl(String ldapUrl) {
-		this.ldapUrl = ldapUrl;
-	}
-
-	public void setLdapBaseDN(String ldapBaseDN) {
-		this.ldapBaseDN = ldapBaseDN;
-	}
-
-	public void setLdapFactory(String ldapFactory) {
-		this.ldapFactory = ldapFactory;
-	}
-
-	public void setSolidDN(String solidDN) {
-		this.solidDN = solidDN;
-	}
-
-	public void setSolidUsername(String solidUsername) {
-		this.solidUsername = solidUsername;
-	}
-
-	public void setSolidPwd(String solidPwd) {
-		this.solidPwd = solidPwd;
-	}
-
 }
