@@ -8,6 +8,8 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.dp.bigdata.taurus.zookeeper.common.MachineType;
+import com.dp.bigdata.taurus.zookeeper.common.infochannel.bean.HeartbeatInfo;
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.guice.ScheduleInfoChanelModule;
 import com.dp.bigdata.taurus.zookeeper.common.infochannel.interfaces.ScheduleInfoChannel;
 import com.google.inject.Guice;
@@ -56,7 +58,7 @@ public class DefaultHostManager implements HostManager {
 			for (String ip : ips) {
 				boolean isFinished = false;
 				try {
-					isFinished = !dic.operateCompleted(ip, op);
+					isFinished = dic.operateCompleted(ip, op);
 				} catch (Exception e) {
 					LOGGER.error(e, e);
 				}
@@ -85,4 +87,10 @@ public class DefaultHostManager implements HostManager {
 			}
 		}
 	}
+
+	@Override
+	public HeartbeatInfo read(String ip) {
+		return dic.getHeartbeatInfo(MachineType.AGENT, ip);
+	}
+	
 }

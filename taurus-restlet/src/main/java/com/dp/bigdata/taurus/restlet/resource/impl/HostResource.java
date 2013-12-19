@@ -17,6 +17,7 @@ import com.dp.bigdata.taurus.generated.module.Host;
 import com.dp.bigdata.taurus.generated.module.HostExample;
 import com.dp.bigdata.taurus.restlet.resource.IHostResource;
 import com.dp.bigdata.taurus.restlet.shared.HostDTO;
+import com.dp.bigdata.taurus.zookeeper.common.infochannel.bean.HeartbeatInfo;
 import com.dp.bigdata.taurus.zookeeper.host.helper.HostManager;
 
 /**
@@ -44,11 +45,22 @@ public class HostResource extends ServerResource implements IHostResource {
 		Host host = hostMapper.selectByPrimaryKey(hostname);
 		if (host != null) {
 			setStatus(Status.SUCCESS_OK);
-			return new HostDTO(1, host.getName(), host.getIp(),
-					host.getPoolid(), host.getIsconnected(), host.getIsonline());
+			return convertHost(host);
 		} else {
-			return new HostDTO();
+			return null;
 		}
+	}
+
+	private HostDTO convertHost(Host _host) {
+		HeartbeatInfo info = hostManager.read(_host.getIp());
+		HostDTO hostDto = new HostDTO();
+		hostDto.setConnected(_host.getIsconnected());
+		hostDto.setInfo(info);
+		hostDto.setIp(_host.getIp());
+		hostDto.setName(_host.getName());
+		hostDto.setOnline(_host.getIsonline());
+		hostDto.setPoolid(_host.getPoolid());
+		return hostDto;
 	}
 
 	@Override

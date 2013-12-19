@@ -1,9 +1,12 @@
 package com.dp.bigdata.taurus.agent.utils;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.Properties;
 
 import org.apache.commons.logging.Log;
@@ -88,6 +91,16 @@ public final class AgentEnvValue {
             LOG.error(e,e);
         }
         return result;
+    }
+    
+    public static void setConfigs(String configs) {
+        URL confFile = ClassLoaderUtils.getDefaultClassLoader().getResource(CONF);
+        try {
+            FileWriter writer = new FileWriter(new File(confFile.toURI()));
+            writer.write(configs);
+        } catch (Exception e) {
+            LOG.error(e,e);
+        }
     }
     
     public static String getVersion() {

@@ -12,6 +12,7 @@ public class HeartbeatInfo implements Serializable {
     private String user;
     private boolean isLinux;
     private Date time;
+    private boolean needUpdate;
 
     /**
      * @return the agentVersion
@@ -82,4 +83,20 @@ public class HeartbeatInfo implements Serializable {
     public void setTime(Date time) {
         this.time = time;
     }
+
+	public boolean isNeedUpdate() {
+		return needUpdate;
+	}
+
+	public void setNeedUpdate(boolean needUpdate) {
+		this.needUpdate = needUpdate;
+	}
+
+	@Override
+	public String toString() {
+		return "HeartbeatInfo [agentVersion=" + agentVersion + ", configs="
+				+ configs + ", user=" + user + ", isLinux=" + isLinux
+				+ ", time=" + time + ", needUpdate=" + needUpdate + "]";
+	}
+    
 }

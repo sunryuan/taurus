@@ -54,9 +54,9 @@
 						<label  class="control-label"  for="taskType">作业类型*</label>
 						<div class="controls">
    						<select  id="taskType" name="taskType"  class="input-big  field" >
-   							<option>other</option>
    							<option>hadoop</option>
 							<option>spring</option>
+							<option>other</option>
 						</select>
 						<a href="about.jsp#config">帮助</a>
                       	</div>

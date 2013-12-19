@@ -10,6 +10,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.mail.MessagingException;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -44,6 +46,38 @@ import com.dp.bigdata.taurus.generated.module.UserGroupMappingExample;
  * @author damon.zhu
  */
 public class TaurusAlert {
+	
+	private static final Log LOG = LogFactory.getLog(TaurusAlert.class);
+
+	private static final int META_INTERVAL = 60 * 1000;
+
+	private static final int ALERT_INTERVAL = 5 * 1000;
+
+	private Map<Integer, User> userMap;
+
+	private Map<String, AlertRule> ruleMap;
+
+	private List<AlertRule> commonRules;
+
+	private final AtomicBoolean isLoading = new AtomicBoolean(false);
+
+	@Autowired
+	private AlertRuleMapper rulesMapper;
+
+	@Autowired
+	private UserMapper userMapper;
+
+	@Autowired
+	private UserGroupMappingMapper userGroupMappingMapper;
+
+	@Autowired
+	private TaskAttemptMapper taskAttemptMapper;
+
+	@Autowired
+	private CommonAlarmService alarmService;
+	
+	@Autowired
+	private TaskMapper taskMapper;
 
 	public class AlertThread implements Runnable {
 
@@ -158,6 +192,7 @@ public class TaurusAlert {
 			}
 		}
 
+	
 		private void sendMail(String mailTo, TaskAttempt attempt) {
 			LOG.info("Send mail to " + mailTo);
 			Task task = taskMapper.selectByPrimaryKey(attempt.getTaskid());
@@ -180,14 +215,25 @@ public class TaurusAlert {
 			sbMailContent.append("</table>");
 
 			try {
-				alarmService.sendEmail(sbMailContent.toString(), "Taurus告警服务",
-						mailTo);
+				//alarmService.sendEmail(sbMailContent.toString(), "Taurus告警服务",
+					//	mailTo);
+				sendMail(mailTo,sbMailContent.toString());
+				
 			} catch (Exception e) {
 				LOG.error("fail to send mail to " + mailTo, e);
 				Cat.logError(e);
 			}
 		}
 
+		private void sendMail(String to,String content) throws MessagingException{
+			MailInfo mail = new MailInfo();
+			mail.setTo(to);
+			mail.setContent(content);
+			mail.setFormat("text/html");
+			mail.setSubject("Taurus告警服务");
+			MailHelper.sendMail(mail);
+		}
+		
 		private void sendSMS(String tel, TaskAttempt attempt) {
 			LOG.info("Send SMS to " + tel);
 			Task task = taskMapper.selectByPrimaryKey(attempt.getTaskid());
@@ -223,12 +269,6 @@ public class TaurusAlert {
 		}
 	}
 
-	private static final Log LOG = LogFactory.getLog(TaurusAlert.class);
-
-	private static final int META_INTERVAL = 60 * 1000;
-
-	private static final int ALERT_INTERVAL = 5 * 1000;
-
 	public static void main(String[] args) {
 
 		try {
@@ -251,31 +291,6 @@ public class TaurusAlert {
 		}
 	}
 
-	private Map<Integer, User> userMap;
-
-	private Map<String, AlertRule> ruleMap;
-
-	private List<AlertRule> commonRules;
-
-	private final AtomicBoolean isLoading = new AtomicBoolean(false);
-
-	@Autowired
-	private AlertRuleMapper rulesMapper;
-
-	@Autowired
-	private UserMapper userMapper;
-
-	@Autowired
-	private UserGroupMappingMapper userGroupMappingMapper;
-
-	@Autowired
-	private TaskAttemptMapper taskAttemptMapper;
-
-	@Autowired
-	private CommonAlarmService alarmService;
-
-	@Autowired
-	private TaskMapper taskMapper;
 
 	public void load() {
 		ruleMap = new ConcurrentHashMap<String, AlertRule>();
@@ -321,4 +336,5 @@ public class TaurusAlert {
 		alert.setName("AlertThread");
 		alert.start();
 	}
+	
 }
