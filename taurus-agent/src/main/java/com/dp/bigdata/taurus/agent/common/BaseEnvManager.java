@@ -21,7 +21,7 @@ public abstract class BaseEnvManager implements Runnable {
     public static String running = "/running";
     public static String hadoop = "/hadoop";
     public static String homeDir = "/home";
-    public static boolean needSudoAuthority;
+    public static boolean needSudoAuthority = true;
 
     public static final boolean ON_WINDOWS = System.getProperty("os.name").toLowerCase().startsWith("windows");
     public static final String USER = System.getProperty("user.name");
@@ -30,9 +30,12 @@ public abstract class BaseEnvManager implements Runnable {
     public static TaskHelper taskHelper = new TaskHelper();
 
     public static final String FILE_SEPRATOR = File.separator;
-
-    static {
-        agentRoot = AgentEnvValue.getValue(AgentEnvValue.AGENT_ROOT_PATH, agentRoot);
+    static{
+    	update();
+    }
+    
+    public static void update(){
+    	agentRoot = AgentEnvValue.getValue(AgentEnvValue.AGENT_ROOT_PATH, agentRoot);
         jobPath = AgentEnvValue.getValue(AgentEnvValue.JOB_PATH, jobPath);
         logPath = AgentEnvValue.getValue(AgentEnvValue.LOG_PATH, logPath);
         hadoopAuthority = agentRoot + hadoopAuthority;
@@ -42,6 +45,7 @@ public abstract class BaseEnvManager implements Runnable {
         hadoop = jobPath + hadoop;
         env = agentRoot + env;
         homeDir = AgentEnvValue.getValue(AgentEnvValue.HOME_PATH, homeDir);
-        needSudoAuthority = new Boolean(AgentEnvValue.getValue(AgentEnvValue.NEED_SUDO_AUTHORITY, "true"));
+        needSudoAuthority = new Boolean(AgentEnvValue.getValue(AgentEnvValue.NEED_SUDO_AUTHORITY,
+        		new Boolean(needSudoAuthority).toString()));
     }
 }

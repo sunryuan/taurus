@@ -2,8 +2,6 @@ package com.dp.bigdata.taurus.zookeeper.common.infochannel;
 
 
 import java.io.IOException;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -17,10 +15,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
-
-
-//import org.apache.zookeeper.Watcher;
-
 
 import com.dp.bigdata.taurus.zookeeper.common.MachineType;
 import com.dp.bigdata.taurus.zookeeper.common.TaurusZKException;
@@ -90,16 +84,13 @@ public abstract class TaurusZKInfoChannel implements ClusterInfoChannel{
 		}
 	}
 	
-
-	@SuppressWarnings("unchecked")
     @Override
-	public List<Object> getHeartbeatInfo(MachineType mt, String ip) {
-		try{
-			return Collections.unmodifiableList(
-					(List<Object>)getData(BASE, HEARTBEATS, mt.getName(), INFO, ip));
-		} catch(Exception e){
-			return Collections.unmodifiableList(new ArrayList<Object>());
-		}	
+	public HeartbeatInfo getHeartbeatInfo(MachineType mt, String ip) {
+    	try{
+    		return (HeartbeatInfo)getData(BASE, HEARTBEATS, mt.getName(), INFO, ip);
+    	}catch(Exception e){
+    		return null;
+    	}
 	}
 
 	@Override

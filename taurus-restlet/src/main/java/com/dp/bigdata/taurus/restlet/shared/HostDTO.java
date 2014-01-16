@@ -2,6 +2,8 @@ package com.dp.bigdata.taurus.restlet.shared;
 
 import java.io.Serializable;
 
+import com.dp.bigdata.taurus.zookeeper.common.infochannel.bean.HeartbeatInfo;
+
 /**
  * HostDTO
  * 
@@ -25,6 +27,8 @@ public class HostDTO implements Serializable {
     private boolean isConnected;
 
     private boolean isOnline;
+    
+    private HeartbeatInfo info;
 
     public HostDTO(Integer id, String name, String ip, Integer poolid, boolean isConnected, boolean status) {
         super();
@@ -87,14 +91,20 @@ public class HostDTO implements Serializable {
     public void setOnline(boolean status) {
         this.isOnline = status;
     }
-
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        return "HostDTO [id=" + id + ", name=" + name + ", ip=" + ip + ", poolid=" + poolid + ", isConnected=" + isConnected
-                + ", status=" + isOnline + "]";
-    }
     
+    public HeartbeatInfo getInfo() {
+		return info;
+	}
+
+	public void setInfo(HeartbeatInfo info) {
+		this.info = info;
+	}
+
+	@Override
+	public String toString() {
+		return "HostDTO [id=" + id + ", name=" + name + ", ip=" + ip
+				+ ", poolid=" + poolid + ", isConnected=" + isConnected
+				+ ", isOnline=" + isOnline + ", info=" + info + "]";
+	}
+
 }

@@ -11,6 +11,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.mail.MessagingException;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -22,7 +24,6 @@ import com.dianping.cat.Cat;
 import com.dianping.lion.EnvZooKeeperConfig;
 import com.dianping.lion.client.ConfigCache;
 import com.dianping.lion.client.LionException;
-import com.dianping.mailremote.remote.MailService;
 import com.dianping.sms.biz.SMSService;
 import com.dp.bigdata.taurus.core.AttemptStatus;
 import com.dp.bigdata.taurus.generated.mapper.AlertRuleMapper;
@@ -46,7 +47,7 @@ import com.dp.bigdata.taurus.generated.module.UserGroupMappingExample;
  * @author damon.zhu
  */
 public class TaurusAlert {
-	
+
 	private static final int ALERT_INTERVAL = 5 * 1000;
 
 	private static final Log LOG = LogFactory.getLog(TaurusAlert.class);
@@ -56,8 +57,6 @@ public class TaurusAlert {
 	private List<AlertRule> commonRules;
 
 	private final AtomicBoolean isLoading = new AtomicBoolean(false);
-
-	private MailService mailService;
 
 	private Map<String, AlertRule> ruleMap;
 
@@ -193,6 +192,7 @@ public class TaurusAlert {
 			}
 		}
 
+	
 		private void sendMail(String mailTo, TaskAttempt attempt) {
 			LOG.info("Send mail to " + mailTo);
 			Task task = taskMapper.selectByPrimaryKey(attempt.getTaskid());
@@ -215,17 +215,22 @@ public class TaurusAlert {
 			sbMailContent.append("</table>");
 
 			try {
-				Map<String, String> emailContent = new HashMap<String, String>();
-				emailContent.put("body", sbMailContent.toString());
-				emailContent.put("title", "Taurus告警服务");
-
-				mailService.send(15, mailTo, emailContent);
+				sendMail(mailTo,sbMailContent.toString());
 			} catch (Exception e) {
 				LOG.error("fail to send mail to " + mailTo, e);
 				Cat.logError(e);
 			}
 		}
 
+		private void sendMail(String to,String content) throws MessagingException{
+			MailInfo mail = new MailInfo();
+			mail.setTo(to);
+			mail.setContent(content);
+			mail.setFormat("text/html");
+			mail.setSubject("Taurus告警服务");
+			MailHelper.sendMail(mail);
+		}
+		
 		private void sendSMS(String tel, TaskAttempt attempt) {
 			LOG.info("Send SMS to " + tel);
 			Task task = taskMapper.selectByPrimaryKey(attempt.getTaskid());
@@ -284,7 +289,7 @@ public class TaurusAlert {
 			e.printStackTrace();
 		}
 	}
-
+	
 	public void load() {
 		ruleMap = new ConcurrentHashMap<String, AlertRule>();
 		commonRules = new ArrayList<AlertRule>();
@@ -313,10 +318,6 @@ public class TaurusAlert {
 		}
 	}
 
-	public void setMailService(MailService mailService) {
-		this.mailService = mailService;
-	}
-
 	public void setSmsService(SMSService smsService) {
 		this.smsService = smsService;
 	}
@@ -337,4 +338,5 @@ public class TaurusAlert {
 		alert.setName("AlertThread");
 		alert.start();
 	}
+	
 }

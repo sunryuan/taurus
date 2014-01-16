@@ -17,6 +17,8 @@ package com.dp.bigdata.taurus.zookeeper.host.helper;
 
 import java.util.List;
 
+import com.dp.bigdata.taurus.zookeeper.common.infochannel.bean.HeartbeatInfo;
+
 
 /**
  * operate taurus agent
@@ -26,5 +28,7 @@ import java.util.List;
 public interface HostManager {
 
 	void operate(String op, List<String> ips);
+	
+	HeartbeatInfo read(String ip);
     
 }

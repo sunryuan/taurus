@@ -23,12 +23,12 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 import com.dp.bigdata.taurus.core.Engine;
 
 /**
- * TODO Comment of TaurusServerTest
+ * to test taurus restlet
  * 
  * @author renyuan.sun
  * 
  */
-public class TaurusServerTest {
+public class RestletTest {
 
 	@Test
 	public void testMain() {

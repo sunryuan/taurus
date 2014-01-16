@@ -51,5 +51,5 @@ public interface ScheduleInfoChannel extends ClusterInfoChannel {
 	void completeOperate(String ip, String op);
 
 	boolean operateCompleted(String ip, String op);
-
+	
 }

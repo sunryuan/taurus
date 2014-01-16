@@ -11,6 +11,11 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>javax.mail</groupId>
+			<artifactId>mail</artifactId>
+			<version>1.4.1</version>
+		</dependency>
+		<dependency>
 			<groupId>com.dp.bigdata</groupId>
 			<artifactId>taurus-core</artifactId>
 			<version>0.4.1</version>

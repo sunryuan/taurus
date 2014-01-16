@@ -33,75 +33,79 @@ import com.dp.bigdata.taurus.zookeeper.common.infochannel.interfaces.ScheduleInf
 
 /**
  * TODO Comment of KillThread
+ * 
  * @author renyuan.sun
- *
+ * 
  */
-public class KillTaskThread extends BaseEnvManager{
-    
-    private static final Log LOGGER = LogFactory.getLog(KillTaskThread.class);
-    private static final String KILL_COMMAND = "%s %s %s";
+public class KillTaskThread extends BaseEnvManager {
 
-    Executor executor;
-    String localIp;
-    ScheduleInfoChannel cs;
-    String jobInstanceId;
-      
-    KillTaskThread(Executor executor, String localIp, ScheduleInfoChannel cs, String jobInstanceId){
-        this.executor = executor;
-        this.localIp = localIp;
-        this.cs = cs;
-        this.jobInstanceId = jobInstanceId;
-    }
+	private static final Log LOGGER = LogFactory.getLog(KillTaskThread.class);
 
-    @Override
-    public void run() {
-        Lock lock = LockHelper.getLock(jobInstanceId);
-        try{
-            lock.lock();
-            ScheduleConf conf = (ScheduleConf) cs.getConf(localIp, jobInstanceId);
-            ScheduleStatus status = (ScheduleStatus) cs.getStatus(localIp, jobInstanceId);
-            killTask(localIp,conf, status);
-            cs.updateStatus(localIp, jobInstanceId, status);
-            cs.removeRunningJob(localIp, jobInstanceId);
-        } catch(Exception e){
-            LOGGER.error(e,e);
-        } finally{
-            lock.unlock();
-        }
-    }
-    
-    private void killTask(String ip,ScheduleConf conf, ScheduleStatus status){
-        String attemptID = conf.getAttemptID();
-        int returnCode = 1;
-        try{
-            if(ON_WINDOWS){
-                returnCode = executor.kill(attemptID);
-            } else{
-                String fileName = running + FILE_SEPRATOR + '.' + attemptID;
-                BufferedReader br = new BufferedReader(new FileReader((new File(fileName)))); 
-                String pid = br.readLine();
-                br.close();
-                LOGGER.debug("Ready to kill " + attemptID + ", pid is " + pid);
-                String kill = String.format(KILL_COMMAND, killJob, pid, "9");
-                returnCode = executor.execute("kill",System.out,System.err,kill);
-                try {
-                    new File(fileName).delete();
-                } catch(Exception e) {
-                    LOGGER.error("Fail to delete file for " + attemptID);
-                }
-            }
-        } catch(FileNotFoundException e){
-            LOGGER.debug(attemptID + " is over when been killed.");
-            returnCode = 0;
-        }
-        catch(Exception e) {
-            LOGGER.error(e,e);
-            returnCode = 1;
-        }
-        
-        if(returnCode == 0)  {
-            status.setStatus(ScheduleStatus.DELETE_SUCCESS);
-        }
-    }
-    
+	private static final String KILL_COMMAND = "%s %s %s";
+
+	Executor executor;
+
+	String localIp;
+
+	ScheduleInfoChannel cs;
+
+	String jobInstanceId;
+
+	KillTaskThread(Executor executor, String localIp, ScheduleInfoChannel cs, String jobInstanceId) {
+		this.executor = executor;
+		this.localIp = localIp;
+		this.cs = cs;
+		this.jobInstanceId = jobInstanceId;
+	}
+
+	@Override
+	public void run() {
+		Lock lock = LockHelper.getLock(jobInstanceId);
+		try {
+			lock.lock();
+			ScheduleConf conf = (ScheduleConf) cs.getConf(localIp, jobInstanceId);
+			ScheduleStatus status = (ScheduleStatus) cs.getStatus(localIp, jobInstanceId);
+			killTask(localIp, conf, status);
+
+		} catch (Exception e) {
+			LOGGER.error(e, e);
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	private void killTask(String ip, ScheduleConf conf, ScheduleStatus status) {
+		String attemptID = conf.getAttemptID();
+		int returnCode = 1;
+		try {
+			if (ON_WINDOWS) {
+				returnCode = executor.kill(attemptID);
+			} else {
+				String fileName = running + FILE_SEPRATOR + '.' + attemptID;
+				BufferedReader br = new BufferedReader(new FileReader((new File(fileName))));
+				String pid = br.readLine();
+				br.close();
+				LOGGER.debug("Ready to kill " + attemptID + ", pid is " + pid);
+				String kill = String.format(KILL_COMMAND, killJob, pid, "9");
+				returnCode = executor.execute("kill", System.out, System.err, kill);
+				try {
+					new File(fileName).delete();
+				} catch (Exception e) {
+					LOGGER.error("Fail to delete file for " + attemptID);
+				}
+			}
+		} catch (FileNotFoundException e) {
+			LOGGER.debug(attemptID + " is over when been killed.");
+			returnCode = 0;
+		} catch (Exception e) {
+			LOGGER.error(e, e);
+			returnCode = 1;
+		}
+
+		if (returnCode == 0) {
+			cs.removeRunningJob(localIp, jobInstanceId);
+			status.setStatus(ScheduleStatus.DELETE_SUCCESS);
+		}
+	}
+
 }

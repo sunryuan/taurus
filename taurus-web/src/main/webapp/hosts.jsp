@@ -9,6 +9,7 @@
 	
 	<%@page import="org.restlet.resource.ClientResource"%>
 	<%@page import="com.dp.bigdata.taurus.restlet.resource.IHostsResource"%>
+	<%@page import="com.dp.bigdata.taurus.restlet.resource.IHostResource"%>
 	<%@page import="com.dp.bigdata.taurus.restlet.shared.HostDTO"%>
 	<%@page import="java.util.Map"%>
 	<%@page import="java.util.HashMap"%>
@@ -16,9 +17,9 @@
 	<%@page import="java.text.SimpleDateFormat"%>
 	<%
 	cr = new ClientResource(host + "host");
-	IHostsResource hostResource = cr.wrap(IHostsResource.class);
+	IHostsResource hostsResource = cr.wrap(IHostsResource.class);
 	cr.accept(MediaType.APPLICATION_XML);
-	ArrayList<HostDTO> hosts = hostResource.retrieve();
+	ArrayList<HostDTO> hosts = hostsResource.retrieve();
 	%>
 
 	<div class="row-fluid">
@@ -30,6 +31,10 @@
 	  			String statusCode = (String)(request.getAttribute("statusCode"));
 	  			String hostName = request.getParameter("hostName");
 	  			String op = request.getParameter("op");
+	  			cr = new ClientResource(host + "host/" + hostName);
+	  			IHostResource hostResource = cr.wrap(IHostResource.class);
+	  			cr.accept(MediaType.APPLICATION_XML);
+	  			HostDTO dto = hostResource.retrieve();
 	  			Map<String,String> maps = new HashMap<String,String>();
 	  			maps.put("up","上线");
 	  			maps.put("dowan","下线");
@@ -47,8 +52,7 @@
 	  		%>
 	  				<div id="alertContainer" class="container"><div id="alertContainer" class="alert alert-error"><button type="button" class="close" data-dismiss="alert">×</button> <%=opChs %>失败</div></div>
 	  		<%  }
-	  		for (HostDTO dto : hosts) {
-	  			if(dto.getName()!= null && dto.getName().equals(hostName)){
+	  		if(dto != null) {
 	  		%>
 	  		<ul  class="nav nav-tabs">
             	<li class="active"><a href="#state" data-toggle="tab">状态</a></li>
@@ -57,7 +61,7 @@
         	</ul>
 
        		<div class="tab-content">
-            	<div class="tab-pane active" id="state">
+           	<div class="tab-pane active" id="state">
            	<table class="table" id="host_state">
               <thead>
                 <tr>
@@ -79,10 +83,10 @@
                   <td>机器状态</td>
                   <%if(dto.isOnline()){%>
                   	<td>在线</td>
-                  	<td><a id="down" class="btn btn-primary btn-small" href="updateHost?hostName=<%=hostName%>&op=down">下线</a></td>
+                  	<td><a id="down" title="这台agent将不在监控范围内，agent进程是否被kill并不能确定。" class="btn btn-primary btn-small" href="updateHost?hostName=<%=hostName%>&op=down">下线</a></td>
                   <%} %><%else{%>
                   	<td>下线</td>
-                  	<td><a id="up" class="btn btn-primary btn-small" href="updateHost?hostName=<%=hostName%>&op=up">上线</a></td>
+                  	<td><a id="up"  title="这台agent将被纳入监控范围内，agent需要手动启动。" class="btn btn-primary btn-small" href="updateHost?hostName=<%=hostName%>&op=up">上线</a></td>
                   <%} %>
                 </tr>
                 <tr class="warning">
@@ -91,26 +95,30 @@
                   <%if(dto.isConnected()){%><td>正常</td>
                   	<td><a id="restart" class="btn btn-primary btn-small" href="updateHost?hostName=<%=hostName%>&op=restart">重启</a></td>
                   <%} else{%>   <td>异常  </td>
-                  <td></td>
+                  <td>无法重启</td>
                   <%} %>
                 </tr>
                 <tr class="info">
                   <td>4</td>
                   <td>版本</td>
-                  <td><%=dto.getName() %></td>
-                  <td><a id="restart" class="btn btn-primary btn-small" href="updateHost?hostName=<%=hostName%>&op=update">升级</a></td>
+                  <td><%=dto.getInfo().getAgentVersion() %></td>
+                  <%if(dto.isConnected()){%>
+                  	<td><a id="restart" class="btn btn-primary btn-small" href="updateHost?hostName=<%=hostName%>&op=update">升级</a></td>
+                  <%} else{%>
+                  	<td>无法升级</td>
+                  <%} %>
                 </tr>
               </tbody>
             </table>
             	</div>
             	<div class="tab-pane" id="config">
-            		
+            		hello	
             	</div>
             	<div class="tab-pane" id="statistics">
-
+					hello two
 				</div>
         	</div>
-	  		<% }}%>
+	  		<% }%>
 	  	</div>
 </div>
 

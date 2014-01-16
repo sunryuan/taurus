@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.mortbay.jetty.webapp.WebAppContext;
 import org.unidal.test.jetty.JettyServer;
 
-public class TestServer extends JettyServer {
+public class WebTest extends JettyServer {
 
 	@Before
 	public void before() throws Exception {

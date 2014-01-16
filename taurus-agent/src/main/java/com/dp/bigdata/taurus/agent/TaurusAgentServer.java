@@ -24,15 +24,15 @@ public class TaurusAgentServer implements AgentServer{
 
 	private String localIp;
 	private DeploymentInfoChannel deployer;
-	private ScheduleInfoChannel schedule;
+	private ScheduleInfoChannel scheduler;
 
 	private int interval = CHECK_INTERVALS;
 	private Executor executor;
 	
 	@Inject
-	public TaurusAgentServer(DeploymentInfoChannel deployer,ScheduleInfoChannel schedule, Executor executor, int interval){
+	public TaurusAgentServer(DeploymentInfoChannel deployer,ScheduleInfoChannel scheduler, Executor executor, int interval){
 	    this.deployer = deployer;
-		this.schedule = schedule;
+		this.scheduler = scheduler;
 		this.executor = executor;
 
 		localIp = AgentServerHelper.getLocalIp();
@@ -48,20 +48,21 @@ public class TaurusAgentServer implements AgentServer{
         info.setConfigs(BaseEnvManager.CONFIGS);
         info.setLinux(BaseEnvManager.ON_WINDOWS);
         info.setUser(BaseEnvManager.USER);
+        info.setNeedUpdate(false);
 		deployer.connectToCluster(MachineType.AGENT, localIp);
-		schedule.connectToCluster(MachineType.AGENT, localIp);
+		scheduler.connectToCluster(MachineType.AGENT, localIp);
 		
-		schedule.updateHeartbeatInfo(MachineType.AGENT, localIp, info);
 		
-	    LOGGER.info("Taurus agent starts.");
-		DeploymentUtility.checkAndDeployTasks(localIp, deployer,true);
+	    DeploymentUtility.checkAndDeployTasks(localIp, deployer,true);
 		DeploymentUtility.checkAndUndeployTasks( localIp, deployer,true);
-		ScheduleUtility.checkAndRunTasks(executor, localIp, schedule, true);
-		ScheduleUtility.checkAndKillTasks(executor, localIp, schedule, true);
-		ScheduleUtility.checkAndOperate(executor, localIp, schedule,true);
-		ScheduleUtility.startZombieThread(localIp, schedule);
+		ScheduleUtility.checkAndRunTasks(executor, localIp, scheduler, true);
+		ScheduleUtility.checkAndKillTasks(executor, localIp, scheduler, true);
+		ScheduleUtility.checkAndOperate(executor, localIp, scheduler,true);
+		ScheduleUtility.startZombieThread(localIp, scheduler);
 		JarExecutor jarExecutor = new JarExecutor();
 		jarExecutor.monitor();
+		LOGGER.info("Taurus agent starts.");
+
 		
 		while(true){
 			try {
@@ -69,10 +70,16 @@ public class TaurusAgentServer implements AgentServer{
 			} catch (InterruptedException e) { /*do nothing*/}
 			DeploymentUtility.checkAndDeployTasks(localIp, deployer, false);
 			DeploymentUtility.checkAndUndeployTasks(localIp, deployer, false);
-			ScheduleUtility.checkAndRunTasks(executor, localIp, schedule, false);
-			ScheduleUtility.checkAndKillTasks(executor, localIp, schedule, false);
-			ScheduleUtility.checkAndOperate(executor, localIp, schedule,false);
-			schedule.updateRealtimeHeartbeatInfo(MachineType.AGENT, localIp);
+			ScheduleUtility.checkAndRunTasks(executor, localIp, scheduler, false);
+			ScheduleUtility.checkAndKillTasks(executor, localIp, scheduler, false);
+			ScheduleUtility.checkAndOperate(executor, localIp, scheduler,false);
+			scheduler.updateRealtimeHeartbeatInfo(MachineType.AGENT, localIp);
+			HeartbeatInfo newHeartbeatInfo = scheduler.getHeartbeatInfo(MachineType.AGENT, localIp);
+			if(newHeartbeatInfo != null&&newHeartbeatInfo.isNeedUpdate()){
+				info.setConfigs(newHeartbeatInfo.getConfigs());
+			}
+			scheduler.updateHeartbeatInfo(MachineType.AGENT, localIp, info);
+			scheduler.updateRealtimeHeartbeatInfo(MachineType.AGENT, localIp);
 		}
 	}
 

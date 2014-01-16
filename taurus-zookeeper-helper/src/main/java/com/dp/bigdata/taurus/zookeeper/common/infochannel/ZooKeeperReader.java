@@ -124,7 +124,8 @@ public class ZooKeeperReader {
 //          System.out.println(args[0]);
 //          cleaner.read(args[0]);
 //      }
-        reader.read("taurus/schedules/192.168.26.22/attempt_201304181115_0002_0001_0001/status");
+        
+        reader.read("taurus/schedules/"+ args[0] + "/" + args[1] + "/status");
 //      cleaner.read("taurus/schedules/192.168.7.80/attempt_201209241101_0009_1439_0001/status");
 //      cleaner.read("taurus/schedules/192.168.7.80/attempt_201209241101_0009_1440_0001/status");
 

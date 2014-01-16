@@ -54,7 +54,7 @@
 						<label  class="control-label"  for="taskType">作业类型*</label>
 						<div class="controls">
    						<select  id="taskType" name="taskType"  class="input-big  field" >
-   							<option>other</option>
+   							<option>default</option>
    							<option>hadoop</option>
 							<option>spring</option>
 						</select>
@@ -70,7 +70,7 @@
           				</div>
           			</div>
           			
-					<div id="hadoopName">
+					<div id="hadoopName" style="display:none;">
 						<div class="control-group">
             				<label class="control-label"  for="hadoopName">hadoop用户名*</label>
             				<div class="controls">
