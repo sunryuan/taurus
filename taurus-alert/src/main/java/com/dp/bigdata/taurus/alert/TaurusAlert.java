@@ -24,7 +24,6 @@ import com.dianping.cat.Cat;
 import com.dianping.lion.EnvZooKeeperConfig;
 import com.dianping.lion.client.ConfigCache;
 import com.dianping.lion.client.LionException;
-import com.dianping.mailremote.remote.MailService;
 import com.dianping.sms.biz.SMSService;
 import com.dp.bigdata.taurus.core.AttemptStatus;
 import com.dp.bigdata.taurus.generated.mapper.AlertRuleMapper;
@@ -48,7 +47,7 @@ import com.dp.bigdata.taurus.generated.module.UserGroupMappingExample;
  * @author damon.zhu
  */
 public class TaurusAlert {
-	
+
 	private static final int ALERT_INTERVAL = 5 * 1000;
 
 	private static final Log LOG = LogFactory.getLog(TaurusAlert.class);
@@ -58,9 +57,6 @@ public class TaurusAlert {
 	private List<AlertRule> commonRules;
 
 	private final AtomicBoolean isLoading = new AtomicBoolean(false);
-
-	@SuppressWarnings("unused")
-   private MailService mailService;
 
 	private Map<String, AlertRule> ruleMap;
 
@@ -220,11 +216,6 @@ public class TaurusAlert {
 
 			try {
 				sendMail(mailTo,sbMailContent.toString());
-//				Map<String, String> emailContent = new HashMap<String, String>();
-//				emailContent.put("body", sbMailContent.toString());
-//				emailContent.put("title", "Taurus告警服务");
-//
-//				mailService.send(15, mailTo, emailContent);
 			} catch (Exception e) {
 				LOG.error("fail to send mail to " + mailTo, e);
 				Cat.logError(e);
@@ -298,7 +289,7 @@ public class TaurusAlert {
 			e.printStackTrace();
 		}
 	}
-
+	
 	public void load() {
 		ruleMap = new ConcurrentHashMap<String, AlertRule>();
 		commonRules = new ArrayList<AlertRule>();
@@ -325,10 +316,6 @@ public class TaurusAlert {
 		for (User user : users) {
 			userMap.put(user.getId(), user);
 		}
-	}
-
-	public void setMailService(MailService mailService) {
-		this.mailService = mailService;
 	}
 
 	public void setSmsService(SMSService smsService) {
