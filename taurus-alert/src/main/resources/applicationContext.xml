@@ -46,18 +46,30 @@
 	</bean>
 
 	<!-- Core Service -->
-	<bean id="commonAlarmSerivce" class="com.dianping.dpsf.spring.ProxyBeanFactory"
-		init-method="init">
-		<property name="serviceName"
-			value="http://service.dianping.com/hawk/alarm/commonAlarmSerivce" />
-		<property name="iface"
-			value="com.dianping.hawk.common.alarm.service.CommonAlarmService" />
-		<property name="serialize" value="java" />
-		<property name="callMethod" value="sync" />
-		<property name="timeout" value="5000" />
-	</bean>
+	<bean id="mailService" class="com.dianping.dpsf.spring.ProxyBeanFactory" init-method="init">
+        <property name="serviceName" value="http://service.dianping.com/mailService/mailService_1.0.0"/>                                            
+        <property name="iface" value="com.dianping.mailremote.remote.MailService"/>
+        <property name="serialize" value="java"/>
+        <property name="callMethod" value="sync"/>
+        <property name="timeout" value="5000"/>
+    </bean>
+
+	<bean id="smsService" class="com.dianping.dpsf.spring.ProxyBeanFactory" init-method="init">
+        <property name="serviceName" value="http://service.dianping.com/smsService/smsRemoteService_1.0.0"/>                                            
+        <property name="iface" value="com.dianping.sms.biz.SMSService"/>
+        <property name="serialize" value="java"/>
+        <property name="callMethod" value="sync"/>
+        <property name="timeout" value="5000"/>
+    </bean>
 	
-	<bean id="alert" class="com.dp.bigdata.taurus.alert.TaurusAlert" init-method="load"/>
+	<bean id="alert" class="com.dp.bigdata.taurus.alert.TaurusAlert" init-method="load">
+		<property name="mailService">
+			<ref bean="mailService" />
+		</property>
+		<property name="smsService">
+			<ref bean="smsService" />
+		</property>
+	</bean>
 </beans>
 
 

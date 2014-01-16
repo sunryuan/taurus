@@ -3,6 +3,7 @@ package com.dp.bigdata.taurus.alert;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -20,10 +21,11 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 import com.dianping.cat.Cat;
-import com.dianping.hawk.common.alarm.service.CommonAlarmService;
 import com.dianping.lion.EnvZooKeeperConfig;
 import com.dianping.lion.client.ConfigCache;
 import com.dianping.lion.client.LionException;
+import com.dianping.mailremote.remote.MailService;
+import com.dianping.sms.biz.SMSService;
 import com.dp.bigdata.taurus.core.AttemptStatus;
 import com.dp.bigdata.taurus.generated.mapper.AlertRuleMapper;
 import com.dp.bigdata.taurus.generated.mapper.TaskAttemptMapper;
@@ -47,37 +49,39 @@ import com.dp.bigdata.taurus.generated.module.UserGroupMappingExample;
  */
 public class TaurusAlert {
 	
+	private static final int ALERT_INTERVAL = 5 * 1000;
+
 	private static final Log LOG = LogFactory.getLog(TaurusAlert.class);
 
 	private static final int META_INTERVAL = 60 * 1000;
-
-	private static final int ALERT_INTERVAL = 5 * 1000;
-
-	private Map<Integer, User> userMap;
-
-	private Map<String, AlertRule> ruleMap;
 
 	private List<AlertRule> commonRules;
 
 	private final AtomicBoolean isLoading = new AtomicBoolean(false);
 
+	@SuppressWarnings("unused")
+   private MailService mailService;
+
+	private Map<String, AlertRule> ruleMap;
+
 	@Autowired
 	private AlertRuleMapper rulesMapper;
 
-	@Autowired
-	private UserMapper userMapper;
-
-	@Autowired
-	private UserGroupMappingMapper userGroupMappingMapper;
+	private SMSService smsService;
 
 	@Autowired
 	private TaskAttemptMapper taskAttemptMapper;
 
 	@Autowired
-	private CommonAlarmService alarmService;
-	
-	@Autowired
 	private TaskMapper taskMapper;
+
+	@Autowired
+	private UserGroupMappingMapper userGroupMappingMapper;
+
+	@Autowired
+	private UserMapper userMapper;
+	
+	private Map<Integer, User> userMap;
 
 	public class AlertThread implements Runnable {
 
@@ -215,10 +219,12 @@ public class TaurusAlert {
 			sbMailContent.append("</table>");
 
 			try {
-				//alarmService.sendEmail(sbMailContent.toString(), "Taurus告警服务",
-					//	mailTo);
 				sendMail(mailTo,sbMailContent.toString());
-				
+//				Map<String, String> emailContent = new HashMap<String, String>();
+//				emailContent.put("body", sbMailContent.toString());
+//				emailContent.put("title", "Taurus告警服务");
+//
+//				mailService.send(15, mailTo, emailContent);
 			} catch (Exception e) {
 				LOG.error("fail to send mail to " + mailTo, e);
 				Cat.logError(e);
@@ -245,7 +251,10 @@ public class TaurusAlert {
 					+ "</br>");
 
 			try {
-				alarmService.sendSmsMessage(sbMailContent.toString(), tel);
+				Map<String, String> messageContent = new HashMap<String, String>();
+				messageContent.put("body", sbMailContent.toString());
+
+				smsService.send(801, tel, messageContent);
 			} catch (Exception e) {
 				LOG.error("fail to send sms to " + tel, e);
 				Cat.logError(e);
@@ -270,7 +279,6 @@ public class TaurusAlert {
 	}
 
 	public static void main(String[] args) {
-
 		try {
 			ConfigCache.getInstance(EnvZooKeeperConfig.getZKAddress());
 		} catch (LionException e) {
@@ -290,7 +298,6 @@ public class TaurusAlert {
 			e.printStackTrace();
 		}
 	}
-
 
 	public void load() {
 		ruleMap = new ConcurrentHashMap<String, AlertRule>();
@@ -318,6 +325,14 @@ public class TaurusAlert {
 		for (User user : users) {
 			userMap.put(user.getId(), user);
 		}
+	}
+
+	public void setMailService(MailService mailService) {
+		this.mailService = mailService;
+	}
+
+	public void setSmsService(SMSService smsService) {
+		this.smsService = smsService;
 	}
 
 	public void start(int interval) {

@@ -79,7 +79,7 @@ $(document).ready(function() {
 	    	},
 	    	error:function(data){
 	    		$("#id_header").html("失败");
-				$("#id_body").html("添加作业失败!");
+				$("#id_body").html("添加作业失败!通常的原因是crontab表达式错误,请参考<a href='about.jsp#crontab'>帮助</a>。或者你选择的报警接收人并不存在。如果还有疑问可咨询运维和开发人员。");
 				$(".modal-footer").html('<a href="#" class="btn btn-info" data-dismiss="modal">确定</a>');
 				$("#confirm").modal('toggle');
 				$("#submitButton").button('reset');

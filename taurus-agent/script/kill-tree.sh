@@ -15,7 +15,11 @@ if [ $# -eq 0 -o $# -gt 2 ]; then
     echo "Usage: $(basename $0) <pid> [signal]"
     exit 1
 fi
-
-killtree $@
+ps -p $1
+if [ $? -eq 0 ]; then
+    killtree $@
+else
+    exit 0
+fi
 
 # end
