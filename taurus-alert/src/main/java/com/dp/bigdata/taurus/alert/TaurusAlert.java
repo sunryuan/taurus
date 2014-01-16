@@ -24,7 +24,6 @@ import com.dianping.cat.Cat;
 import com.dianping.lion.EnvZooKeeperConfig;
 import com.dianping.lion.client.ConfigCache;
 import com.dianping.lion.client.LionException;
-import com.dianping.sms.biz.SMSService;
 import com.dp.bigdata.taurus.core.AttemptStatus;
 import com.dp.bigdata.taurus.generated.mapper.AlertRuleMapper;
 import com.dp.bigdata.taurus.generated.mapper.TaskAttemptMapper;
@@ -48,9 +47,9 @@ import com.dp.bigdata.taurus.generated.module.UserGroupMappingExample;
  */
 public class TaurusAlert {
 
-	private static final int ALERT_INTERVAL = 5 * 1000;
-
 	private static final Log LOG = LogFactory.getLog(TaurusAlert.class);
+
+	private static final int ALERT_INTERVAL = 5 * 1000;
 
 	private static final int META_INTERVAL = 60 * 1000;
 
@@ -63,8 +62,6 @@ public class TaurusAlert {
 	@Autowired
 	private AlertRuleMapper rulesMapper;
 
-	private SMSService smsService;
-
 	@Autowired
 	private TaskAttemptMapper taskAttemptMapper;
 
@@ -76,7 +73,7 @@ public class TaurusAlert {
 
 	@Autowired
 	private UserMapper userMapper;
-	
+
 	private Map<Integer, User> userMap;
 
 	public class AlertThread implements Runnable {
@@ -168,31 +165,31 @@ public class TaurusAlert {
 					}
 				}
 
-				Date now = new Date();
-				TaskAttemptExample example = new TaskAttemptExample();
-				example.or().andEndtimeGreaterThanOrEqualTo(m_lastNotifyTime)
-						.andEndtimeLessThan(now);
-				List<TaskAttempt> attempts = taskAttemptMapper
-						.selectByExample(example);
-				m_lastNotifyTime = now;
-				if (attempts != null && attempts.size() == 0) {
-					continue;
-				}
-				for (TaskAttempt at : attempts) {
-					handle(at);
-				}
-
 				try {
+					Date now = new Date();
+					TaskAttemptExample example = new TaskAttemptExample();
+					example.or()
+							.andEndtimeGreaterThanOrEqualTo(m_lastNotifyTime)
+							.andEndtimeLessThan(now);
+					List<TaskAttempt> attempts = taskAttemptMapper
+							.selectByExample(example);
+					m_lastNotifyTime = now;
+					if (attempts != null && attempts.size() == 0) {
+						continue;
+					}
+					for (TaskAttempt at : attempts) {
+						handle(at);
+					}
+
 					Thread.sleep(ALERT_INTERVAL);
-				} catch (InterruptedException e) {
-					LOG.error("InterruptedException ", e);
+				} catch (Throwable e) {
+					LOG.error(e, e);
 				}
 
 				m_lastNotifyTime = new Date();
 			}
 		}
 
-	
 		private void sendMail(String mailTo, TaskAttempt attempt) {
 			LOG.info("Send mail to " + mailTo);
 			Task task = taskMapper.selectByPrimaryKey(attempt.getTaskid());
@@ -215,14 +212,15 @@ public class TaurusAlert {
 			sbMailContent.append("</table>");
 
 			try {
-				sendMail(mailTo,sbMailContent.toString());
+				sendMail(mailTo, sbMailContent.toString());
 			} catch (Exception e) {
 				LOG.error("fail to send mail to " + mailTo, e);
 				Cat.logError(e);
 			}
 		}
 
-		private void sendMail(String to,String content) throws MessagingException{
+		private void sendMail(String to, String content)
+				throws MessagingException {
 			MailInfo mail = new MailInfo();
 			mail.setTo(to);
 			mail.setContent(content);
@@ -230,7 +228,7 @@ public class TaurusAlert {
 			mail.setSubject("Taurus告警服务");
 			MailHelper.sendMail(mail);
 		}
-		
+
 		private void sendSMS(String tel, TaskAttempt attempt) {
 			LOG.info("Send SMS to " + tel);
 			Task task = taskMapper.selectByPrimaryKey(attempt.getTaskid());
@@ -245,7 +243,7 @@ public class TaurusAlert {
 				Map<String, String> messageContent = new HashMap<String, String>();
 				messageContent.put("body", sbMailContent.toString());
 
-				smsService.send(801, tel, messageContent);
+				//smsService.send(801, tel, messageContent);
 			} catch (Exception e) {
 				LOG.error("fail to send sms to " + tel, e);
 				Cat.logError(e);
@@ -257,13 +255,14 @@ public class TaurusAlert {
 		@Override
 		public void run() {
 			while (true) {
-				isLoading.set(true);
-				load();
-				isLoading.set(false);
 				try {
+					isLoading.set(true);
+					load();
+					isLoading.set(false);
 					Thread.sleep(META_INTERVAL);
-				} catch (InterruptedException e) {
-					LOG.error("InterruptedException ", e);
+				} catch (Throwable e) {
+					Cat.logError(e);
+					LOG.error(e, e);
 				}
 			}
 		}
@@ -289,7 +288,7 @@ public class TaurusAlert {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void load() {
 		ruleMap = new ConcurrentHashMap<String, AlertRule>();
 		commonRules = new ArrayList<AlertRule>();
@@ -318,10 +317,6 @@ public class TaurusAlert {
 		}
 	}
 
-	public void setSmsService(SMSService smsService) {
-		this.smsService = smsService;
-	}
-
 	public void start(int interval) {
 		Thread updated = new Thread(new MetaDataUpdatedThread());
 		updated.setName("MetaDataThread");
@@ -338,5 +333,5 @@ public class TaurusAlert {
 		alert.setName("AlertThread");
 		alert.start();
 	}
-	
+
 }
