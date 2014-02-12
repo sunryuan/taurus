@@ -373,6 +373,7 @@ final public class Engine implements Scheduler {
 
 		try {
 			zookeeper.execute(context.getContext());
+            LOG.info("Attempt " + attempt.getAttemptid() + " is running now...");
 			Cat.logEvent("Attempt-Running", context.getName(), Message.SUCCESS, context.getAttemptid());
 			transaction.setStatus(Message.SUCCESS);
 		} catch (Exception ee) {
@@ -418,20 +419,17 @@ final public class Engine implements Scheduler {
 		}
 		try {
 			zookeeper.kill(context.getContext());
-
-			context.getAttempt().setStatus(AttemptStatus.KILLED);
-			context.getAttempt().setEndtime(new Date());
-			context.getAttempt().setReturnvalue(-1);
-			taskAttemptMapper.updateByPrimaryKeySelective(context.getAttempt());
-			unregistAttemptContext(context);
-			
-			Cat.logEvent("Kill-Attempt", context.getName(), Message.SUCCESS, context.getAttemptid());
 		} catch (Exception ee) {
-			// do nothing; keep the attempt status unchanged.
-			Cat.logEvent("Kill-Attempt", context.getName(), context.getAttemptid(), ee.toString());
-
-			throw new ScheduleException("Fail to execute attemptID : " + attemptID + " on host : " + context.getExechost());
+            LOG.error("Fail to execute attemptID :  " + attemptID + " on host : " + context.getExechost());
 		}
+		
+		context.getAttempt().setStatus(AttemptStatus.KILLED);
+		context.getAttempt().setEndtime(new Date());
+		context.getAttempt().setReturnvalue(-1);
+		taskAttemptMapper.updateByPrimaryKeySelective(context.getAttempt());
+		unregistAttemptContext(context);
+		
+		Cat.logEvent("Kill-Attempt", context.getName(), Message.SUCCESS, context.getAttemptid());
 	}
 
 	@Override
