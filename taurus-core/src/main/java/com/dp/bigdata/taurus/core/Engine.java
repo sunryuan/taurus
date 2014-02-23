@@ -7,6 +7,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -47,6 +52,18 @@ final public class Engine implements Scheduler {
 	private Map<String, HashMap<String, AttemptContext>> runningAttempts; // Map<taskID,HashMap<attemptID,AttemptContext>>
 
 	private Runnable progressMonitor;
+
+	private ExecutorService executorServie = Executors.newFixedThreadPool(10,new ThreadFactory() {
+		private AtomicInteger id = new AtomicInteger(0);
+
+		@Override
+		public Thread newThread(Runnable r) {
+			Thread t = new Thread(r);
+			t.setDaemon(true);
+			t.setName("Thread-Notify-" + id.incrementAndGet());
+			return t;
+		}
+	});
 
 	@Autowired
 	@Qualifier("triggle.crontab")
@@ -116,11 +133,12 @@ final public class Engine implements Scheduler {
 		TaskAttemptExample example1 = new TaskAttemptExample();
 		example1.or().andStatusEqualTo(AttemptStatus.RUNNING);
 		example1.or().andStatusEqualTo(AttemptStatus.TIMEOUT);
-		List<TaskAttempt> attempts = taskAttemptMapper.selectByExample(example1);
+		List<TaskAttempt> attempts = taskAttemptMapper
+				.selectByExample(example1);
 		for (TaskAttempt attempt : attempts) {
 			Task task = tmp_registedTasks.get(attempt.getTaskid());
-			
-			if(task != null){
+
+			if (task != null) {
 				AttemptContext context = new AttemptContext(attempt, task);
 				HashMap<String, AttemptContext> contexts = new HashMap<String, AttemptContext>();
 				contexts.put(context.getAttemptid(), context);
@@ -138,17 +156,25 @@ final public class Engine implements Scheduler {
 	 * start the engine;
 	 */
 	public void start() {
-
-		Thread monitorThread = new Thread(progressMonitor);
-		monitorThread.setDaemon(true);
-		monitorThread.start();
+		if (progressMonitor != null) {
+			Thread monitorThread = new Thread(progressMonitor);
+			monitorThread.setName("Thread-"
+					+ AttemptStatusMonitor.class.getName());
+			monitorThread.setDaemon(true);
+			monitorThread.start();
+		}
 
 		Thread refreshThread = new RefreshThread();
 		refreshThread.setDaemon(true);
+		refreshThread.setName("Thread-" + RefreshThread.class.getName());
 		refreshThread.start();
 
-		agentMonitor.agentMonitor(new AgentHandler() {
+		Thread triggleThread = new TriggleTask();
+		triggleThread.setDaemon(true);
+		triggleThread.setName("Thread-" + TriggleTask.class.getName());
+		triggleThread.start();
 
+		agentMonitor.agentMonitor(new AgentHandler() {
 			@Override
 			public void disConnected(String ip) {
 				Cat.logEvent("DisConnected", ip);
@@ -190,40 +216,6 @@ final public class Engine implements Scheduler {
 				return result;
 			}
 		});
-
-		long logCounter = 0;
-		while (true) {
-			if(logCounter % 6 == 0){ // every minute
-				LOG.info("Engine trys to scan the database...");
-			}
-
-			List<AttemptContext> contexts = null;
-			try {
-				crontabTriggle.triggle();
-				dependencyTriggle.triggle();
-				contexts = filter.filter(getReadyToRunAttempt());
-			} catch (Exception e) {
-				Cat.logError(e);
-				LOG.error("Unexpected Exception", e);
-			}
-			if (contexts != null) {
-				for (AttemptContext context : contexts) {
-					try {
-						executeAttempt(context);
-					} catch (ScheduleException e) {
-						// do nothing
-						LOG.error(e.getMessage());
-					} catch (Exception e) {
-						LOG.error("Unexpected Exception", e);
-					}
-				}
-			}
-			try {
-				Thread.sleep(SCHDUELE_INTERVAL);
-			} catch (InterruptedException e) {
-				LOG.error("Interrupted exception", e);
-			}
-		}
 	}
 
 	/**
@@ -232,29 +224,72 @@ final public class Engine implements Scheduler {
 	public void stop() {
 	}
 
+	class TriggleTask extends Thread {
+
+		@Override
+		public void run() {
+			while (true) {
+				LOG.info("Engine trys to triggle the crontab jobs...");
+
+				List<AttemptContext> contexts = null;
+				try {
+					crontabTriggle.triggle();
+					dependencyTriggle.triggle();
+					contexts = filter.filter(getReadyToRunAttempt());
+					if (contexts != null) {
+						for (final AttemptContext context : contexts) {
+							Runnable runable = new Runnable() {
+								@Override
+								public void run() {
+									try {
+										executeAttempt(context);
+									} catch (ScheduleException se) {
+										Cat.logError("fail to schedule the attempt : " + context.getAttemptid(),se);
+									}
+
+								}
+							};
+							
+							executorServie.execute(runable);
+						}
+					}
+				} catch (Throwable e) {
+					Cat.logError(e);
+					LOG.error("UnExpected Exception", e);
+				}
+				
+				try {
+					Thread.sleep(SCHDUELE_INTERVAL);
+				} catch (InterruptedException e) {
+					LOG.error("Interrupted exception", e);
+				}
+			}
+		}
+	}
+
 	class RefreshThread extends Thread {
 
-		private boolean isInterrupted = false;
+		private AtomicBoolean isInterrupted = new AtomicBoolean(false);
 
 		@Override
 		public void run() {
 
 			try {
-				while (!isInterrupted) {
+				while (!isInterrupted.get()) {
 
 					load();
 
 					Thread.sleep(60 * 1000);
 				}
 			} catch (InterruptedException e) {
-				isInterrupted = true;
+				isInterrupted.set(true);
 				LOG.error("RefreshThread was interrupted!", e);
 			}
 
 		}
 
 		public void shutdown() {
-			isInterrupted = true;
+			isInterrupted.set(true);
 		}
 	}
 
@@ -265,18 +300,21 @@ final public class Engine implements Scheduler {
 			task = taskMapper.selectByPrimaryKey(task.getTaskid());
 			registedTasks.put(task.getTaskid(), task);
 			tasksMapCache.put(task.getName(), task.getTaskid());
-			
+
 			Cat.logEvent("Task-Create", task.getName());
 		} else {
-			throw new ScheduleException("The task : " + task.getTaskid() + " has been registered.");
+			throw new ScheduleException("The task : " + task.getTaskid()
+					+ " has been registered.");
 		}
 	}
 
 	@Override
-	public synchronized void unRegisterTask(String taskID) throws ScheduleException {
+	public synchronized void unRegisterTask(String taskID)
+			throws ScheduleException {
 		Map<String, AttemptContext> contexts = runningAttempts.get(taskID);
 		if (contexts != null && contexts.size() > 0) {
-			throw new ScheduleException("There are running attempts, so cannot remove this task");
+			throw new ScheduleException(
+					"There are running attempts, so cannot remove this task");
 		}
 
 		if (registedTasks.containsKey(taskID)) {
@@ -285,7 +323,7 @@ final public class Engine implements Scheduler {
 			taskMapper.updateByPrimaryKeySelective(task);
 			registedTasks.remove(taskID);
 			tasksMapCache.remove(task.getName());
-			
+
 			Cat.logEvent("Task-Delete", task.getName());
 		}
 	}
@@ -301,15 +339,17 @@ final public class Engine implements Scheduler {
 			registedTasks.remove(task.getTaskid());
 			Task tmp = taskMapper.selectByPrimaryKey(task.getTaskid());
 			registedTasks.put(task.getTaskid(), tmp);
-			
+
 			Cat.logEvent("Task-Update", task.getName());
 		} else {
-			throw new ScheduleException("The task : " + task.getTaskid() + " has not been found.");
+			throw new ScheduleException("The task : " + task.getTaskid()
+					+ " has not been found.");
 		}
 	}
 
 	@Override
-	public synchronized void executeTask(String taskID, long timeout) throws ScheduleException {
+	public synchronized void executeTask(String taskID, long timeout)
+			throws ScheduleException {
 		String instanceID = idFactory.newInstanceID(taskID);
 		TaskAttempt attempt = new TaskAttempt();
 		String attemptID = idFactory.newAttemptID(instanceID);
@@ -325,16 +365,18 @@ final public class Engine implements Scheduler {
 	}
 
 	@Override
-	public synchronized void suspendTask(String taskID) throws ScheduleException {
+	public synchronized void suspendTask(String taskID)
+			throws ScheduleException {
 		if (registedTasks.containsKey(taskID)) {
 			Task task = registedTasks.get(taskID);
 			task.setStatus(TaskStatus.SUSPEND);
 			task.setUpdatetime(new Date());
 			taskMapper.updateByPrimaryKeySelective(task);
-			
+
 			Cat.logEvent("Task-Suspend", task.getName());
 		} else {
-			throw new ScheduleException("The task : " + taskID + " has not been found.");
+			throw new ScheduleException("The task : " + taskID
+					+ " has not been found.");
 		}
 	}
 
@@ -347,10 +389,11 @@ final public class Engine implements Scheduler {
 			task.setLastscheduletime(current);
 			task.setUpdatetime(current);
 			taskMapper.updateByPrimaryKeySelective(task);
-			
+
 			Cat.logEvent("Task-Resume", task.getName());
 		} else {
-			throw new ScheduleException("The task : " + taskID + " has not been found.");
+			throw new ScheduleException("The task : " + taskID
+					+ " has not been found.");
 		}
 	}
 
@@ -373,7 +416,7 @@ final public class Engine implements Scheduler {
 
 		try {
 			zookeeper.execute(context.getContext());
-            LOG.info("Attempt " + attempt.getAttemptid() + " is running now...");
+			LOG.info("Attempt " + attempt.getAttemptid() + " is running now...");
 			Cat.logEvent("Attempt-Running", context.getName(), Message.SUCCESS, context.getAttemptid());
 			transaction.setStatus(Message.SUCCESS);
 		} catch (Exception ee) {
@@ -385,8 +428,7 @@ final public class Engine implements Scheduler {
 			attempt.setEndtime(new Date());
 			taskAttemptMapper.updateByPrimaryKeySelective(attempt);
 
-			throw new ScheduleException("Fail to execute attemptID : " + attempt.getAttemptid() + " on host : "
-			      + host.getIp(), ee);
+			throw new ScheduleException("Fail to execute attemptID : " + attempt.getAttemptid() + " on host : " + host.getIp(), ee);
 		} finally {
 			transaction.complete();
 		}
@@ -400,7 +442,8 @@ final public class Engine implements Scheduler {
 
 	@Override
 	public boolean isRuningAttempt(String attemptID) {
-		HashMap<String, AttemptContext> contexts = runningAttempts.get(AttemptID.getTaskID(attemptID));
+		HashMap<String, AttemptContext> contexts = runningAttempts
+				.get(AttemptID.getTaskID(attemptID));
 		AttemptContext context = contexts.get(attemptID);
 		if (context == null) {
 			return false;
@@ -411,7 +454,8 @@ final public class Engine implements Scheduler {
 	}
 
 	@Override
-	public synchronized void killAttempt(String attemptID) throws ScheduleException {
+	public synchronized void killAttempt(String attemptID)
+			throws ScheduleException {
 		HashMap<String, AttemptContext> contexts = runningAttempts.get(AttemptID.getTaskID(attemptID));
 		AttemptContext context = contexts.get(attemptID);
 		if (context == null) {
@@ -420,16 +464,18 @@ final public class Engine implements Scheduler {
 		try {
 			zookeeper.kill(context.getContext());
 		} catch (Exception ee) {
-            LOG.error("Fail to execute attemptID :  " + attemptID + " on host : " + context.getExechost());
+			LOG.error("Fail to execute attemptID :  " + attemptID
+					+ " on host : " + context.getExechost());
 		}
-		
+
 		context.getAttempt().setStatus(AttemptStatus.KILLED);
 		context.getAttempt().setEndtime(new Date());
 		context.getAttempt().setReturnvalue(-1);
 		taskAttemptMapper.updateByPrimaryKeySelective(context.getAttempt());
 		unregistAttemptContext(context);
-		
-		Cat.logEvent("Kill-Attempt", context.getName(), Message.SUCCESS, context.getAttemptid());
+
+		Cat.logEvent("Kill-Attempt", context.getName(), Message.SUCCESS,
+				context.getAttemptid());
 	}
 
 	@Override
@@ -442,48 +488,56 @@ final public class Engine implements Scheduler {
 		taskAttemptMapper.updateByPrimaryKeySelective(attempt);
 		unregistAttemptContext(context);
 
-		Cat.logEvent("Attempt-Succeeded", context.getName(), Message.SUCCESS, context.getAttemptid());
+		Cat.logEvent("Attempt-Succeeded", context.getName(), Message.SUCCESS,
+				context.getAttemptid());
 	}
 
 	@Override
 	public void attemptExpired(String attemptID) {
-		AttemptContext context = runningAttempts.get(AttemptID.getTaskID(attemptID)).get(attemptID);
+		AttemptContext context = runningAttempts.get(
+				AttemptID.getTaskID(attemptID)).get(attemptID);
 		TaskAttempt attempt = context.getAttempt();
 		attempt.setEndtime(new Date());
 		attempt.setStatus(AttemptStatus.TIMEOUT);
 		taskAttemptMapper.updateByPrimaryKeySelective(attempt);
 
-		Cat.logEvent("Attempt-Expired", context.getName(), Message.SUCCESS, context.getAttemptid());
+		Cat.logEvent("Attempt-Expired", context.getName(), Message.SUCCESS,
+				context.getAttemptid());
 	}
 
 	@Override
 	public void attemptFailed(String attemptID) {
-		AttemptContext context = runningAttempts.get(AttemptID.getTaskID(attemptID)).get(attemptID);
+		AttemptContext context = runningAttempts.get(
+				AttemptID.getTaskID(attemptID)).get(attemptID);
 		TaskAttempt attempt = context.getAttempt();
 		attempt.setStatus(AttemptStatus.FAILED);
 		attempt.setEndtime(new Date());
 		taskAttemptMapper.updateByPrimaryKeySelective(attempt);
 		unregistAttemptContext(context);
 
-		Cat.logEvent("Attempt-Failed", context.getName(), Message.SUCCESS, context.getAttemptid());
+		Cat.logEvent("Attempt-Failed", context.getName(), Message.SUCCESS,
+				context.getAttemptid());
 
 		/*
-		 * Check whether it is necessary to retry this failed attempt. If true, insert new attempt into the database; Otherwise, do
-		 * nothing.
+		 * Check whether it is necessary to retry this failed attempt. If true,
+		 * insert new attempt into the database; Otherwise, do nothing.
 		 */
 		Task task = context.getTask();
 		if (task.getIsautoretry()) {
 			TaskAttemptExample example = new TaskAttemptExample();
 			example.or().andInstanceidEqualTo(attempt.getInstanceid());
-			List<TaskAttempt> attemptsOfRecentInstance = taskAttemptMapper.selectByExample(example);
+			List<TaskAttempt> attemptsOfRecentInstance = taskAttemptMapper
+					.selectByExample(example);
 			if (task.getRetrytimes() < attemptsOfRecentInstance.size() - 1) {
 				// do nothing
 			} else if (task.getRetrytimes() == attemptsOfRecentInstance.size() - 1) {
 				// do nothing
 			} else {
-				Cat.logEvent("Attempt-Expired-Retry", context.getName(), Message.SUCCESS, context.getAttemptid());
+				Cat.logEvent("Attempt-Expired-Retry", context.getName(),
+						Message.SUCCESS, context.getAttemptid());
 
-				LOG.info("Attempt " + attempt.getAttemptid() + " fail, begin to retry the attempt...");
+				LOG.info("Attempt " + attempt.getAttemptid()
+						+ " fail, begin to retry the attempt...");
 				String instanceID = attempt.getInstanceid();
 				TaskAttempt retry = new TaskAttempt();
 				String id = idFactory.newAttemptID(instanceID);
@@ -497,8 +551,9 @@ final public class Engine implements Scheduler {
 		}
 	}
 
-	public void attemptUnKonwed(String attemptID) {
-		AttemptContext context = runningAttempts.get(AttemptID.getTaskID(attemptID)).get(attemptID);
+	public void attemptUnKnowed(String attemptID) {
+		AttemptContext context = runningAttempts.get(
+				AttemptID.getTaskID(attemptID)).get(attemptID);
 		TaskAttempt attempt = context.getAttempt();
 		attempt.setEndtime(new Date());
 		attempt.setStatus(AttemptStatus.UNKNOWN);
@@ -506,7 +561,8 @@ final public class Engine implements Scheduler {
 		taskAttemptMapper.updateByPrimaryKeySelective(attempt);
 		unregistAttemptContext(context);
 
-		Cat.logEvent("Attempt-Unknown", context.getName(), Message.SUCCESS, context.getAttemptid());
+		Cat.logEvent("Attempt-Unknown", context.getName(), Message.SUCCESS,
+				context.getAttemptid());
 	}
 
 	@Override
@@ -524,21 +580,22 @@ final public class Engine implements Scheduler {
 	public List<AttemptContext> getRunningAttemptsByTaskID(String taskID) {
 		List<AttemptContext> contexts = new ArrayList<AttemptContext>();
 		HashMap<String, AttemptContext> maps = runningAttempts.get(taskID);
-		
+
 		if (maps == null) {
 			return contexts;
 		}
-		
+
 		for (AttemptContext context : runningAttempts.get(taskID).values()) {
 			contexts.add(context);
 		}
-		
+
 		return Collections.unmodifiableList(contexts);
 	}
 
 	@Override
 	public AttemptStatus getAttemptStatus(String attemptID) {
-		HashMap<String, AttemptContext> maps = runningAttempts.get(AttemptID.getTaskID(attemptID));
+		HashMap<String, AttemptContext> maps = runningAttempts.get(AttemptID
+				.getTaskID(attemptID));
 		AttemptContext context = maps.get(attemptID);
 		ExecuteStatus status = null;
 		try {
@@ -560,7 +617,7 @@ final public class Engine implements Scheduler {
 		List<TaskAttempt> attempts = taskAttemptMapper.selectByExample(example);
 		for (TaskAttempt attempt : attempts) {
 			Task task = registedTasks.get(attempt.getTaskid());
-			if(task != null){
+			if (task != null) {
 				contexts.add(new AttemptContext(attempt, task));
 			}
 		}
@@ -568,7 +625,8 @@ final public class Engine implements Scheduler {
 	}
 
 	private void registAttemptContext(AttemptContext context) {
-		HashMap<String, AttemptContext> contexts = runningAttempts.get(context.getTaskid());
+		HashMap<String, AttemptContext> contexts = runningAttempts.get(context
+				.getTaskid());
 		if (contexts == null) {
 			contexts = new HashMap<String, AttemptContext>();
 		}
@@ -578,7 +636,8 @@ final public class Engine implements Scheduler {
 
 	private void unregistAttemptContext(AttemptContext context) {
 		if (runningAttempts.containsKey(context.getTaskid())) {
-			HashMap<String, AttemptContext> contexts = runningAttempts.get(context.getTaskid());
+			HashMap<String, AttemptContext> contexts = runningAttempts
+					.get(context.getTaskid());
 			if (contexts.containsKey(context.getAttemptid())) {
 				contexts.remove(context.getAttemptid());
 			}
@@ -591,17 +650,20 @@ final public class Engine implements Scheduler {
 	}
 
 	@Override
-	public synchronized Task getTaskByName(String name) throws ScheduleException {
+	public synchronized Task getTaskByName(String name)
+			throws ScheduleException {
 		if (tasksMapCache.containsKey(name)) {
 			String taskID = tasksMapCache.get(name);
 			Task task = registedTasks.get(taskID);
 			if (task == null) {
-				throw new ScheduleException("Cannot found tasks for the given name.");
+				throw new ScheduleException(
+						"Cannot found tasks for the given name.");
 			} else {
 				return task;
 			}
 		} else {
-			throw new ScheduleException("Cannot found tasks for the given name.");
+			throw new ScheduleException(
+					"Cannot found tasks for the given name.");
 		}
 	}
 
@@ -626,7 +688,7 @@ final public class Engine implements Scheduler {
 	@Override
 	public String getRecentFiredAttemptByTaskID(String taskID) {
 		TaskAttemptExample example = new TaskAttemptExample();
-		
+
 		example.or().andTaskidEqualTo(taskID);
 		example.setOrderByClause("scheduleTime desc limit 1");
 

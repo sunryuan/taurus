@@ -88,7 +88,7 @@ public class AttemptStatusMonitor implements Runnable {
 						break;
 					}
 					case AttemptStatus.UNKNOWN: {
-						scheduler.attemptUnKonwed(attempt.getAttemptid());
+						scheduler.attemptUnKnowed(attempt.getAttemptid());
 					}
 					}
 				}
