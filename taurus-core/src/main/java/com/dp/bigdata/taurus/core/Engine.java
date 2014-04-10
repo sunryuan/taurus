@@ -7,11 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -52,18 +48,6 @@ final public class Engine implements Scheduler {
 	private Map<String, HashMap<String, AttemptContext>> runningAttempts; // Map<taskID,HashMap<attemptID,AttemptContext>>
 
 	private Runnable progressMonitor;
-
-	private ExecutorService executorServie = Executors.newFixedThreadPool(10,new ThreadFactory() {
-		private AtomicInteger id = new AtomicInteger(0);
-
-		@Override
-		public Thread newThread(Runnable r) {
-			Thread t = new Thread(r);
-			t.setDaemon(true);
-			t.setName("Thread-Notify-" + id.incrementAndGet());
-			return t;
-		}
-	});
 
 	@Autowired
 	@Qualifier("triggle.crontab")
@@ -229,35 +213,28 @@ final public class Engine implements Scheduler {
 		@Override
 		public void run() {
 			while (true) {
-				LOG.info("Engine trys to triggle the crontab jobs...");
+				LOG.info("DepedencyTriggle trys to triggle the jobs...");
 
-				List<AttemptContext> contexts = null;
 				try {
 					crontabTriggle.triggle();
 					dependencyTriggle.triggle();
-					contexts = filter.filter(getReadyToRunAttempt());
+					List<AttemptContext> contexts = filter.filter(getReadyToRunAttempt());
+					
 					if (contexts != null) {
 						for (final AttemptContext context : contexts) {
-							Runnable runable = new Runnable() {
-								@Override
-								public void run() {
-									try {
-										executeAttempt(context);
-									} catch (ScheduleException se) {
-										Cat.logError("fail to schedule the attempt : " + context.getAttemptid(),se);
-									}
-
-								}
-							};
-							
-							executorServie.execute(runable);
+							try {
+								executeAttempt(context);
+							} catch (ScheduleException se) {
+								Cat.logError("fail to schedule the attempt : "
+										+ context.getAttemptid(), se);
+							}
 						}
 					}
 				} catch (Throwable e) {
 					Cat.logError(e);
 					LOG.error("UnExpected Exception", e);
 				}
-				
+
 				try {
 					Thread.sleep(SCHDUELE_INTERVAL);
 				} catch (InterruptedException e) {
@@ -397,7 +374,8 @@ final public class Engine implements Scheduler {
 		}
 	}
 
-	public synchronized void executeAttempt(AttemptContext context) throws ScheduleException {
+	public synchronized void executeAttempt(AttemptContext context)
+			throws ScheduleException {
 		TaskAttempt attempt = context.getAttempt();
 		Task task = context.getTask();
 		Host host;
@@ -412,23 +390,27 @@ final public class Engine implements Scheduler {
 		attempt.setExechost(host.getIp());
 		attempt.setStarttime(new Date());
 
-		Transaction transaction = Cat.newTransaction("Attempt-New", context.getName());
+		Transaction transaction = Cat.newTransaction("Attempt-New",
+				context.getName());
 
 		try {
 			zookeeper.execute(context.getContext());
 			LOG.info("Attempt " + attempt.getAttemptid() + " is running now...");
-			Cat.logEvent("Attempt-Running", context.getName(), Message.SUCCESS, context.getAttemptid());
+			Cat.logEvent("Attempt-Running", context.getName(), Message.SUCCESS,
+					context.getAttemptid());
 			transaction.setStatus(Message.SUCCESS);
 		} catch (Exception ee) {
 			Cat.logError(ee);
-			Cat.logEvent("Attempt-SubmitFailed", context.getName(), "submit-fail", context.getAttemptid());
+			Cat.logEvent("Attempt-SubmitFailed", context.getName(),
+					"submit-fail", context.getAttemptid());
 			transaction.setStatus(ee);
 
 			attempt.setStatus(AttemptStatus.SUBMIT_FAIL);
 			attempt.setEndtime(new Date());
 			taskAttemptMapper.updateByPrimaryKeySelective(attempt);
 
-			throw new ScheduleException("Fail to execute attemptID : " + attempt.getAttemptid() + " on host : " + host.getIp(), ee);
+			throw new ScheduleException("Fail to execute attemptID : "
+					+ attempt.getAttemptid() + " on host : " + host.getIp(), ee);
 		} finally {
 			transaction.complete();
 		}
@@ -456,7 +438,8 @@ final public class Engine implements Scheduler {
 	@Override
 	public synchronized void killAttempt(String attemptID)
 			throws ScheduleException {
-		HashMap<String, AttemptContext> contexts = runningAttempts.get(AttemptID.getTaskID(attemptID));
+		HashMap<String, AttemptContext> contexts = runningAttempts
+				.get(AttemptID.getTaskID(attemptID));
 		AttemptContext context = contexts.get(attemptID);
 		if (context == null) {
 			throw new ScheduleException("Unable find attemptID : " + attemptID);
@@ -480,7 +463,8 @@ final public class Engine implements Scheduler {
 
 	@Override
 	public void attemptSucceed(String attemptID) {
-		AttemptContext context = runningAttempts.get(AttemptID.getTaskID(attemptID)).get(attemptID);
+		AttemptContext context = runningAttempts.get(
+				AttemptID.getTaskID(attemptID)).get(attemptID);
 		TaskAttempt attempt = context.getAttempt();
 		attempt.setReturnvalue(0);
 		attempt.setEndtime(new Date());
@@ -686,7 +670,7 @@ final public class Engine implements Scheduler {
 	}
 
 	@Override
-	public String getRecentFiredAttemptByTaskID(String taskID) {
+	public TaskAttempt getRecentFiredAttemptByTaskID(String taskID) {
 		TaskAttemptExample example = new TaskAttemptExample();
 
 		example.or().andTaskidEqualTo(taskID);
@@ -695,7 +679,7 @@ final public class Engine implements Scheduler {
 		List<TaskAttempt> attempts = taskAttemptMapper.selectByExample(example);
 
 		if (attempts != null && attempts.size() == 1) {
-			return attempts.get(0).getAttemptid();
+			return attempts.get(0);
 		} else {
 			return null;
 		}

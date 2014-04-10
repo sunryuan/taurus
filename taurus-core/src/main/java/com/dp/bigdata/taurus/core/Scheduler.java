@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.dp.bigdata.taurus.generated.module.Task;
+import com.dp.bigdata.taurus.generated.module.TaskAttempt;
 
 /**
  * 
@@ -153,6 +154,6 @@ public interface Scheduler {
 	 */
 	 public boolean isRuningAttempt(String attemptID); 
 	 
-	 public String getRecentFiredAttemptByTaskID(String taskID);
+	 public TaskAttempt getRecentFiredAttemptByTaskID(String taskID);
 
 }

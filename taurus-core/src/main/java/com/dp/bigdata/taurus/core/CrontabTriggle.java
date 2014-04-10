@@ -26,6 +26,7 @@ public class CrontabTriggle implements Triggle {
 
     @Autowired
     private TaskAttemptMapper attemptMapper;
+    
     @Autowired
     private IDFactory idFactory;
 
@@ -78,8 +79,8 @@ public class CrontabTriggle implements Triggle {
                 attempt.setScheduletime(nextFireTime);
                 attempt.setStatus(AttemptStatus.INITIALIZED);
                 attempt.setAttemptid(attemptID);
-                LOG.info(String.format("New attempt (%s) fired.", attemptID));
                 attemptMapper.insert(attempt);
+                LOG.info(String.format("New attempt (%s) fired.", attemptID));
                 nextFireTime = ce.getNextValidTimeAfter(nextFireTime);
             }
         }
