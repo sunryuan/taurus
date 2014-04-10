@@ -11,6 +11,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 import com.dianping.cat.Cat;
+import com.dp.bigdata.taurus.generated.module.TaskAttempt;
 
 /**
  * AttemptStatusMonitor is to update the TaskAttmpt status.
@@ -75,9 +76,9 @@ public class AttemptStatusMonitor implements Runnable {
 								if (attempt.getIsautokill()) {
 									String taskID = attempt.getTaskid();
 									String previousAttemptID = attempt.getAttemptid();
-									String newFiredAttemptID = scheduler.getRecentFiredAttemptByTaskID(taskID);
+									TaskAttempt newFiredAttempt = scheduler.getRecentFiredAttemptByTaskID(taskID);
 
-									if (newFiredAttemptID != null && !newFiredAttemptID.equalsIgnoreCase(previousAttemptID)) {
+									if (newFiredAttempt != null && !newFiredAttempt.getAttemptid().equalsIgnoreCase(previousAttemptID)) {
 										scheduler.killAttempt(previousAttemptID);
 									}
 								}
@@ -88,7 +89,7 @@ public class AttemptStatusMonitor implements Runnable {
 						break;
 					}
 					case AttemptStatus.UNKNOWN: {
-						scheduler.attemptUnKonwed(attempt.getAttemptid());
+						scheduler.attemptUnKnowed(attempt.getAttemptid());
 					}
 					}
 				}
