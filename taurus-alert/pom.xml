@@ -39,7 +39,7 @@
 		<dependency>
 			<groupId>com.dianping.dpsf</groupId>
 			<artifactId>dpsf-net</artifactId>
-			<version>1.7.3</version>
+			<version>1.9.3</version>
 		</dependency>
 		<dependency>
 			<groupId>com.dianping.lion</groupId>

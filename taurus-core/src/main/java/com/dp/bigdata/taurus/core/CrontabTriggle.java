@@ -26,6 +26,7 @@ public class CrontabTriggle implements Triggle {
 
     @Autowired
     private TaskAttemptMapper attemptMapper;
+    
     @Autowired
     private IDFactory idFactory;
 
@@ -78,8 +79,8 @@ public class CrontabTriggle implements Triggle {
                 attempt.setScheduletime(nextFireTime);
                 attempt.setStatus(AttemptStatus.INITIALIZED);
                 attempt.setAttemptid(attemptID);
-                LOG.info("Fire a new attempt : " + attemptID);
                 attemptMapper.insert(attempt);
+                LOG.info(String.format("New attempt (%s) fired.", attemptID));
                 nextFireTime = ce.getNextValidTimeAfter(nextFireTime);
             }
         }
@@ -91,7 +92,7 @@ public class CrontabTriggle implements Triggle {
     }
 
     private Date getPreviousFireTime(Task task, Date now) {
-        List<TaskAttempt> attempts = retrieveTaskAttemptByTaskID(task.getTaskid());
+        List<TaskAttempt> attempts = retrieveLatestTaskAttemptByTaskID(task.getTaskid());
         Date previousFireTime;
         // if it is the first time to execute this task, set time to now; otherwise set to the first attempt's schedule time.
         if (attempts == null || attempts.size() == 0) {
@@ -113,10 +114,10 @@ public class CrontabTriggle implements Triggle {
         return previousFireTime;
     }
 
-    public List<TaskAttempt> retrieveTaskAttemptByTaskID(String taskID) {
+    public List<TaskAttempt> retrieveLatestTaskAttemptByTaskID(String taskID) {
         TaskAttemptExample example = new TaskAttemptExample();
         example.or().andTaskidEqualTo(taskID);
-        String orderByClause = "scheduleTime desc";
+        String orderByClause = "scheduleTime desc limit 1";
         example.setOrderByClause(orderByClause);
         return attemptMapper.selectByExample(example);
     }

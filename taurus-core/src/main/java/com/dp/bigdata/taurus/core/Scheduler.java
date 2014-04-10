@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.dp.bigdata.taurus.generated.module.Task;
+import com.dp.bigdata.taurus.generated.module.TaskAttempt;
 
 /**
  * 
@@ -97,7 +98,7 @@ public interface Scheduler {
 	 * Notify the scheduler that a attempt has been finished with a unknown status.
 	 * @param attemptID
 	 */
-	public void attemptUnKonwed(String attemptID);
+	public void attemptUnKnowed(String attemptID);
 	
 	/**
 	 * get all running attempts
@@ -153,6 +154,6 @@ public interface Scheduler {
 	 */
 	 public boolean isRuningAttempt(String attemptID); 
 	 
-	 public String getRecentFiredAttemptByTaskID(String taskID);
+	 public TaskAttempt getRecentFiredAttemptByTaskID(String taskID);
 
 }
