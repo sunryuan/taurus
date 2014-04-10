@@ -235,7 +235,7 @@ public class TasksResource extends ServerResource implements ITasksResource {
 			return;
 		}
 
-        if (MediaType.MULTIPART_FORM_DATA.equals(re.getMediaType(), true)) {
+      if (MediaType.MULTIPART_FORM_DATA.equals(re.getMediaType(), true)) {
 			final String srcPath = filePathManager.getLocalPath(task.getFilename());
 			final String destPath = filePathManager.getRemotePath(task.getTaskid(), task.getFilename());
 			try {
