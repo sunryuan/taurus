@@ -113,6 +113,14 @@
       order by ${orderByClause}
     </if>
   </select>
+  
+   <select id="selectByGroupAndStatus" resultMap="BaseResultMap">
+  	select *
+  	from  (select *
+   			from TaurusTaskAttempt where status = 1 or status = 3 order by startTime asc) atms 
+  	group by taskID
+  </select>
+  
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     <!--
       WARNING - @mbggenerated

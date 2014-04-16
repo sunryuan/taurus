@@ -7,11 +7,29 @@
 	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
 
 	<!-- Datasource -->
-	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+		<property name="driverClass" value="com.mysql.jdbc.Driver" />
+		<property name="jdbcUrl" value="jdbc:mysql://127.0.0.1:3306/TaurusCopy?characterEncoding=utf-8" />
+		<property name="user" value="root" />
+		<property name="password" value="123456" />
+		<property name="minPoolSize" value="5" />
+		<property name="maxPoolSize" value="10" />
+		<property name="initialPoolSize" value="5" />
+		<property name="maxIdleTime" value="1800" /> 
+		<property name="idleConnectionTestPeriod" value="60" /> 
+		<property name="acquireRetryAttempts" value="3" /> 
+		<property name="acquireRetryDelay" value="300" />
+		<property name="maxStatements" value="0"/> 
+		<property name="maxStatementsPerConnection" value="100"/>
+		<property name="numHelperThreads" value="6"/>
+		<property name="maxAdministrativeTaskTime" value="5"/>
+		<property name="preferredTestQuery" value="SELECT 1"/>
+	</bean>
+	<!-- <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
 		destroy-method="close">
 		<property name="driverClassName" value="org.apache.derby.jdbc.EmbeddedDriver" />
 		<property name="url" value="jdbc:derby:memory:taurus-test;create=true" />
-	</bean>
+	</bean> -->
 
 	<!-- SessionFactory -->
 	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
@@ -32,21 +50,6 @@
 	</bean>
 
 	<!-- Core Service -->
-	<bean id="idFactory" class="com.dp.bigdata.taurus.core.DefaultIDFactory" />
-	<bean id="engine" class="com.dp.bigdata.taurus.core.Engine">
-		<property name="progressMonitor" ref="statusMonitor" />
-	</bean>
-	<bean id="statusMonitor" class="com.dp.bigdata.taurus.core.AttemptStatusMonitor" />
-	<bean id="triggle.crontab" class="com.dp.bigdata.taurus.core.CrontabTriggle" />
-	<bean id="triggle.dependency" class="com.dp.bigdata.taurus.core.DependencyTriggle" />
-<!-- 	<bean id="filter.isAllowMutilInstance" class="com.dp.bigdata.taurus.core.MultiInstanceFilter">
-		<property name="next" ref="filter.maxConcurrency" />
-	</bean> -->
-	<bean id="filter.maxConcurrency" class="com.dp.bigdata.taurus.core.MaximumConcurrentTaskFilter" />
-	<bean id="assignPolicy" class="com.dp.bigdata.taurus.core.RoundRobinTaskAssignPolicy" />
-	<bean id="zookeeper" class="com.dp.bigdata.taurus.zookeeper.execute.helper.DefaultExecutorManager" />
-	<bean id="statusChecker" class="com.dp.bigdata.taurus.core.DefaultAttemptStatusCheck" />
-	<bean id="agentMonitor" class="com.dp.bigdata.taurus.zookeeper.heartbeat.helper.PollingAgentMonitor"/>
 </beans>
 
 

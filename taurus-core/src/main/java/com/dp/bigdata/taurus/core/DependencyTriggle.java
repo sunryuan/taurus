@@ -14,7 +14,6 @@ import com.dp.bigdata.taurus.core.parser.DependencyParser;
 import com.dp.bigdata.taurus.generated.mapper.TaskAttemptMapper;
 import com.dp.bigdata.taurus.generated.module.Task;
 import com.dp.bigdata.taurus.generated.module.TaskAttempt;
-import com.dp.bigdata.taurus.generated.module.TaskAttemptExample;
 import com.mysql.jdbc.StringUtils;
 
 /**
@@ -53,14 +52,13 @@ public class DependencyTriggle implements Triggle {
 
 	@Override
 	public void triggle() {
-		TaskAttemptExample example = new TaskAttemptExample();
-		example.or().andStatusEqualTo(AttemptStatus.INITIALIZED);
-		example.or().andStatusEqualTo(AttemptStatus.DEPENDENCY_TIMEOUT);
+//		TaskAttemptExample example = new TaskAttemptExample();
+//		example.or().andStatusEqualTo(AttemptStatus.INITIALIZED);
+//		example.or().andStatusEqualTo(AttemptStatus.DEPENDENCY_TIMEOUT);
 
-		List<TaskAttempt> attempts = taskAttemptMapper.selectByExample(example);
+		List<TaskAttempt> attempts = taskAttemptMapper.selectByGroupAndStatus();
 		final Map<String, Task> tasks = scheduler.getAllRegistedTask();
 		for (TaskAttempt attempt : attempts) {
-			System.out.println("attempt + " + attempt.getAttemptid());
 			triggle(attempt, tasks.get(attempt.getTaskid()));
 		}
 	}
