@@ -52,10 +52,6 @@ public class DependencyTriggle implements Triggle {
 
 	@Override
 	public void triggle() {
-//		TaskAttemptExample example = new TaskAttemptExample();
-//		example.or().andStatusEqualTo(AttemptStatus.INITIALIZED);
-//		example.or().andStatusEqualTo(AttemptStatus.DEPENDENCY_TIMEOUT);
-
 		List<TaskAttempt> attempts = taskAttemptMapper.selectByGroupAndStatus();
 		final Map<String, Task> tasks = scheduler.getAllRegistedTask();
 		for (TaskAttempt attempt : attempts) {

@@ -29,7 +29,7 @@ public class RestletTest {
 
 		try {
 			restlet.start();
-			 engine.start();
+			engine.start();
 			System.out.println(String.format("[%s] [INFO] Press any key to stop server ... ", 1));
 			System.in.read();
 
