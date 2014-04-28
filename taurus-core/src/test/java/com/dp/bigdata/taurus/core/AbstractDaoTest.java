@@ -23,7 +23,7 @@ public abstract class AbstractDaoTest {
     @Autowired
     protected SqlSessionFactoryBean sqlSessionFactoryBean;
 
-    @Before
+    //@Before
     public void loadDatabase() {
         createTable();
         loadData();
