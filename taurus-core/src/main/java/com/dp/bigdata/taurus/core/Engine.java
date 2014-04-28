@@ -447,7 +447,7 @@ final public class Engine implements Scheduler {
 		try {
 			zookeeper.kill(context.getContext());
 		} catch (Exception ee) {
-			LOG.error("Fail to execute attemptID :  " + attemptID
+			LOG.error("Fail to kill attemptID :  " + attemptID
 					+ " on host : " + context.getExechost());
 		}
 

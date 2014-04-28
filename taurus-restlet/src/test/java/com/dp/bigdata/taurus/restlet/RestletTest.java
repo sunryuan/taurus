@@ -41,6 +41,8 @@ public class RestletTest {
 		try {
 			restlet.start();
 			engine.start();
+			
+			System.in.read();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
