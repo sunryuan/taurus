@@ -5,7 +5,7 @@
 
 <generatorConfiguration>
 
-	<classPathEntry location="src/main/resources/mysql-connector-java-5.1.20.jar" />
+	<classPathEntry location="taurus-core/src/main/resources/mysql-connector-java-5.1.20.jar" />
 
 	<context id="MySQLTables" targetRuntime="MyBatis3">
 		<jdbcConnection driverClass="com.mysql.jdbc.Driver"
@@ -14,13 +14,13 @@
 		</jdbcConnection>
 
 		<javaModelGenerator targetPackage="com.dp.bigdata.taurus.generated.module"
-			targetProject="src/main/java" />
+			targetProject="taurus-core/src/main/java" />
 
 		<sqlMapGenerator targetPackage="com.dp.bigdata.taurus.generated.mapper"
-			targetProject="src/main/resources" />
+			targetProject="taurus-core/src/main/resources" />
 
 		<javaClientGenerator type="XMLMAPPER"
-			targetPackage="com.dp.bigdata.taurus.generated.mapper" targetProject="src/main/java" />
+			targetPackage="com.dp.bigdata.taurus.generated.mapper" targetProject="taurus-core/src/main/java" />
 
 		<table schema="" tableName="TaurusPool" domainObjectName="Pool" />
 		<table schema="" tableName="TaurusHost" domainObjectName="Host" />
