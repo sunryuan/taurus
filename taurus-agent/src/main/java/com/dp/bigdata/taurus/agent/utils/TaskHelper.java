@@ -115,7 +115,6 @@ public class TaskHelper {
 		if (!localFile.exists()) {
 			localFile.getParentFile().mkdirs();
 			localFile.createNewFile();
-			LOGGER.debug("!!!"+localFile);
 		}
 		// readFileFromHdfs(fileName, localFileName);
 		readFileFromHttp(fileName, localFileName);

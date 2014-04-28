@@ -40,6 +40,7 @@
 		ArrayList<UserGroupDTO> groups = groupResource.retrieve();
 		String name = request.getParameter("name");
 		String path = request.getParameter("path");
+		String ip = request.getParameter("ip");
    	%>
 	<div class="container">
 		<div id="wizard">
@@ -85,7 +86,7 @@
                     <div id="host"  class="control-group">
                     	<label class="control-label"  for="hostname">部署的机器*</label>
                     	<div class="controls">
-    						<input type="text" id="hostname" name="hostname" class="input-big field"  placeholder="10.0.0.1">
+    						<input type="text" id="hostname" name="hostname" class="input-big field"  value=<%=ip%> placeholder="10.0.0.1">
     					</div>
 					</div>
                     </fieldset>
@@ -121,6 +122,10 @@
             		<label class="control-label" for="taskCommand">命令*</label>
             		<div class="controls">
               			<input type="text" class="input-xxlarge field" id="taskCommand" name="taskCommand"  placeholder="执行作业的命令">
+              			<%if(path!=null&&!path.equals("")){
+              				%>
+              				<span>提示:作业文件路径为<%=path%></span>
+              			<%}%>
             		</div>
           		</div>
           		

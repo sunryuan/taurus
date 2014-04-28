@@ -93,8 +93,8 @@ public class DeploymentThread extends BaseEnvManager {
         StringBuilder stdErr = new StringBuilder();
         try{
             if(new File(localParentPath).exists()) {
-                //executor.execute("remove task",System.out, System.err, String.format(UNDEPLOYMENT_CMD, localParentPath));
-                FileUtils.deleteDirectory(new File(localParentPath));
+            	//删除老文件
+            	FileUtils.deleteDirectory(new File(localParentPath));
             }
             LOGGER.debug("hdfsPath:" + ftpUrl + ";localPath:" +fileName);
             //int returnCode = executor.execute("deploy task",System.out, System.err, taskDeploy, hdfsPath,localPath);

@@ -55,6 +55,7 @@ public class UsersResource extends ServerResource implements IUsersResource {
                 userDto.setGroup(group.getGroupname());
             }
         }
+        
         return userDtos;
     }
 

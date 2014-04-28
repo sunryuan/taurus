@@ -1,5 +1,9 @@
 package com.dp.bigdata.taurus.restlet.resource.impl;
 
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,6 +18,8 @@ import org.restlet.representation.Representation;
 import org.restlet.resource.ServerResource;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.dp.bigdata.taurus.core.Scheduler;
+import com.dp.bigdata.taurus.generated.module.Task;
 import com.dp.bigdata.taurus.restlet.resource.IDeployResource;
 import com.dp.bigdata.taurus.zookeeper.deploy.helper.DeployStatus;
 import com.dp.bigdata.taurus.zookeeper.deploy.helper.Deployer;
@@ -25,9 +31,12 @@ public class DeployResource extends ServerResource implements IDeployResource {
 	@Autowired
 	private Deployer deployer;
 
+	@Autowired
+	private Scheduler scheduler;
+
 	private static final Log LOG = LogFactory.getLog(DeployResource.class);
 
-	private static final String TAURUS_URL_PATTERN = "http://taurus.dp/task.jsp?name=%s&path=%s";
+	private static final String TAURUS_URL_PATTERN = "http://taurus.dp/task.jsp?name=%s&path=%s&ip=%s";
 
 	@Override
 	public Representation status() {
@@ -51,13 +60,25 @@ public class DeployResource extends ServerResource implements IDeployResource {
 			file = valueMap.get("file");
 			callback = valueMap.get("url");
 			name = valueMap.get("name");
+			testFileUrl(file);
+			
 			context.setDepolyId(id);
 			context.setName(name);
 			context.setUrl(file);
 			LOG.info(String.format("Start to depoly %s to %s", file, ip));
 			path = deployer.deploy(ip, context);
 			setStatus(Status.SUCCESS_OK);
-			taurusUrl = String.format(TAURUS_URL_PATTERN, name, path);
+			taurusUrl = String.format(TAURUS_URL_PATTERN, name, path, ip);
+			Task task = null;
+			try {
+				task = scheduler.getTaskByName(name);
+			} catch (Exception e) {
+				// do nothing
+			}
+			if (task != null && !task.getHostname().equals(ip)) {
+				task.setHostname(ip);
+				scheduler.updateTask(task);
+			}
 			callback(callback, id, DeployStatus.SUCCESS, taurusUrl);
 		} catch (DeploymentException e) {
 			LOG.error(String.format("Fail to depoly %s to %s", file, ip), e);
@@ -70,9 +91,22 @@ public class DeployResource extends ServerResource implements IDeployResource {
 		}
 	}
 
+	private void testFileUrl(String file) throws DeploymentException{
+		try{
+			URL url = new URL(file);
+			URLConnection conn = url.openConnection();
+			InputStream inStream = conn.getInputStream();
+			byte[] buffer = new byte[1204];
+			if (inStream.read(buffer) == 0) {
+				throw new FileNotFoundException();
+			}
+		} catch(Exception e){
+			DeploymentException de= new DeploymentException("File source not found",e);
+			de.setStatus(DeployStatus.NO_SOURCE);
+		}
+   }
+
 	private void callback(String callback, String id, int statusCode, String url) {
-		callback = callback + "?id=" + id + "&status=" + statusCode + "&url=" + url;
-		LOG.info("Callback " + callback);
 		HttpClient client = new HttpClient();
 		PostMethod method = new PostMethod(callback);
 		method.addParameter("id", id);
@@ -85,6 +119,5 @@ public class DeployResource extends ServerResource implements IDeployResource {
 			LOG.error(e, e);
 		}
 		method.releaseConnection();
-
 	}
 }
