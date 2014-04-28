@@ -10,6 +10,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.dianping.cat.Cat;
+import com.dianping.cat.message.Message;
+import com.dianping.cat.message.Transaction;
 import com.dp.bigdata.taurus.generated.mapper.TaskAttemptMapper;
 import com.dp.bigdata.taurus.generated.module.Task;
 import com.dp.bigdata.taurus.generated.module.TaskAttempt;
@@ -40,8 +43,10 @@ public class CrontabTriggle implements Triggle {
 
     public void triggle(Date now) {
         Map<String, Task> tasks = scheduler.getAllRegistedTask();
+        
+        Transaction t = Cat.newTransaction("Time-2", "CronTabTriggle");
         for (Task task : tasks.values()) {
-            
+        	Cat.logEvent("For","");
             if (task.getStatus() != TaskStatus.RUNNING) {
                 continue;
             }
@@ -59,6 +64,8 @@ public class CrontabTriggle implements Triggle {
                 }
                 continue;
             }
+            
+            Cat.logEvent("getPreviourFireTime", "");
 
             //get the previous fire time and previous attempt
             Date previousFireTime = getPreviousFireTime(task, now);
@@ -69,7 +76,9 @@ public class CrontabTriggle implements Triggle {
             }
             
             //iterator each fire time from last previousFireTime to current.
+            Cat.logEvent("Next-Time", "");
             Date nextFireTime = ce.getNextValidTimeAfter(previousFireTime);
+            Cat.logEvent("Next-While", "");
             while (nextFireTime.before(now)) {
                 String instanceID = idFactory.newInstanceID(task.getTaskid());
                 TaskAttempt attempt = new TaskAttempt();
@@ -84,6 +93,9 @@ public class CrontabTriggle implements Triggle {
                 nextFireTime = ce.getNextValidTimeAfter(nextFireTime);
             }
         }
+        
+        t.setStatus(Message.SUCCESS);
+        t.complete();
     }
 
     @Override
