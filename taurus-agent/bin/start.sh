@@ -28,6 +28,8 @@ if [ "$id" != "" ]; then
 fi
 
 #start agent
-nohup /usr/local/jdk/bin/java -classpath "conf/:lib/*"  com.dp.bigdata.taurus.agent.StartServer >/dev/null &
+export KRB5_CONFIG=./conf/krb5.conf
+
+nohup /usr/local/jdk/bin/java  -Djava.security.krb5.realm=DIANPING.COM -Djava.security.krb5.kdc=10.2.6.103:10.2.6.152 -classpath "conf/:lib/*"  com.dp.bigdata.taurus.agent.StartServer >/dev/null &
 echo "start success"
 #end

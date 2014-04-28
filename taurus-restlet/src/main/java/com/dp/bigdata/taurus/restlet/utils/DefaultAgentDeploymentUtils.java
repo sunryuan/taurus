@@ -38,13 +38,14 @@ public class DefaultAgentDeploymentUtils implements AgentDeploymentUtils {
     private FilePathManager filePathManager;
 
     @Override
+    @Deprecated
     public void notifyAllAgent(final Task task, final DeployOptions options) throws DeploymentException {
         HostExample example = new HostExample();
         example.or().andPoolidEqualTo(task.getPoolid());
         List<Host> hosts = hostMapper.selectByExample(example);
         final DeploymentContext context = new DeploymentContext();
-        context.setHdfsPath(filePathManager.getRemotePath(task.getTaskid(), task.getFilename()));
-        context.setTaskID(task.getTaskid());
+//        context.setHdfsPath(filePathManager.getRemotePath(task.getTaskid(), task.getFilename()));
+//        context.setTaskID(task.getTaskid());
         if (hosts.size() <= 0) {
             throw new DeploymentException("No agent available to deploy task");
         }

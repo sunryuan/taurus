@@ -17,7 +17,7 @@
 		<webappDirectory>${project.build.directory}/${project.build.finalName}</webappDirectory>
 		<restletVersion>2.1.1</restletVersion>
 	</properties>
-	
+
 	<repositories>
 		<repository>
 			<id>maven-restlet</id>

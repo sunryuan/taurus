@@ -74,20 +74,20 @@ public class DeploymentThread extends BaseEnvManager {
             return;
         }
 
-        String hdfsPath = conf.getHdfsPath();
-        if(hdfsPath == null){
+        String ftpUrl = conf.getUrl();
+        if(ftpUrl == null){
             LOGGER.error("HDFS path is empty!");
             return;
         }
-        String taskID = conf.getTaskID();
+        String name = conf.getName();
 
-        if(taskID == null){
+        if(name == null){
             LOGGER.error("Job  ID is empty!");
             return;
         }
-        File hdfsFile = new File(hdfsPath);
+        File hdfsFile = new File(ftpUrl);
         String fileName = hdfsFile.getName();
-        String localParentPath =  jobPath + FILE_SEPRATOR + taskID;
+        String localParentPath =  jobPath + FILE_SEPRATOR + name;
         String localPath = localParentPath + FILE_SEPRATOR + fileName;
         
         StringBuilder stdErr = new StringBuilder();
@@ -96,14 +96,15 @@ public class DeploymentThread extends BaseEnvManager {
                 //executor.execute("remove task",System.out, System.err, String.format(UNDEPLOYMENT_CMD, localParentPath));
                 FileUtils.deleteDirectory(new File(localParentPath));
             }
-            LOGGER.debug("hdfsPath:" + hdfsPath + ";localPath:" +hdfsPath);
+            LOGGER.debug("hdfsPath:" + ftpUrl + ";localPath:" +fileName);
             //int returnCode = executor.execute("deploy task",System.out, System.err, taskDeploy, hdfsPath,localPath);
             try{
-                taskHelper.deployTask(hdfsPath, localPath);
+            	 conf.setLocalPath(localPath);
+                taskHelper.deployTask(ftpUrl, localPath);
                 status.setStatus(DeploymentStatus.DEPLOY_SUCCESS);
-                LOGGER.debug("Job " + taskID + " deploy successed");
+                LOGGER.debug("Job " + name + " deploy successed");
             } catch(Exception e ){
-                LOGGER.debug("Job " + taskID + " deploy failed",e);
+                LOGGER.debug("Job " + name + " deploy failed",e);
                 status.setStatus(DeploymentStatus.DEPLOY_FAILED);
                 status.setFailureInfo(stdErr.toString());
             }

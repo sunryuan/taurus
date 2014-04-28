@@ -240,7 +240,7 @@ public final class ExecuteTaskThread extends BaseEnvManager{
                 }
             }
             setResult( returnCode,  status);              
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOGGER.error(e,e);
             setFailResult(status);
         }

@@ -34,5 +34,6 @@
 		<table schema="" tableName="TaurusUser" domainObjectName="User" />
 		<table schema="" tableName="TaurusUserGroup" domainObjectName="UserGroup" />
 		<table schema="" tableName="TaurusUserGroupMapping" domainObjectName="UserGroupMapping" />
+		<table schema="" tableName="TaurusDeploy" domainObjectName="Deploy" />
 	</context>
 </generatorConfiguration>

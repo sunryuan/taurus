@@ -38,6 +38,8 @@
 		IUserGroupsResource groupResource = cr.wrap(IUserGroupsResource.class);
 		cr.accept(MediaType.APPLICATION_XML);
 		ArrayList<UserGroupDTO> groups = groupResource.retrieve();
+		String name = request.getParameter("name");
+		String path = request.getParameter("path");
    	%>
 	<div class="container">
 		<div id="wizard">
@@ -97,7 +99,7 @@
              	<div class="control-group">
             		<label class="control-label"  for="taskName">名称*</label>
             		<div class="controls">
-              			<input type="text" class="input-xxlarge field"  id="taskName" name="taskName"  placeholder="作业的名称，可以作为被依赖的对象，不可修改">
+              			<input type="text" class="input-xxlarge field"  id="taskName" name="taskName" value=<%=name%>  placeholder="作业的名称，可以作为被依赖的对象，不可修改">
             		</div>
           		</div>
           		

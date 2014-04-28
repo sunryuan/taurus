@@ -37,7 +37,7 @@
 								<td align="left">作业类型</td>
 								<td align="left">hadoop:
 									需要访问hadoop的作业。这种类型的作业，taurus会管理作业的hadoop ticket的申请和销毁。<br />
-									spring: 在spring容器中运行的作业，较特殊，一般用不到。<br /> other: 所有其他类型。
+									spring: 在spring容器中运行的作业，较特殊，一般用不到。<br /> default: 上述两种类型以外所有类型。
 								</td>
 							</tr>
 							<tr>
