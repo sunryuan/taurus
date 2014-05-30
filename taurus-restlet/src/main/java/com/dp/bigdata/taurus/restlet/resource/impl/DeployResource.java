@@ -4,8 +4,16 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -15,11 +23,17 @@ import org.restlet.data.Form;
 import org.restlet.data.Status;
 import org.restlet.ext.json.JsonRepresentation;
 import org.restlet.representation.Representation;
+import org.restlet.resource.Get;
+import org.restlet.resource.Post;
 import org.restlet.resource.ServerResource;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.dp.bigdata.taurus.core.Scheduler;
+import com.dp.bigdata.taurus.generated.mapper.HostMapper;
+import com.dp.bigdata.taurus.generated.mapper.TaskMapper;
+import com.dp.bigdata.taurus.generated.module.Host;
+import com.dp.bigdata.taurus.generated.module.HostExample;
 import com.dp.bigdata.taurus.generated.module.Task;
+import com.dp.bigdata.taurus.generated.module.TaskExample;
 import com.dp.bigdata.taurus.restlet.resource.IDeployResource;
 import com.dp.bigdata.taurus.zookeeper.deploy.helper.DeployStatus;
 import com.dp.bigdata.taurus.zookeeper.deploy.helper.Deployer;
@@ -32,67 +46,127 @@ public class DeployResource extends ServerResource implements IDeployResource {
 	private Deployer deployer;
 
 	@Autowired
-	private Scheduler scheduler;
+	private TaskMapper taskMapper;
+
+	@Autowired
+	private HostMapper hostMapper;
+
+	private String webUrl = "taurus.dp";
 
 	private static final Log LOG = LogFactory.getLog(DeployResource.class);
 
-	private static final String TAURUS_URL_PATTERN = "http://taurus.dp/task.jsp?name=%s&path=%s&ip=%s";
+	private static final String createUrlPattern = "http://%s/task.jsp?appname=%s&path=%s&ip=%s";
 
-	@Override
-	public Representation status() {
-		String deployId = getQueryValue("deployId");
-		Map<String, Object> result = new HashMap<String, Object>();
-		result.put("status", deployer.status(deployId));
-		return new JsonRepresentation(result);
+	private static final String updateUrlPattern = "http://%s/schedule.jsp?appname=%s&path=%s";
 
+	private static Map<String, DeployResult> deployResults = new LinkedHashMap<String, DeployResult>(1000, 0.75f, true) {
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		protected boolean removeEldestEntry(Entry<String, DeployResult> arg0) {
+			return size() >= 1000;
+		}
+	};
+
+	private ExecutorService deployThreadPool = new ThreadPoolExecutor(5, 10, 1L, TimeUnit.SECONDS,
+	      new LinkedBlockingQueue<Runnable>());
+
+	public String getWebUrl() {
+		return webUrl;
+	}
+
+	public void setWebUrl(String webUrl) {
+		this.webUrl = webUrl;
 	}
 
 	@Override
-	public void deploy(Representation re) {
-		String ip = "", file = "", id = "", callback = "", name = "", taurusUrl = "";
+	@Get
+	public Representation status() {
+		String deployId = getQueryValue("deployId");
+		String name = getQueryValue("appName");
+		Map<String, Object> result = new HashMap<String, Object>();
+		if (name != null) {
+			TaskExample example = new TaskExample();
+			example.createCriteria().andAppnameEqualTo(name).andStatusNotEqualTo(3);
+			List<Task> tasks = taskMapper.selectByExample(example);
+			if (tasks == null || tasks.size() == 0) {
+				HostExample he = new HostExample();
+				he.createCriteria().andIsonlineEqualTo(true);
+				List<Host> hosts = hostMapper.selectByExample(he);
+				List<String> ips = new ArrayList<String>();
+				for (Host host : hosts) {
+					ips.add(host.getIp());
+				}
+				result.put("hosts", ips);
+			} else {
+				List<String> ips = new ArrayList<String>();
+				String hostIp = tasks.get(0).getHostname();
+				ips.add(hostIp);
+				result.put("hosts", ips);
+			}
+		} else {
+			DeployResult deployResult = deployResults.get(deployId);
+			if (deployResult == null) {
+				result.put("status", DeployStatus.UNKNOWN);
+			} else {
+				result.put("status", deployResult.status);
+				result.put("createurl", deployResult.createUrl);
+				result.put("updateurl", deployResult.updateUrl);
+			}
+		}
+		return new JsonRepresentation(result);
+	}
+
+	@Override
+	@Post
+	public void deploy(final Representation re) {
+		Form form = new Form(re);
+		Map<String, String> valueMap = form.getValuesMap();
+		final String id = valueMap.get("deployId");
+		final String ip = valueMap.get("ip");
+		final String file = valueMap.get("file");
+		final String callback = valueMap.get("url");
+		final String name = valueMap.get("name");
+
+		setStatus(Status.SUCCESS_OK);
+		deployThreadPool.execute(new Runnable() {
+			@Override
+			public void run() {
+				deployInternal(ip, file, id, callback, name);
+			}
+		});
+
+	}
+
+	private void deployInternal(String ip, String file, String id, String callback, String name) {
 		String path = null;
+		DeployResult dr = new DeployResult();
+
 		try {
-			Form form = new Form(re);
-			Map<String, String> valueMap = form.getValuesMap();
 			DeploymentContext context = new DeploymentContext();
-			id = valueMap.get("deployId");
-			ip = valueMap.get("ip");
-			file = valueMap.get("file");
-			callback = valueMap.get("url");
-			name = valueMap.get("name");
-			testFileUrl(file);
-			
+			deployResults.put(id, dr);
 			context.setDepolyId(id);
 			context.setName(name);
 			context.setUrl(file);
+			testFileUrl(file);
 			LOG.info(String.format("Start to depoly %s to %s", file, ip));
+			dr.status = DeployStatus.DEPLOYING;
 			path = deployer.deploy(ip, context);
-			setStatus(Status.SUCCESS_OK);
-			taurusUrl = String.format(TAURUS_URL_PATTERN, name, path, ip);
-			Task task = null;
-			try {
-				task = scheduler.getTaskByName(name);
-			} catch (Exception e) {
-				// do nothing
-			}
-			if (task != null && !task.getHostname().equals(ip)) {
-				task.setHostname(ip);
-				scheduler.updateTask(task);
-			}
-			callback(callback, id, DeployStatus.SUCCESS, taurusUrl);
+			String taurusUrl = String.format(createUrlPattern, webUrl, name, path, ip);
+			String updateUrl = String.format(updateUrlPattern, webUrl, name, path);
+			callback(dr, callback, DeployStatus.SUCCESS, taurusUrl, updateUrl);
+			LOG.debug("deploy success");
 		} catch (DeploymentException e) {
 			LOG.error(String.format("Fail to depoly %s to %s", file, ip), e);
-			setStatus(Status.SUCCESS_OK);
-			callback(callback, id, e.getStatus(), taurusUrl);
+			callback(dr, callback, e.getStatus(), null, null);
 		} catch (Exception e) {
-			setStatus(Status.SERVER_ERROR_INTERNAL);
-			callback(callback, id, DeployStatus.FAIL, taurusUrl);
+			callback(dr, callback, DeployStatus.FAIL, null, null);
 			LOG.error(String.format("Fail to depoly %s to %s", file, ip), e);
 		}
 	}
 
-	private void testFileUrl(String file) throws DeploymentException{
-		try{
+	private void testFileUrl(String file) throws DeploymentException {
+		try {
 			URL url = new URL(file);
 			URLConnection conn = url.openConnection();
 			InputStream inStream = conn.getInputStream();
@@ -100,24 +174,40 @@ public class DeployResource extends ServerResource implements IDeployResource {
 			if (inStream.read(buffer) == 0) {
 				throw new FileNotFoundException();
 			}
-		} catch(Exception e){
-			DeploymentException de= new DeploymentException("File source not found",e);
+		} catch (Exception e) {
+			DeploymentException de = new DeploymentException("File source not found", e);
 			de.setStatus(DeployStatus.NO_SOURCE);
+			throw de;
 		}
-   }
+	}
 
-	private void callback(String callback, String id, int statusCode, String url) {
+	private void callback(DeployResult dr, String callback, int statusCode, String createUrl, String updateUrl) {
+		dr.status = statusCode;
+		dr.createUrl = createUrl;
+		dr.updateUrl = updateUrl;
 		HttpClient client = new HttpClient();
 		PostMethod method = new PostMethod(callback);
-		method.addParameter("id", id);
+		LOG.info("callback:" + callback);
 		method.addParameter("status", String.valueOf(statusCode));
-		method.addParameter("url", url);
-
+		if (createUrl != null) {
+			method.addParameter("createurl", createUrl);
+		}
+		if (updateUrl != null) {
+			method.addParameter("updateurl", updateUrl);
+		}
 		try {
 			client.executeMethod(method);
 		} catch (Exception e) {
 			LOG.error(e, e);
 		}
 		method.releaseConnection();
+	}
+
+	static class DeployResult {
+		int status;
+
+		String createUrl;
+
+		String updateUrl;
 	}
 }

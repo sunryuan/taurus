@@ -10,7 +10,7 @@
 
 	<context-param>
 		<param-name>RESTLET_SERVER</param-name>
-		<param-value>http://localhost:8182/api/</param-value>
+		<param-value>http://localhost:8080/api/</param-value>
 	</context-param>
 	<context-param>
 		<param-name>XSL_UPLOAD_TMP_DIR</param-name>
@@ -60,6 +60,15 @@
 		<servlet-name>AttemptProxyServlet</servlet-name>
 		<servlet-class>com.dp.bigdata.taurus.web.servlet.AttemptProxyServlet</servlet-class>
 	</servlet>
+	
+	<servlet>
+		<servlet-name>TestServlet</servlet-name>
+		<servlet-class>com.dp.bigdata.taurus.web.servlet.TestServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>TestServlet</servlet-name>
+		<url-pattern>/test</url-pattern>
+	</servlet-mapping>
 
 	<servlet>
 		<servlet-name>LoginServlet</servlet-name>

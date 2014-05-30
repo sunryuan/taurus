@@ -15,6 +15,5 @@
 		<mapper resource="com/dp/bigdata/taurus/generated/mapper/UserGroup.xml" />
 		<mapper resource="com/dp/bigdata/taurus/generated/mapper/UserGroupMapping.xml" />
 		<mapper resource="com/dp/bigdata/taurus/generated/mapper/DeployMapping.xml" />
-		
 	</mappers>
 </configuration>

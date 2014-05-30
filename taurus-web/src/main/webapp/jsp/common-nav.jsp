@@ -15,9 +15,9 @@
 						if(currentUser != null){
 					%>
                     	<a  class="btn-link"><i class="icon-user icon-white"></i> <%=currentUser%></a>
-                    	<a  class="btn-link" href="javascript:logout('<%=currentUser%>')"><i class="icon-off icon-white"></i>登出</a>
+                    	<a  class="btn-link" href="javascript:logout('<%=currentUser%>')"><i class="icon-off icon-white"></i>退出</a>
                     <%}else{%>
-						<a href="./signin.jsp" class="btn-link" data-toggle="modal"><i class="icon-user icon-white"></i> 登陆</a>
+						<a href="./signin.jsp" class="btn-link" data-toggle="modal"><i class="icon-user icon-white"></i> 登录</a>
                     <%}%>
                     <!-- Global variable -->
                     <%

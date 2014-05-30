@@ -38,9 +38,15 @@
 		IUserGroupsResource groupResource = cr.wrap(IUserGroupsResource.class);
 		cr.accept(MediaType.APPLICATION_XML);
 		ArrayList<UserGroupDTO> groups = groupResource.retrieve();
-		String name = request.getParameter("name");
+		String name = request.getParameter("appname");
 		String path = request.getParameter("path");
 		String ip = request.getParameter("ip");
+		if(name==null){
+			name="";
+		}
+		if(ip==null){
+			ip="";
+		}
    	%>
 	<div class="container">
 		<div id="wizard">
@@ -86,7 +92,7 @@
                     <div id="host"  class="control-group">
                     	<label class="control-label"  for="hostname">部署的机器*</label>
                     	<div class="controls">
-    						<input type="text" id="hostname" name="hostname" class="input-big field"  value=<%=ip%> placeholder="10.0.0.1">
+    						<input type="text" id="hostname" name="hostname" class="input-big field"  value="<%=ip%>" placeholder="10.0.0.1">
     					</div>
 					</div>
                     </fieldset>
@@ -100,10 +106,15 @@
              	<div class="control-group">
             		<label class="control-label"  for="taskName">名称*</label>
             		<div class="controls">
-              			<input type="text" class="input-xxlarge field"  id="taskName" name="taskName" value=<%=name%>  placeholder="作业的名称，可以作为被依赖的对象，不可修改">
+              			<input type="text" class="input-xxlarge field"  id="taskName" name="taskName" value="<%=name%>"  placeholder="作业的名称，可以作为被依赖的对象，不可修改">
             		</div>
           		</div>
-          		
+          		<div class="control-group" style='display:none'>
+            		<label class="control-label"  for="taskName">应用名称*</label>
+            		<div class="controls">
+              			<input type="text" class="input-xxlarge field"  id="appName" name="appName" value="<%=name%>"  >
+            		</div>
+          		</div>
           		<div id="mainClassCG" class="control-group">
             		<label class="control-label" for="mainClass">MainClass*</label>
             		<div class="controls">
@@ -124,7 +135,7 @@
               			<input type="text" class="input-xxlarge field" id="taskCommand" name="taskCommand"  placeholder="执行作业的命令">
               			<%if(path!=null&&!path.equals("")){
               				%>
-              				<span>提示:作业文件路径为<%=path%></span>
+              				<br/><span>提示:已部署的作业文件的路径为<%=path%></span>
               			<%}%>
             		</div>
           		</div>

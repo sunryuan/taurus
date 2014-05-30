@@ -211,7 +211,8 @@ public class TaskHelper {
 		fs.close();
 	}
 
-	private void readFileFromHdfs(String srcFile, String destFile) throws IOException, FileNotFoundException {
+	@SuppressWarnings("unused")
+   private void readFileFromHdfs(String srcFile, String destFile) throws IOException, FileNotFoundException {
 		File file = new File(destFile);
 		if (file.exists()) {
 			file.delete();

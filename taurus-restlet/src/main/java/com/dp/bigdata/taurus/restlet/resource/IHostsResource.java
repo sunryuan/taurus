@@ -16,4 +16,5 @@ public interface IHostsResource {
 
     @Get
     public ArrayList<HostDTO> retrieve();
+    
 }

@@ -35,6 +35,7 @@ public class HostResource extends ServerResource implements IHostResource {
 
 	@Autowired
 	private HostMapper hostMapper;
+
 	@Autowired
 	private HostManager hostManager;
 
@@ -100,31 +101,48 @@ public class HostResource extends ServerResource implements IHostResource {
 				LOG.error("No op to host : " + hostName);
 				return;
 			}
-			ips.add(hostName);
-			example.or().andNameEqualTo(hostName);
-			List<Host> hosts = hostMapper.selectByExample(example);
-			if (hosts.size() == 1) {
-				host = hosts.get(0);
-			}
-			if (host == null) {
-				setStatus(Status.SERVER_ERROR_INTERNAL);
-				LOG.error("Host not found: " + hostName);
-				return;
-			}
-
-			if (op.equalsIgnoreCase(Operate.UP.name())) {
-				host.setIsonline(true);
-				hostMapper.updateByExample(host, example);
-			} else if (op.equalsIgnoreCase(Operate.DOWN.name())) {
-				host.setIsonline(false);
-				hostMapper.updateByExample(host, example);
-			} else if (op.equalsIgnoreCase(Operate.RESTART.name())
-					|| op.equalsIgnoreCase(Operate.UPDATE.name())) {
-				hostManager.operate(op, ips);
+			if (hostName.toLowerCase().equals("all")) {
+				example.or().andIsonlineEqualTo(true).andIsconnectedEqualTo(true);
+				List<Host> hosts = hostMapper.selectByExample(example);
+				for (Host item : hosts) {
+					ips.add(item.getName());
+				}
+			} else if (hostName.indexOf(",") != -1) {
+				String[] hostNames = hostName.split(",");
+				for (String name : hostNames) {
+					ips.add(name.trim());
+				}
 			} else {
-				setStatus(Status.SERVER_ERROR_INTERNAL);
-				LOG.error("Not support " + op + " to host " + hostName);
-				return;
+				ips.add(hostName);
+			}
+			for (String ip : ips) {
+				example.or().andNameEqualTo(ip);
+				List<Host> hosts = hostMapper.selectByExample(example);
+				if (hosts.size() == 1) {
+					host = hosts.get(0);
+				}
+				if (host == null) {
+					setStatus(Status.SERVER_ERROR_INTERNAL);
+					LOG.error("Host not found: " + ip);
+					continue;
+				}
+				
+				if (op.equalsIgnoreCase(Operate.UP.name())) {
+					host.setIsonline(true);
+					hostMapper.updateByExample(host, example);
+				} else if (op.equalsIgnoreCase(Operate.DOWN.name())) {
+					host.setIsonline(false);
+					hostMapper.updateByExample(host, example);
+				}	if (op.equalsIgnoreCase(Operate.RESTART.name()) || op.equalsIgnoreCase(Operate.UPDATE.name())) {
+					//do nothing
+				} else {
+					setStatus(Status.SERVER_ERROR_INTERNAL);
+					LOG.error("Not support " + op + " to host " + hostName);
+					return;
+				}
+			}
+			if (op.equalsIgnoreCase(Operate.RESTART.name()) || op.equalsIgnoreCase(Operate.UPDATE.name())) {
+				hostManager.operate(op, ips);
 			}
 		} catch (Exception e) {
 			setStatus(Status.SERVER_ERROR_INTERNAL);

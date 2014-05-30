@@ -111,6 +111,8 @@ public class TaskRequestExtractor implements RequestExtrator<TaskDTO> {
 			String value = entry.getValue() == null ? "" : entry.getValue().trim();
 			if (key.equals(TaskDetailControlName.HADOOPNAME.getName())) {
 				task.setHadoopName(value);
+			} else if (key.equals(TaskDetailControlName.APPNAME.getName())) {
+				task.setAppName(value);
 			} else if (key.equals(TaskDetailControlName.TASKNAME.getName())) {
 				task.setName(value);
 			} else if (key.equals(TaskDetailControlName.TASKTYPE.getName())) {
@@ -140,13 +142,13 @@ public class TaskRequestExtractor implements RequestExtrator<TaskDTO> {
 				task.setCreator(value);
 			} else if (key.equals(TaskDetailControlName.DESCRIPTION.getName())) {
 				task.setDescription(value);
-			} else if(key.equals(TaskDetailControlName.ISAUTOKILL.getName())){
-				if(value.equals("1")){
+			} else if (key.equals(TaskDetailControlName.ISAUTOKILL.getName())) {
+				if (value.equals("1")) {
 					task.setAutoKill(true);
-				}else{
+				} else {
 					task.setAutoKill(false);
 				}
-			}else if (key.equals(TaskDetailControlName.RETRYTIMES.getName())) {
+			} else if (key.equals(TaskDetailControlName.RETRYTIMES.getName())) {
 				int retryNum = Integer.parseInt(value);
 				task.setRetrytimes(retryNum);
 				if (retryNum > 0) {

@@ -78,10 +78,21 @@
 			</thead>
 			<tbody>
 				<%  String task_api = host + "task";
-					if(currentUser != null){
+					String name = request.getParameter("name");
+					String path = request.getParameter("path");
+					String appname = request.getParameter("appname");
+					if(name!=null && !name.isEmpty()){
+						task_api = task_api + "?name=" + name;
+					} else if(appname !=null){
+						task_api = task_api + "?appname=" + appname;
+					} else if(currentUser != null){
 						task_api = task_api + "?user=" + currentUser;
 					}
-					cr = new ClientResource(task_api);
+					if(path!=null&&!path.equals("")){
+        		%>
+        				<span  style="color:red">提示:已部署的作业文件的路径为<%=path%></span>
+        		<%	}
+        			cr = new ClientResource(task_api);
                     ITasksResource resource = cr.wrap(ITasksResource.class);
                     cr.accept(MediaType.APPLICATION_XML);
                     ArrayList<TaskDTO> tasks = resource.retrieve();

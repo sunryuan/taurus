@@ -99,16 +99,15 @@ public class DeploymentThread extends BaseEnvManager {
             LOGGER.debug("hdfsPath:" + ftpUrl + ";localPath:" +fileName);
             //int returnCode = executor.execute("deploy task",System.out, System.err, taskDeploy, hdfsPath,localPath);
             try{
-            	 conf.setLocalPath(localPath);
                 taskHelper.deployTask(ftpUrl, localPath);
                 status.setStatus(DeploymentStatus.DEPLOY_SUCCESS);
+                conf.setLocalPath(localParentPath);
                 LOGGER.debug("Job " + name + " deploy successed");
             } catch(Exception e ){
                 LOGGER.debug("Job " + name + " deploy failed",e);
                 status.setStatus(DeploymentStatus.DEPLOY_FAILED);
                 status.setFailureInfo(stdErr.toString());
             }
-            conf.setLocalPath(localParentPath);
         } catch(Exception e){
             LOGGER.error(e,e);
             status.setStatus(DeploymentStatus.DEPLOY_FAILED);

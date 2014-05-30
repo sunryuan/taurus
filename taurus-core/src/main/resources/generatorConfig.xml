@@ -14,13 +14,13 @@
 		</jdbcConnection>
 
 		<javaModelGenerator targetPackage="com.dp.bigdata.taurus.generated.module"
-			targetProject="taurus-core/src/main/java" />
+			targetProject="src/main/java" />
 
 		<sqlMapGenerator targetPackage="com.dp.bigdata.taurus.generated.mapper"
-			targetProject="taurus-core/src/main/resources" />
+			targetProject="src/main/resources" />
 
 		<javaClientGenerator type="XMLMAPPER"
-			targetPackage="com.dp.bigdata.taurus.generated.mapper" targetProject="taurus-core/src/main/java" />
+			targetPackage="com.dp.bigdata.taurus.generated.mapper" targetProject="src/main/java" />
 
 		<table schema="" tableName="TaurusPool" domainObjectName="Pool" />
 		<table schema="" tableName="TaurusHost" domainObjectName="Host" />

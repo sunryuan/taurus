@@ -42,6 +42,7 @@ public class TaskConverter {
         dto.setProxyuser(task.getProxyuser());
         dto.setType(task.getType());
         dto.setWaittimeout(task.getWaittimeout());
+        
         if (task.getStatus() == TaskStatus.RUNNING) {
             dto.setStatus("SCHEDULED");
         } else if (task.getStatus() == TaskStatus.SUSPEND) {
@@ -53,6 +54,7 @@ public class TaskConverter {
         dto.setHostname(task.getHostname());
         dto.setDescription(task.getDescription());
         dto.setHadoopName(task.getHadoopname());
+        dto.setAppName(task.getAppname());
         return dto;
     }
 }

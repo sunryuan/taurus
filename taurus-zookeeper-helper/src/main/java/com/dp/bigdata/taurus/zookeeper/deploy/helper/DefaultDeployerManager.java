@@ -1,9 +1,7 @@
 package com.dp.bigdata.taurus.zookeeper.deploy.helper;
 
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -33,25 +31,6 @@ public class DefaultDeployerManager implements Deployer {
 	private final DeploymentInfoChannel dic;
 
 	private final int opTimeout = DEFAULT_TIME_OUT_IN_SECONDS;
-	
-	private Map<String, Integer> statuses = new LinkedHashMap<String, Integer>(1000, 0.75f, true) {
-		private static final long serialVersionUID = 1L;
-
-		@Override
-		protected boolean removeEldestEntry(Entry<String, Integer> arg0) {
-			return size() >= 1000;
-		}
-	};
-	
-	@Override
-   public int status(String id) {
-		if (statuses.containsKey(id)) {
-			return statuses.get(id);
-		} else {
-			LOGGER.error("Cannot find status for deploy id " + id);
-			return DeployStatus.UNKNOWN;
-		}
-   }
 
 	public DefaultDeployerManager() {
 		Injector injector = Guice.createInjector(new DeploymentInfoChannelModule());
@@ -75,10 +54,6 @@ public class DefaultDeployerManager implements Deployer {
 		String deployId = context.getDepolyId();
 		String name = context.getName();
 		String url = context.getUrl();
-		if (statuses.containsKey(deployId)) {
-			throw new DeploymentException(deployId + " is already deployed!").setStatus(DeployStatus.DUPLICATE);
-		}
-		statuses.put(deployId, DeployStatus.DEPLOYING);
 		DeploymentStatus status = (DeploymentStatus) dic.getStatus(agentIp, deployId);
 		if (status == null || status.getStatus() != DeploymentStatus.DEPLOY_SUCCESS) {
 			DeploymentConf conf = new DeploymentConf();
@@ -97,8 +72,7 @@ public class DefaultDeployerManager implements Deployer {
 					if (status != null && status.getStatus() == DeploymentStatus.DEPLOY_SUBMITTED) {
 						status.setStatus(DeploymentStatus.DEPLOY_TIMEOUT);
 						dic.updateStatus(agentIp, deployId, status);
-						LOGGER.error( deployId + " deploy time out");
-						statuses.put(deployId, DeployStatus.TIMEOUT);
+						LOGGER.error(deployId + " deploy time out");
 						throw new DeploymentException(deployId + " deploy time out").setStatus(DeployStatus.TIMEOUT);
 					}
 				} else {
@@ -110,21 +84,18 @@ public class DefaultDeployerManager implements Deployer {
 				}
 			} catch (InterruptedException e) {
 				LOGGER.error(deployId + " deploy failed", e);
-				statuses.put(deployId, DeployStatus.FAIL);
 				throw new DeploymentException(e).setStatus(DeployStatus.FAIL);
 			} finally {
 				lock.unlock();
 			}
 			if (status.getStatus() != DeploymentStatus.DEPLOY_SUCCESS) {
 				LOGGER.error(deployId + " deploy failed");
-				statuses.put(deployId, DeployStatus.FAIL);
 				throw new DeploymentException(deployId + " deploy failed").setStatus(DeployStatus.FAIL);
 			}
-			statuses.put(deployId, DeployStatus.SUCCESS);
+			conf = (DeploymentConf) dic.getConf(agentIp, deployId);
 			return conf.getLocalPath();
 		} else {
 			LOGGER.error(deployId + " deploy failed");
-			statuses.put(deployId, DeployStatus.DUPLICATE);
 			throw new DeploymentException(deployId + " is already deployed!").setStatus(DeployStatus.DUPLICATE);
 		}
 
@@ -222,5 +193,5 @@ public class DefaultDeployerManager implements Deployer {
 		}
 	}
 
-	
+
 }

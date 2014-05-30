@@ -12,11 +12,13 @@
 			<div class="span3 bs-docs-sidebar">
 				<ul class="nav nav-list bs-docs-sidenav affix">
 					<li class="active"><a href="#config"><i
-							class="icon-chevron-right"></i> Config</a></li>
+							class="icon-chevron-right"></i> 配置</a></li>
 					<li><a href="#status"><i class="icon-chevron-right"></i>
-							Status</a></li>
+							状态</a></li>
 					<li><a href="#crontab"><i class="icon-chevron-right"></i>
-							Crontab</a></li>
+							定时器</a></li>
+					<li><a href="#agent"><i class="icon-chevron-right"></i>
+							安装agent</a></li>
 				</ul>
 			</div>
 
@@ -37,7 +39,8 @@
 								<td align="left">作业类型</td>
 								<td align="left">hadoop:
 									需要访问hadoop的作业。这种类型的作业，taurus会管理作业的hadoop ticket的申请和销毁。<br />
-									spring: 在spring容器中运行的作业，较特殊，一般用不到。<br /> default: 上述两种类型以外所有类型。
+									spring: 在spring容器中运行的作业，较特殊，一般用不到。<br /> default:
+									上述两种类型以外所有类型。
 								</td>
 							</tr>
 							<tr>
@@ -88,7 +91,8 @@
 							</tr>
 						</table>
 					</div>
-					<br /> <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br />
+					<br /> <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br />
+					<br />
 				</section>
 				<section id="status">
 					<div class="page-header">
@@ -128,9 +132,10 @@
 							<td align="left">当运行的实例执行时间超过配置的最大执行时间时，将被认为超时，但这个实例依然继续运行</td>
 						</tr>
 					</table>
-					<br /> <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br />
-					<br /> <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br />
-					<br /> <br /> <br /> <br /> <br /> <br /> <br /> <br />
+					<br /> <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br />
+					<br /> <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br />
+					<br /> <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br />
+					<br />
 				</section>
 
 				<section id="crontab">
@@ -414,6 +419,63 @@
 						</tbody>
 					</table>
 					<br>
+				</section>
+				<section id="agent">
+					<div class="page-header">
+						<h1>安装agent</h1>
+					</div>
+					Taurus agent通常安装在/data/app/taurus-agent目录下，安装之前请确认之前是否安装过。<br />
+					如果需要更新可以执行以下命令,请根据之前的执行身份判断。
+					<div class="well">
+						<em>script/update-agent;</em>
+					</div>
+					或
+					<div class="well">
+						<em>sudo -u nobody -s script/update-agent.sh</em>
+					</div>
+					<hr style="padding:15px 0px">
+
+					如果是第一次安装，以root身份执行如下代码：
+					<div class="well">
+						<em>wget http://10.1.1.163:8000/install-agent.sh; <br />
+							chmod 700 ./install-agent.sh; <br /> ./install-agent.sh nobody;
+						</em>
+					</div>
+					以上会以nobody的身份启动taurus agent。
+					<div class="well">
+						<em>ps -ef | grep taurus.agent </em>
+					</div>
+					可以查看进程是否存在
+					<hr style="padding:15px 0px">
+					如果希望在该agent上，以多种身份运行作业<br/>
+					修改配置文件conf/agentConf.properties
+					<div class="well">
+						<em> needSudoAuthority=true </em>
+					</div>
+					并以root身份执行：
+					<div class="well">
+						<em> bin/start.sh </em>
+					</div>
+					<hr style="padding:15px 0px">
+					如果需要使用agent申请hadoop权限<br/>先修改配置文件conf/agentConf.properties
+					<div class="well">
+						<em> needHadoopAuthority=true<br /> homePath=${keytab-root}
+						</em>
+					</div>
+					keytab文件存放规则为
+					<div class="well">
+						<em> ${keytab-root}/${hadoop-user-name}/.keytab </em>
+					</div>
+					${keytab-root}是keytab文件的根路径。<br/>
+					${hadoop-user-name}是hadoop中的用户身份。<br/>
+					例如，以wwwcron的身份访问hadoop<br/>
+					可以把wwwcron的keytab文件放在/data/app/taurus-agent/conf/keytab/wwwcron/.keytab<br/>
+					在conf/agentConf.properties中配置
+					<div class="well">
+						<em> needHadoopAuthority=true<br /> homePath=/data/app/taurus-agent/conf/keytab
+						</em>
+					</div>
+					最后启动agent时，需要保证执行agent的用户是taurus-agent目录的所有者。
 				</section>
 			</div>
 

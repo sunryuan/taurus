@@ -16,7 +16,7 @@
 
 	<bean id="server" class="org.restlet.ext.spring.SpringServer">
 		<constructor-arg value="http" />
-		<constructor-arg value="8182" />
+		<constructor-arg value="8080" />
 	</bean>
 
 	<bean name="router" class="org.restlet.ext.spring.SpringBeanRouter" />
@@ -32,8 +32,8 @@
 	<bean name="/api/attempt/{attempt_id}" id="attemptResource"
 		autowire="byName" scope="prototype"
 		class="com.dp.bigdata.taurus.restlet.resource.impl.AttemptResource" />
-	<bean name="/api/status" id="attemptStatusResource"
-		autowire="byName" scope="prototype"
+	<bean name="/api/status" id="attemptStatusResource" autowire="byName"
+		scope="prototype"
 		class="com.dp.bigdata.taurus.restlet.resource.impl.AttemptStatusResource" />
 	<bean name="/api/attempt" id="attemptsResource" autowire="byName"
 		scope="prototype" class="com.dp.bigdata.taurus.restlet.resource.impl.AttemptsResource" />
@@ -49,28 +49,35 @@
 		class="com.dp.bigdata.taurus.restlet.resource.impl.PoolsResource" />
 	<bean name="/api/user" id="usersResource" autowire="byName" scope="prototype"
 		class="com.dp.bigdata.taurus.restlet.resource.impl.UsersResource" />
-	<bean name="/api/group" id="groupsResource" autowire="byName" scope="prototype"
-		class="com.dp.bigdata.taurus.restlet.resource.impl.UserGroupsResource" />
-	<bean name="/api/usergroup" id="userGroupResource" autowire="byName" scope="prototype"
+	<bean name="/api/group" id="groupsResource" autowire="byName"
+		scope="prototype" class="com.dp.bigdata.taurus.restlet.resource.impl.UserGroupsResource" />
+	<bean name="/api/usergroup" id="userGroupResource" autowire="byName"
+		scope="prototype"
 		class="com.dp.bigdata.taurus.restlet.resource.impl.UserGroupMappingsResource" />
-	<bean name="/api/user/{user_name}" id="userResource" autowire="byName" scope="prototype"
-		class="com.dp.bigdata.taurus.restlet.resource.impl.UserResource" />
-	<!-- <bean name="/api/deploy" id="deployResource" autowire="byName" scope="prototype"
-		class="com.dp.bigdata.taurus.restlet.resource.impl.DeployResource" /> -->
-			
-	<!-- Core Service -->
-	<bean id="hdfsUtils" class="com.dp.bigdata.taurus.restlet.utils.DefaultHdfsUtils"
-		init-method="init" />
-	<bean id="agentDeployUtils"
-		class="com.dp.bigdata.taurus.restlet.utils.DefaultAgentDeploymentUtils" />
-	<bean id="requestExtractor"
-		class="com.dp.bigdata.taurus.restlet.utils.TaskRequestExtractor" />
-	<bean id="deployer"
-		class="com.dp.bigdata.taurus.zookeeper.deploy.helper.DefaultDeployerManager" />
-	<bean id="poolManager" class="com.dp.bigdata.taurus.restlet.utils.PoolManager"
-		init-method="init" />
-	<bean id="filePathManager" class="com.dp.bigdata.taurus.restlet.utils.FilePathManager" />
-	<bean id="hostManager" class="com.dp.bigdata.taurus.zookeeper.host.helper.DefaultHostManager"/>
+	<bean name="/api/user/{user_name}" id="userResource" autowire="byName"
+		scope="prototype" class="com.dp.bigdata.taurus.restlet.resource.impl.UserResource" />
+	<bean name="/api/deploy" id="deployResource" autowire="byName"
+		scope="prototype" class="com.dp.bigdata.taurus.restlet.resource.impl.DeployResource">
+		<property name="webUrl" value="taurus.dp" />
+	</bean>
+	<bean name="/api/hostip" id="hostIpResource" autowire="byName"
+		scope="prototype" class="com.dp.bigdata.taurus.restlet.resource.impl.HostIpResource"/>
+
+
+		<!-- Core Service -->
+		<bean id="hdfsUtils" class="com.dp.bigdata.taurus.restlet.utils.DefaultHdfsUtils"
+			init-method="init" />
+		<bean id="agentDeployUtils"
+			class="com.dp.bigdata.taurus.restlet.utils.DefaultAgentDeploymentUtils" />
+		<bean id="requestExtractor"
+			class="com.dp.bigdata.taurus.restlet.utils.TaskRequestExtractor" />
+		<bean id="deployer"
+			class="com.dp.bigdata.taurus.zookeeper.deploy.helper.DefaultDeployerManager" />
+		<bean id="poolManager" class="com.dp.bigdata.taurus.restlet.utils.PoolManager"
+			init-method="init" />
+		<bean id="filePathManager" class="com.dp.bigdata.taurus.restlet.utils.FilePathManager" />
+		<bean id="hostManager"
+			class="com.dp.bigdata.taurus.zookeeper.host.helper.DefaultHostManager" />
 </beans>
 
 	

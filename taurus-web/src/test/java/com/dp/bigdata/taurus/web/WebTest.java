@@ -15,7 +15,7 @@ public class WebTest extends JettyServer {
 
 	@Override
 	protected String getContextPath() {
-		return "/taurus";
+		return "/";
 	}
 
 	@Override
@@ -30,7 +30,7 @@ public class WebTest extends JettyServer {
 	@Test
 	public void startWebApp() throws Exception {
 		// open the page in the default browser
-		display("/taurus");
+		display("/");
 		waitForAnyKey();
 	}
 }

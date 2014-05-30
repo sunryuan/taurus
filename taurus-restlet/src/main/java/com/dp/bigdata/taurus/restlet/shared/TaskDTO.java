@@ -17,6 +17,8 @@ public class TaskDTO implements Serializable {
 	private String taskid;
 
 	private String name;
+	
+	private String appName;
 
 	private String creator;
 
@@ -209,6 +211,7 @@ public class TaskDTO implements Serializable {
 		task.setUpdatetime(updatetime);
 		task.setWaittimeout(waittimeout);
 		task.setHadoopname(hadoopName);
+		task.setAppname(appName);
 		return task;
 	}
 
@@ -367,5 +370,13 @@ public class TaskDTO implements Serializable {
 	public void setWaittimeout(Integer waittimeout) {
 		this.waittimeout = waittimeout;
 	}
+
+	public String getAppName() {
+	   return appName;
+   }
+
+	public void setAppName(String appName) {
+	   this.appName = appName;
+   }
 
 }

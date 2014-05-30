@@ -1,4 +1,4 @@
-function login(){
+function login(url){
 	$.ajax({
 		url: 'login.do',
 		data: {
@@ -12,10 +12,18 @@ function login(){
 				$(".alert").alert();
 			},
 			200 : function(){
-				window.location="index.jsp";
+				if(url=='')
+					window.location="index.jsp";
+				else{
+					window.location=url;
+				}
 			},
 			201 : function(){
-				window.location="user.jsp";
+				if(url=='')
+					window.location="index.jsp";
+				else{
+					window.location=url;
+				}
 			}
 		}
 	});
@@ -36,8 +44,8 @@ function logout(){
 	return false;
 }
 
-function EnterTo(){
+function EnterTo(url){
 	if (window.event.keyCode == 13){
-		login();
+		login(url);
 	}
 }
